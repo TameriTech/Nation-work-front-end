@@ -1,3 +1,4 @@
+"use client";
 import { StatCard } from "./StatCard";
 import { CurrentServiceCard } from "./CurrentServiceCard";
 import { RecentActivityTable } from "./RecentActivityTable";
@@ -10,6 +11,9 @@ import {
   AvatarImage,
 } from "@/app/components/ui/avatar";
 import { Icon } from "@iconify/react";
+import { ServiceFormWizard } from "@/app/components/shared/service-form/ServiceFormWizard";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const activities = [
   {
@@ -106,13 +110,13 @@ export const DashboardContent = () => {
             </div>
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm py-2 text-muted-foreground">
                   Prochain service
                 </p>
                 <p className="text-xl font-bold">14h - 26/12/25</p>
               </div>
-              <Avatar className="h-10 w-10">
-                <AvatarImage src="" alt="Provider" />
+              <Avatar className="h-10 w-10 rounded-sm">
+                <AvatarImage src="/images/image.png" alt="Provider" />
                 <AvatarFallback>P</AvatarFallback>
               </Avatar>
             </div>

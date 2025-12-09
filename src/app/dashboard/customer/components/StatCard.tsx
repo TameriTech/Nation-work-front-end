@@ -29,7 +29,7 @@ export const StatCard = ({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden bg-white text-gray-900 rounded-[30px]",
+        "relative overflow-hidden p-3 bg-white text-gray-900 rounded-[30px]",
         isPrimary && "bg-blue-900 text-primary-foreground"
       )}
     >
@@ -64,7 +64,7 @@ export const StatCard = ({
             </Button>
           )}
         </div>
-        <div className="mt-2">
+        <div className="mt-">
           <p
             className={cn(
               "text-sm",

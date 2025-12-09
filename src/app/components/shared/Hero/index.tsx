@@ -1,7 +1,6 @@
 "use client";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
-import HeroSlide from "./HeroSlide";
 
 export function Hero() {
   const [emblaRef, emblaApi] = useEmblaCarousel({

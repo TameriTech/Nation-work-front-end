@@ -56,9 +56,9 @@ export const CurrentServiceCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-start gap-3">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={providerAvatar} alt={providerName} />
-            <AvatarFallback>{providerName.charAt(0)}</AvatarFallback>
+          <Avatar className="h-10 w-10 rounded-sm">
+            <AvatarImage src="/images/image.png" alt="Provider" />
+            <AvatarFallback>P</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <p className="font-medium text-gray-800">{providerName}</p>

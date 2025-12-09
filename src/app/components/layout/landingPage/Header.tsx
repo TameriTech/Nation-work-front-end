@@ -17,10 +17,15 @@ export default function Header() {
           </a>
         </nav>
         <div className="flex text-base gap-3">
-          <button className="px-4 py-2 text-gray-700">Se connecter</button>
-          <button className="px-4 py-2 rounded-2xl bg-blue-900 text-white">
+          <a href="/dashboard/customer" className="px-4 py-2 text-gray-700">
+            Se connecter
+          </a>
+          <a
+            href="/dashboard/customer"
+            className="px-4 py-2 rounded-2xl bg-blue-900 text-white"
+          >
             Créer un compte
-          </button>
+          </a>
         </div>
       </div>
     </header>
