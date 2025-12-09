@@ -1,4 +1,60 @@
 // src/constants.js
+interface NavItem {
+  label: string;
+  href: string;
+  icon: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+export const navigation: NavGroup[] = [
+  {
+    title: "Général",
+    items: [
+      { label: "Accueil", href: "/dashboard/customer", icon: "bi:house" },
+      {
+        label: "Candidatures",
+        href: "/dashboard/customer/candidatures",
+        icon: "bi:people",
+      },
+      {
+        label: "Messages",
+        href: "/dashboard/customer/messaging",
+        icon: "bi:chat",
+      },
+    ],
+  },
+  {
+    title: "Suivi",
+    items: [
+      { label: "Calendrier", href: "/dashboard/customer/calendar", icon: "bi:calendar" },
+      {
+        label: "Services",
+        href: "/dashboard/customer/services",
+        icon: "bi:circle",
+      },
+      {
+        label: "Avis & Compliments",
+        href: "/dashboard/customer/avis",
+        icon: "bi:star",
+      },
+    ],
+  },
+  {
+    title: "Profil & Support",
+    items: [
+      { label: "Profil", href: "/profil", icon: "bi:person" },
+      { label: "Paiements", href: "/paiements", icon: "bi:credit-card" },
+      { label: "Centre d'aide", href: "/aide", icon: "bi:help-circle" },
+      { label: "Paramètres", href: "/parametres", icon: "bi:settings" },
+    ],
+  },
+];
+
+
 
 export const providersByCategory = {
   "Assistance Maison": [

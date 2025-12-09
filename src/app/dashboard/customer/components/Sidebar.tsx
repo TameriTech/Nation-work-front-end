@@ -1,45 +1,7 @@
 import { NavLink } from "@/app/components/layout/customer/NavLink";
 import { SidebarProCard } from "./SidebarProCard";
 import { Icon } from "@iconify/react";
-
-interface NavItem {
-  label: string;
-  href: string;
-  icon: string;
-}
-
-interface NavGroup {
-  title: string;
-  items: NavItem[];
-}
-
-const navigation: NavGroup[] = [
-  {
-    title: "Général",
-    items: [
-      { label: "Accueil", href: "/", icon: "bi:house" },
-      { label: "Candidatures", href: "/candidatures", icon: "bi:people" },
-      { label: "Messages", href: "/messages", icon: "bi:chat" },
-    ],
-  },
-  {
-    title: "Suivi",
-    items: [
-      { label: "Calendrier", href: "/calendrier", icon: "bi:calendar" },
-      { label: "Services", href: "/services", icon: "bi:circle" },
-      { label: "Avis & Compliments", href: "/avis", icon: "bi:star" },
-    ],
-  },
-  {
-    title: "Profil & Support",
-    items: [
-      { label: "Profil", href: "/profil", icon: "bi:person" },
-      { label: "Paiements", href: "/paiements", icon: "bi:credit-card" },
-      { label: "Centre d'aide", href: "/aide", icon: "bi:help-circle" },
-      { label: "Paramètres", href: "/parametres", icon: "bi:settings" },
-    ],
-  },
-];
+import { navigation } from "@/data/contants";
 
 export function Sidebar() {
   return (
@@ -63,8 +25,8 @@ export function Sidebar() {
                 <li key={item.href}>
                   <NavLink
                     href={item.href}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-sidebar-hover"
-                    activeClassName="bg-primary/10 text-"
+                    className="flex items-center gap-3 rounded-[50px] px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-sidebar-hover"
+                    activeClassName="text-white bg-gradient-to-r from-blue-900 to-[#F3742C] shadow-lg"
                   >
                     <Icon icon={item.icon} className="h-5 w-5" />
                     <span>{item.label}</span>
