@@ -7,6 +7,8 @@ import {
 import { GeneraleTabContent } from "./GeneraleTabContent";
 import { ExperienceTabContent } from "./ExperienceTabContent";
 import CompetencesTabContent from "./CompetencesTabContent";
+import DocumentsTabContent from "./DocumentsTabContent";
+import EvaluationsTabContent from "./EvaluationsTabContent";
 
 const tabs = [
   { value: "generale", label: "Générale" },
@@ -44,19 +46,11 @@ export function ProfileTabs() {
       </TabsContent>
 
       <TabsContent value="documents" className="mt-6">
-        <div className="rounded-3xl bg-card shadow-lg p-8">
-          <p className="text-muted-foreground">
-            {"Contenu de l'onglet Documents & Vérification à venir..."}
-          </p>
-        </div>
+        <DocumentsTabContent />
       </TabsContent>
 
       <TabsContent value="evaluation" className="mt-6">
-        <div className="rounded-3xl bg-card shadow-lg p-8">
-          <p className="text-muted-foreground">
-            {"Contenu de l'onglet Évaluation à venir..."}
-          </p>
-        </div>
+        <EvaluationsTabContent />
       </TabsContent>
     </Tabs>
   );
