@@ -78,7 +78,7 @@ export function CustomerProfileSidebar({
   profile = defaultProfile,
 }: CustomerProfileSidebarProps) {
   return (
-    <aside className="w-full max-w-sm">
+    <aside className="w-full max-w-[312px]">
       <div className="rounded-3xl flex flex-col gap-4 bg-transparent overflow-hidden">
         {/* Welcome banner */}
         <div className="relative rounded-[30px] h-32 bg-gradient-to-r from-blue-900 to-blue-900/80 p-6">
