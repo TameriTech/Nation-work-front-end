@@ -1,4 +1,6 @@
+"use client";
 import { Icon } from "@iconify/react";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   title?: string;
@@ -15,6 +17,7 @@ export default function Header({
   userRole = "Etudiante / Ménagère",
   userAvatar,
 }: HeaderProps) {
+  const page = usePathname.name;
   return (
     <header className="w-full sticky top-0 p-2.5 rounded-[30px] bg-white shadow-sm z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -22,10 +25,20 @@ export default function Header({
           <img src="/icons/logo-text.png" alt="Logo" className="h-14" />
         </h1>
         <nav className="hidden md:flex gap-6 font-medium text-gray-700 text-base">
-          <a href="/dashboard/freelancer" className="hover:text-orange-500">
+          <a
+            href="/dashboard/freelancer"
+            className={
+              page == "/dashboard/freelancer"
+                ? "text-orange-500"
+                : "hover:text-orange-500"
+            }
+          >
             Votre profile
           </a>
-          <a href="#" className="hover:text-orange-500">
+          <a
+            href="/dashboard/freelancer/jobs"
+            className={"hover:text-orange-500"}
+          >
             Trouver une offre
           </a>
           <a href="#" className="hover:text-orange-500">
