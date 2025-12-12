@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Footer } from "./components/layout/landingPage/Footer";
 import { CTA } from "./components/shared/CTA";
 import { Testimonials } from "./components/shared/Testimonials";
