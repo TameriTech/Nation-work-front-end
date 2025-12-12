@@ -20,9 +20,9 @@ const Step2Categories = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 bg-transparent">
       {/* Title */}
-      <h2 className="text-xl font-medium text-foreground">
+      <h2 className="text-xl font-medium text-gray-800">
         Pour quoi êtes vous doués ?
       </h2>
 
@@ -33,11 +33,11 @@ const Step2Categories = () => {
         className="w-full text-left"
       >
         <div className="relative border border-border rounded-2xl p-4 hover:border-accent transition-colors cursor-pointer">
-          <label className="text-xs text-muted-foreground block mb-1">
+          <label className="text-xs text-gray-500 block mb-1">
             Catégorie disponible
           </label>
           <div className="flex items-center justify-between">
-            <span className="text-foreground font-medium">
+            <span className="text-gray-800 font-medium">
               Ajouter une Catégorie
             </span>
             <Icon
@@ -51,7 +51,7 @@ const Step2Categories = () => {
       {/* Selected Categories */}
       {data.categories.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground">
+          <h3 className="text-sm font-medium text-gray-800">
             Catégories sélectionnées
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -79,14 +79,14 @@ const Step2Categories = () => {
         <Button
           variant="secondary"
           onClick={prevStep}
-          className="px-10 py-3 rounded-full bg-muted text-muted-foreground font-medium"
+          className="px-10 py-3 rounded-full bg-gray-200 text-gray-800 font-medium"
         >
           Précédent
         </Button>
         <Button
           onClick={handleNext}
           disabled={!canProceed}
-          className="px-10 py-3 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground font-medium disabled:opacity-50"
+          className="px-10 py-3 rounded-full bg-blue-900 hover:bg-blue-900/90 text-white font-medium disabled:opacity-50"
         >
           Suivant
         </Button>

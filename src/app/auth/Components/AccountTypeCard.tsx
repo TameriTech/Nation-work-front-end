@@ -20,21 +20,28 @@ const AccountTypeCard = ({
       onClick={onClick}
       className={cn(
         "flex-1 p-5 rounded-xl border-2 text-left transition-all duration-200",
-        "hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
-        selected ? "border-accent bg-accent/5" : "border-border bg-card"
+        "hover:border-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900",
+        selected ? "border-blue-900 bg-blue-900/5" : "border-blue-500 bg-white"
       )}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <h3 className="text-lg font-semibold text-accent">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <h3
+            className={cn(
+              "text-lg font-semibold",
+              selected ? "text-blue-500" : "text-blue-500"
+            )}
+          >
+            {title}
+          </h3>
+          <p className="text-sm text-gray-700">{description}</p>
         </div>
         <div
           className={cn(
             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
             selected
-              ? "border-accent bg-accent"
-              : "border-muted-foreground/30 bg-transparent"
+              ? "border-blue-900 bg-blue-900"
+              : "border-gray-900/30 bg-transparent"
           )}
         >
           {selected && (

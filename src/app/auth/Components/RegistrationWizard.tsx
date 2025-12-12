@@ -13,7 +13,7 @@ const RegistrationWizard = () => {
     if (data.accountType === "freelancer") {
       return (
         <>
-          Créez un compte <span className="text-accent">Freelancer</span>
+          Créez un compte <span className="text-blue-900">Freelancer</span>
         </>
       );
     }
@@ -46,9 +46,9 @@ const RegistrationWizard = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-card rounded-3xl shadow-lg p-8 md:p-12">
+      <div className="bg-white rounded-3xl p-8 md:p-12">
         {/* Header */}
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
           {getTitle()}
         </h1>
 

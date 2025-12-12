@@ -79,10 +79,13 @@ const CategoryModal = ({
       <DialogContent className="sm:max-w-lg p-8 rounded-3xl">
         <DialogHeader className="space-y-4">
           <div className="text-center">
-            <span className="text-primary font-bold text-xl">Nation</span>
-            <span className="text-accent font-bold text-xl ml-1">Work</span>
+            <img
+              src="/icons/logo-text.png"
+              alt="Logo"
+              className="mr-auto h-14"
+            />
           </div>
-          <DialogTitle className="text-xl font-bold text-foreground">
+          <DialogTitle className="text-xl font-bold text-gray-800">
             Trouvez vos Catégorie - Max 5
           </DialogTitle>
         </DialogHeader>
@@ -90,16 +93,16 @@ const CategoryModal = ({
         <div className="mt-4 space-y-6">
           {/* Search Input */}
           <div className="relative">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground px-4">
+            <div className="space-y-1 border rounded-2xl p-1">
+              <label className="text-xs text-gray-500 px-4">
                 Catégorie disponible
               </label>
-              <div className="relative">
+              <div className="">
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder=""
-                  className="h-12 rounded-2xl border-border pl-4 pr-12"
+                  className="h-12 w-full bg-transparent border-0 text-foreground font-medium focus:outline-none focus:ring-0 focus:border-0 pl-4 pr-12"
                 />
                 <Icon
                   icon={"bi:search"}
@@ -125,8 +128,8 @@ const CategoryModal = ({
                     "flex items-center justify-between px-4 py-3 rounded-full border-2 text-left transition-all",
                     "text-sm font-medium",
                     isSelected
-                      ? "border-accent text-accent bg-accent/5"
-                      : "border-border text-accent hover:border-accent/50",
+                      ? "border-blue-900 text-blue-900 bg-blue-900/5"
+                      : "border-border text-blue-900 hover:border-blue-900/50",
                     isDisabled && "opacity-50 cursor-not-allowed"
                   )}
                 >
@@ -155,7 +158,7 @@ const CategoryModal = ({
           <div className="flex justify-end">
             <Button
               onClick={handleConfirm}
-              className="px-8 py-3 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground font-medium"
+              className="px-8 py-3 rounded-full bg-blue-900 hover:bg-blue-900/90 text-white font-medium"
             >
               Ajouter
             </Button>

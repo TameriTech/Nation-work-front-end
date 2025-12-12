@@ -4,7 +4,7 @@ import RegistrationWizard from "@/app/auth/Components/RegistrationWizard";
 const RegisterPage = () => {
   return (
     <RegistrationProvider>
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="rounded-4xl p-0 bg-white flex items-center justify-center">
         <RegistrationWizard />
       </div>
     </RegistrationProvider>
