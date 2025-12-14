@@ -41,7 +41,10 @@ export default function Header({
           >
             Trouver une offre
           </a>
-          <a href="#" className="hover:text-orange-500">
+          <a
+            href="/dashboard/freelancer/agenda"
+            className="hover:text-orange-500"
+          >
             Agenda
           </a>
         </nav>

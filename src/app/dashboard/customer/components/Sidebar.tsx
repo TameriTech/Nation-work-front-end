@@ -1,7 +1,7 @@
 import { NavLink } from "@/app/components/layout/customer/NavLink";
 import { SidebarProCard } from "./SidebarProCard";
 import { Icon } from "@iconify/react";
-import { navigation } from "@/data/contants";
+import { navigation } from "@/data/constants";
 
 export function Sidebar() {
   return (

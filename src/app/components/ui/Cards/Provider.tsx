@@ -8,7 +8,7 @@ type Provider = {
 type ProviderCardProps = {
   provider: Provider;
   index: number;
-  renderStars: (rate: number) => JSX.Element;
+  renderStars: (rate: number) => React.ReactNode;
 };
 
 export function ProviderCard({

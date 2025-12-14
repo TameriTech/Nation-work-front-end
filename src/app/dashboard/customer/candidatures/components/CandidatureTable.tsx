@@ -22,21 +22,7 @@ import {
 } from "@/app/components/ui/table";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-
-interface Candidature {
-  id: string;
-  offerTitle: string;
-  offerStatus: "draft" | "published" | "closed" | "canceled" | "pending";
-  provider?: {
-    name: string;
-    phone: string;
-    avatar?: string;
-  };
-  candidacyDate: string;
-  averageNote: number;
-  candidacyStatus: "pending" | "accepted" | "rejected";
-  amount: string;
-}
+import { Candidature } from "@/app/types/candidature";
 
 interface CandidatureTableProps {
   candidatures: Candidature[];

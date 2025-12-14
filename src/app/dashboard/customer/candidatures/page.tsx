@@ -1,16 +1,9 @@
 "use client";
 import { CandidatureTable } from "./components/CandidatureTable";
-import { StatCard } from "./components/StatCard";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Button } from "@/app/components/ui/button";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/app/components/ui/avatar";
-import { Icon } from "@iconify/react";
+import { Candidature } from "@/app/types/candidature";
 
-const activities = [
+const activities: Candidature[] = [
   {
     id: "1",
     offerTitle: "Develo...",

@@ -36,12 +36,7 @@ export interface Candidature {
     phone: string;
     avatar?: string;
   };
-  candidates?: {
-    [key: string]: {
-      name: string;
-      avatar?: string;
-    };
-  };
+  candidates?: { name: string; avatar?: string }[];
 }
 
 interface CandidatureTableProps {

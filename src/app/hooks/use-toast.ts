@@ -150,7 +150,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
-      onOpenChange: ({open}: {open: boolean}) => {
+      onOpenChange: (open: boolean) => {
         if (!open) dismiss();
       },
     },

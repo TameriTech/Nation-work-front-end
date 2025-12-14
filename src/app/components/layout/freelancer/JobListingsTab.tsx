@@ -26,19 +26,19 @@ export function JobListings() {
         <TabsList className="bg-transparent rounded-none w-full justify-start gap-8 h-auto p-0">
           <TabsTrigger
             value="liste"
-            className="data-[state=active]:text-orange-500 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3 text-muted-foreground"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
           >
             {"Liste d'emploi"}
           </TabsTrigger>
           <TabsTrigger
             value="carte"
-            className="data-[state=active]:text-orange-500 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3 text-muted-foreground"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
           >
             {"Carte d'emploi"}
           </TabsTrigger>
           <TabsTrigger
             value="favorites"
-            className="data-[state=active]:text-orange-500 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3 text-muted-foreground"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
           >
             Favorites
           </TabsTrigger>

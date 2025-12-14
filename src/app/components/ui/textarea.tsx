@@ -3,10 +3,13 @@ import * as React from "react";
 import { cn } from "@/app/lib/utils";
 
 export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: boolean;
+  helperText?: string;
+}
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, error, helperText, ...props }, ref) => {
     return (
       <textarea
         className={cn(

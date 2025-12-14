@@ -1,22 +1,25 @@
 "use client";
 import { randomInt } from "crypto";
 import { useRef, useState, useEffect } from "react";
-import { providersByCategory } from "@/data/contants";
+import { providersByCategory } from "@/data/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProviderCard } from "../../ui/Cards/Provider";
+import { ProviderCategory } from "@/app/types/provider";
 
 export function ProvidersList() {
-  const sectionsRef = useRef([]);
+  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
   const [activeTab, setActiveTab] = useState(0);
 
-  const categories = Object.keys(providersByCategory);
+  const categories = Object.keys(providersByCategory) as ProviderCategory[];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = sectionsRef.current.indexOf(entry.target);
+            const index = sectionsRef.current.indexOf(
+              entry.target as HTMLElement
+            );
             if (index !== -1) setActiveTab(index);
           }
         });
@@ -32,7 +35,7 @@ export function ProvidersList() {
   }, []);
 
   // Fonction pour afficher les étoiles en fonction de la note
-  const renderStars = (rate) => {
+  const renderStars = (rate: number) => {
     const fullStars = Math.floor(rate);
     const halfStar = rate - fullStars >= 0.5;
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);

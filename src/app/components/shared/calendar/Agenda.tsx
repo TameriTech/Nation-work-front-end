@@ -1,107 +1,38 @@
 "use client";
 import { useRef, useState } from "react";
 
-import { CalendarHeader } from "./CalendarHeader";
+import { CalendarHeader } from "./AgendaHeader";
 import {
   CalendarEventCard,
   CalendarEvent,
   EventStatus,
-} from "./CalendarEventCard";
+} from "./AgendaEventCard";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { EventContentArg } from "@fullcalendar/core";
 
 // Sample event data
-const sampleEvents: CalendarEvent[] = [
-  {
-    id: "1",
-    title: "Nom du service",
-    start: new Date(2025, 8, 22, 9, 0),
-    end: new Date(2025, 8, 22, 10, 0),
-    price: 5000,
-    status: "completed",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-  },
-  {
-    id: "2",
-    title: "Nom du service",
-    start: new Date(2025, 8, 22, 11, 0),
-    end: new Date(2025, 8, 22, 12, 0),
-    price: 7800,
-    status: "published",
-  },
-  {
-    id: "3",
-    title: "Nom du service",
-    start: new Date(2025, 8, 22, 12, 0),
-    end: new Date(2025, 8, 22, 13, 0),
-    price: 17000,
-    status: "assigned",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-  },
-  {
-    id: "4",
-    title: "Nom du service",
-    start: new Date(2025, 8, 24, 9, 0),
-    end: new Date(2025, 8, 24, 10, 0),
-    price: 300,
-    status: "completed",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-  },
-  {
-    id: "5",
-    title: "Nom du service",
-    start: new Date(2025, 8, 24, 10, 0),
-    end: new Date(2025, 8, 24, 11, 0),
-    price: 7800,
-    status: "published",
-  },
-  {
-    id: "6",
-    title: "Nom du service",
-    start: new Date(2025, 8, 24, 12, 0),
-    end: new Date(2025, 8, 24, 13, 0),
-    price: 6900,
-    status: "published",
-  },
-  {
-    id: "7",
-    title: "Nom du service",
-    start: new Date(2025, 8, 27, 9, 0),
-    end: new Date(2025, 8, 27, 10, 0),
-    price: 36000,
-    status: "upcoming",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
-  },
-  {
-    id: "8",
-    title: "Nom du service",
-    start: new Date(2025, 8, 27, 10, 0),
-    end: new Date(2025, 8, 27, 11, 0),
-    price: 17000,
-    status: "upcoming",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
-  },
-  {
-    id: "9",
-    title: "Nom du service",
-    start: new Date(2025, 8, 28, 12, 0),
-    end: new Date(2025, 8, 28, 13, 0),
-    price: 5000,
-    status: "completed",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-  },
-];
+interface calendarEventProps {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  price: number;
+  status: EventStatus;
+  avatarUrl?: string;
+}
+interface serviceCalendarProps {
+  events: CalendarEvent[];
+  onEventClick?: (event: calendarEventProps) => void;
+  showPublishService?: boolean;
+}
 
 const frenchDays = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
-export function ServiceCalendar() {
+export function ServiceCalendar({
+  events,
+  showPublishService,
+}: serviceCalendarProps) {
   const calendarRef = useRef<FullCalendar>(null);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 24));
 
@@ -142,13 +73,13 @@ export function ServiceCalendar() {
   };
 
   const renderEventContent = (eventInfo: EventContentArg) => {
-    const event = sampleEvents.find((e) => e.id === eventInfo.event.id);
+    const event = events.find((e) => e.id === eventInfo.event.id);
     if (!event) return null;
 
     return <CalendarEventCard event={event} />;
   };
 
-  const calendarEvents = sampleEvents.map((event) => ({
+  const calendarEvents = events.map((event) => ({
     id: event.id,
     title: event.title,
     start: event.start,
@@ -163,6 +94,7 @@ export function ServiceCalendar() {
         onNextWeek={handleNextWeek}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
+        showPublishServiceButton={showPublishService}
       />
 
       <div className="mt-6 calendar-wrapper">

@@ -1,3 +1,4 @@
+import  {calendarEventProps} from "@/app/types/calender-events"
 // src/constants.js
 interface NavItem {
   label: string;
@@ -138,5 +139,93 @@ export const CATEGORY_SERVICES/*: ServiceMap*/ = {
     "Robotique",
   ],
 };
+
+
+export const sampleEvents: calendarEventProps[] = [
+  {
+    id: "1",
+    title: "Nom du service",
+    start: new Date(2025, 8, 22, 9, 0),
+    end: new Date(2025, 8, 22, 10, 0),
+    price: 5000,
+    status: "completed",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+  },
+  {
+    id: "2",
+    title: "Nom du service",
+    start: new Date(2025, 8, 22, 11, 0),
+    end: new Date(2025, 8, 22, 12, 0),
+    price: 7800,
+    status: "published",
+  },
+  {
+    id: "3",
+    title: "Nom du service",
+    start: new Date(2025, 8, 22, 12, 0),
+    end: new Date(2025, 8, 22, 13, 0),
+    price: 17000,
+    status: "assigned",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+  },
+  {
+    id: "4",
+    title: "Nom du service",
+    start: new Date(2025, 8, 24, 9, 0),
+    end: new Date(2025, 8, 24, 10, 0),
+    price: 300,
+    status: "completed",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+  },
+  {
+    id: "5",
+    title: "Nom du service",
+    start: new Date(2025, 8, 24, 10, 0),
+    end: new Date(2025, 8, 24, 11, 0),
+    price: 7800,
+    status: "published",
+  },
+  {
+    id: "6",
+    title: "Nom du service",
+    start: new Date(2025, 8, 24, 12, 0),
+    end: new Date(2025, 8, 24, 13, 0),
+    price: 6900,
+    status: "published",
+  },
+  {
+    id: "7",
+    title: "Nom du service",
+    start: new Date(2025, 8, 27, 9, 0),
+    end: new Date(2025, 8, 27, 10, 0),
+    price: 36000,
+    status: "upcoming",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
+  },
+  {
+    id: "8",
+    title: "Nom du service",
+    start: new Date(2025, 8, 27, 10, 0),
+    end: new Date(2025, 8, 27, 11, 0),
+    price: 17000,
+    status: "upcoming",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
+  },
+  {
+    id: "9",
+    title: "Nom du service",
+    start: new Date(2025, 8, 28, 12, 0),
+    end: new Date(2025, 8, 28, 13, 0),
+    price: 5000,
+    status: "completed",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+  },
+];
 
 //export type CategoryName = keyof typeof SERVICE_CATEGORIES;

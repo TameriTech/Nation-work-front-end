@@ -1,10 +1,11 @@
 "use client";
 import useEmblaCarousel from "embla-carousel-react";
-import { CATEGORY_SERVICES } from "@/data/contants";
+import { CATEGORY_SERVICES } from "@/data/constants";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useCallback, useState } from "react";
 import { ServiceCard } from "../../ui/Cards/Service";
 import { Icon } from "@iconify/react";
+import { CategoryName } from "@/app/types/service";
 
 export function Services() {
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -33,7 +34,7 @@ export function Services() {
   const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
   //
-  const [active, setActive] = useState("Assistance Maison");
+  const [active, setActive] = useState<CategoryName>("Assistance Maison");
 
   const services = CATEGORY_SERVICES[active];
 

@@ -1,5 +1,6 @@
-import * as React from "react";
+/*import * as React from "react";
 import * as RechartsPrimitive from "recharts";
+import type { TooltipProps, ValueType, NameType } from "recharts";
 
 import { cn } from "@/app/lib/utils";
 
@@ -102,7 +103,7 @@ const ChartTooltip = RechartsPrimitive.Tooltip;
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+  TooltipProps<ValueType, NameType> &
     React.ComponentProps<"div"> & {
       hideLabel?: boolean;
       hideIndicator?: boolean;
@@ -361,3 +362,5 @@ export {
   ChartLegendContent,
   ChartStyle,
 };
+*/
+export {};

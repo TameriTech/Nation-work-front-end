@@ -38,7 +38,7 @@ const ConversationList = ({
   };
 
   return (
-    <div className="flex flex-col bg-white rounded-[30px] h-full border-r border-border">
+    <div className="flex flex-col bg-white rounded-[30px] h-full">
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-blue-900 mb-4">
           Discussion avec les prestataires

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
-import { Dot } from "lucide-react";
 
 import { cn } from "@/app/lib/utils";
+import { Icon } from "@iconify/react";
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
@@ -61,7 +61,7 @@ const InputOTPSeparator = React.forwardRef<
   React.ComponentPropsWithoutRef<"div">
 >(({ ...props }, ref) => (
   <div ref={ref} role="separator" {...props}>
-    <Dot />
+    <Icon icon={"bi:dot"} />
   </div>
 ));
 InputOTPSeparator.displayName = "InputOTPSeparator";

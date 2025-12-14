@@ -14,6 +14,7 @@ interface CalendarHeaderProps {
   onNextWeek: () => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  showPublishServiceButton?: boolean;
 }
 
 const months = [
@@ -50,6 +51,7 @@ export function CalendarHeader({
   onNextWeek,
   onPrevMonth,
   onNextMonth,
+  showPublishServiceButton,
 }: CalendarHeaderProps) {
   const currentMonth = months[currentDate.getMonth()];
   const currentYear = currentDate.getFullYear();
@@ -66,10 +68,13 @@ export function CalendarHeader({
           Calendrier de prestation
         </h1>
         <div className="flex items-center gap-3">
-          <Button className="bg-orange-500 hover:bg-orange-500/90 text-white rounded-full px-6">
-            <Icon icon={"bi:plus"} className="h-4 w-4 mr-2" />
-            Publier un service sur Nation Work
-          </Button>
+          {showPublishServiceButton && (
+            <Button className="bg-orange-500 hover:bg-orange-500/90 text-white rounded-full px-6">
+              <Icon icon={"bi:plus"} className="h-4 w-4 mr-2" />
+              Publier un service sur Nation Work
+            </Button>
+          )}
+
           <Select defaultValue="all">
             <SelectTrigger className="w-[200px] rounded-full bg-white border-border">
               <SelectValue placeholder="Filtre" />
