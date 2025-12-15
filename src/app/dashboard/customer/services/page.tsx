@@ -1,13 +1,5 @@
 import { CandidatureTable, Candidature } from "./components/CandidatureTable";
-import { StatCard } from "./components/StatCard";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Button } from "@/app/components/ui/button";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/app/components/ui/avatar";
-import { Icon } from "@iconify/react";
 
 const activities: Candidature[] = [
   {

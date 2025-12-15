@@ -1,5 +1,6 @@
 "use client";
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 interface HeaderProps {
@@ -35,12 +36,12 @@ export default function Header({
           >
             Votre profile
           </a>
-          <a
+          <Link
             href="/dashboard/freelancer/jobs"
             className={"hover:text-orange-500"}
           >
             Trouver une offre
-          </a>
+          </Link>
           <a
             href="/dashboard/freelancer/agenda"
             className="hover:text-orange-500"

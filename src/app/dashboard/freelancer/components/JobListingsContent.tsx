@@ -1,31 +1,29 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { Input } from "../../ui/input";
-import { Button } from "../../ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Button } from "@/app/components/ui/button";
 import { JobCard } from "./JobCard";
 import { useState } from "react";
-import { JobCardProps } from "@/app/types/job";
 
-interface JobHistoryContentProps {
+interface JobListingsContentProps {
   favorites: number[];
   toggleFavorite: (id: number) => void;
 }
 
-export function JobHistoryContent({
+export function JobListingsContent({
   favorites,
   toggleFavorite,
-}: JobHistoryContentProps) {
+}: JobListingsContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
 
-  const MOCK_JOBS: JobCardProps[] = [
+  const MOCK_JOBS = [
     {
       id: 1,
       title: "Titre du Job",
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "canceled",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -39,7 +37,6 @@ export function JobHistoryContent({
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "inProgress",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -53,7 +50,6 @@ export function JobHistoryContent({
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "completed",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -67,7 +63,6 @@ export function JobHistoryContent({
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "canceled",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -81,7 +76,6 @@ export function JobHistoryContent({
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "completed",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -95,7 +89,6 @@ export function JobHistoryContent({
       price: "1000 Frs",
       duration: "30j",
       type: "à Distance",
-      status: "inProgress",
       description:
         "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
       skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
@@ -107,6 +100,10 @@ export function JobHistoryContent({
 
   return (
     <>
+      {/* Title */}
+      <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        Trouvez votre parfait Job
+      </h1>
       {/* Search Bars */}
       <div className="flex gap-4 mb-0">
         <div className="flex-1 relative">
@@ -159,6 +156,7 @@ export function JobHistoryContent({
           <JobCard
             key={job.id}
             {...job}
+            showRate={true}
             isFavorite={favorites.includes(job.id)}
             onFavoriteClick={() => toggleFavorite(job.id)}
           />

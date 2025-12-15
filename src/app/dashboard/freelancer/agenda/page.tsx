@@ -1,6 +1,6 @@
 "use client";
-import { AgendaTab } from "@/app/components/layout/freelancer/AgendaTab";
-import { AgendaSidebar } from "@/app/components/layout/freelancer/AgendaSidebar";
+import { AgendaTab } from "../components/AgendaTab";
+import { AgendaSidebar } from "../components/AgendaSidebar";
 
 export default function AgendasPage() {
   return (

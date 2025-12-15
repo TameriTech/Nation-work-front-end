@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { ServiceCalendar } from "../../shared/calendar/Agenda";
+import { ServiceCalendar } from "@/app/components/shared/calendar/Agenda";
 import { sampleEvents } from "@/data/constants";
 import { JobHistoryContent } from "./JobHistoriqueList";
 import { PaymentsTable } from "./PaymentsTable";

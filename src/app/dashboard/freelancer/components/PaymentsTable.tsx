@@ -23,6 +23,14 @@ import {
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { PaymentProps } from "@/app/types/payments";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+import { Pagination } from "@/app/components/ui/pagination";
 
 interface PaymentsTableProps {
   payments: PaymentProps[];
@@ -47,41 +55,74 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   return (
     <Card className="bg-white shadow-none text-gray-800 rounded-[30px]">
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Activité récente
+      <CardHeader className="">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-blue-900 mb-4">
+          Historique des paiements
         </CardTitle>
 
-        {/* Search bar */}
-        <div className="relative max-w-[400px] flex items-center">
-          <input
-            type="text"
-            placeholder="Effectuer une recherche"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white text-gray-900 placeholder:text-gray-500 border rounded-[50px] text-sm py-2 pr-10 pl-4 focus:outline-none transition-colors"
-          />
-          {searchQuery ? (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
-            </button>
-          ) : null}
-          <Icon
-            icon={"bx:search"}
-            className="absolute right-2 h-8 w-8 text-blue-900"
-          />
-        </div>
+        <div className="flex items-center justify-between space-y-0 pb-4">
+          {/* Search bar */}
+          <div className="relative max-w-[400px] flex items-center">
+            <input
+              type="text"
+              placeholder="Effectuer une recherche"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white text-gray-900 placeholder:text-gray-500 border rounded-[50px] text-sm py-2 pr-10 pl-4 focus:outline-none transition-colors"
+            />
+            {searchQuery ? (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
+              </button>
+            ) : null}
+            <Icon
+              icon={"bx:search"}
+              className="absolute right-2 h-8 w-8 text-blue-900"
+            />
+          </div>
 
-        <div className="flex gap-2">
+          <div className="relative max-w-[400px] flex items-center">
+            <Select>
+              <SelectTrigger className="w-[200px] rounded-full bg-white border-border">
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="paid">Payé</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="canceled">Annulé</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Button
-            variant="outline"
-            className="gap-1 text-red-900 bg-transparent rounded-[50px] border border-red-900"
+            variant="ghost"
+            className="text-sm text-white bg-blue-900 rounded-full"
           >
-            <Icon icon={"bi:x"} className="h-4 w-4" />
-            Tout rejeter
+            <Icon icon={"bx:bx-filter"} className="h-4 w-4 text-white" />
+            <span className="hidden">Filtres avancés</span>
+          </Button>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="gap-1 text-white bg-blue-900 rounded-[50px]"
+            >
+              {"Exporter l'historique"}
+            </Button>
+          </div>
+          <Button
+            variant="ghost"
+            className="text-sm text-blue-900 bg-white rounded-full border border-blue-900"
+          >
+            <Icon
+              icon={"bx:bx-dots-vertical"}
+              className="h-4 w-4 text-blue-900"
+            />
+            <span className="hidden">Filtres avancés</span>
           </Button>
         </div>
       </CardHeader>
@@ -170,6 +211,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
             })}
           </TableBody>
         </Table>
+        <Pagination />
       </CardContent>
     </Card>
   );

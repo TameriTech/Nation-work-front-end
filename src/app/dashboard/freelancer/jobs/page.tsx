@@ -1,6 +1,6 @@
 "use client";
-import { JobFilters } from "@/app/components/layout/freelancer/JobFilters";
-import { JobListings } from "@/app/components/layout/freelancer/JobListingsTab";
+import { JobFilters } from "../components/JobFilters";
+import { JobListings } from "../components/JobListingsTab";
 
 export default function JobListingsPage() {
   return (

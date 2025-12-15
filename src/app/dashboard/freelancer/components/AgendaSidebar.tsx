@@ -1,7 +1,7 @@
 import { Button } from "@/app/components/ui/button";
 import { Icon } from "@iconify/react";
 import { JobCard } from "./JobCard";
-import { Badge } from "../../ui/badge";
+import { Badge } from "@/app/components/ui/badge";
 
 interface JobFiltersProps {
   onApplyFilters?: () => void;

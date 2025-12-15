@@ -1,6 +1,6 @@
-import { CustomerHeader } from "@/app/components/layout/freelancer/CustomerHeader";
-import { CustomerProfileSidebar } from "@/app/components/layout/freelancer/CustomerProfileSidebar";
-import { ProfileTabs } from "@/app/components/layout/freelancer/ProfileTabs";
+import { CustomerHeader } from "./components/CustomerHeader";
+import { CustomerProfileSidebar } from "./components/CustomerProfileSidebar";
+import { ProfileTabs } from "./components/ProfileTabs";
 
 export default function CustomerHomePage() {
   return (

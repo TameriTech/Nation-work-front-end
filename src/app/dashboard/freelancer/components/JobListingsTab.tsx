@@ -1,10 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Input } from "@/app/components/ui/input";
-import { Button } from "@/app/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { JobCard } from "./JobCard";
-import { Icon } from "@iconify/react";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { JobListingsContent } from "./JobListingsContent";
 import { FavoritesJobsContent } from "./FavoritesJobsContent";
