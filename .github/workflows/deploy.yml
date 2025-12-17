@@ -28,9 +28,9 @@ jobs:
             ./ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/root/frontend/
 
-      - name: Run make start
+      - name: Run application
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /root/frontend/docker
-            make start
+            make prod
           EOF
