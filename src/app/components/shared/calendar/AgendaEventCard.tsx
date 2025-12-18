@@ -74,38 +74,23 @@ export function CalendarEventCard({ event }: CalendarEventCardProps) {
 
   return (
     <div
-      className={`h-full w-full rounded-[20px] border-2 ${config.borderClass} ${config.bgClass} p-3 overflow-hidden`}
+      className={`h-full w-full rounded-r-[20px] border-l-2 border-r-0 ${config.borderClass} ${config.bgClass} p-3 overflow-hidden`}
     >
-      <div className="flex items-start gap-2">
-        <Avatar className="h-10 w-10 shrink-0">
-          <AvatarImage src={event.avatarUrl} alt="Avatar" />
-          <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-            {event.avatarFallback || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <Badge
-            variant="outline"
-            className={`${config.badgeClass} text-xs font-medium px-2 py-0.5 mb-1`}
-          >
-            <Icon icon={StatusIcon} className="h-3 w-3 mr-1" />
-            {config.label}
-          </Badge>
-          <p className="text-xs text-muted-foreground">
-            {formatTime(event.start)} – {formatTime(event.end)}
-          </p>
-        </div>
-      </div>
-      <div className="mt-2">
-        <p className="font-medium text-sm text-foreground truncate">
+      <div className="space-y-1 flex-col items-start gap-2">
+        <p className="text-[8px] text-gray-500">
+          {formatTime(event.start)} – {formatTime(event.end)}
+        </p>
+        <p className="font-medium text-[9px] text-gray-800 truncate">
           {event.title}
         </p>
-        <p className="text-xs text-muted-foreground">
-          {formatTime(event.start)} - {formatTime(event.end)}
-        </p>
-        <p className={`font-bold text-sm mt-1 ${config.priceClass}`}>
-          {formatPrice(event.price)}
-        </p>
+        <p className="text-[8px] text-gray-700">intitulé de la prestation</p>
+        <Badge
+          variant="outline"
+          className={`${config.badgeClass} text-xs font-medium px-2 py-0.5 mb-1`}
+        >
+          <Icon icon={StatusIcon} className="h-3 w-3 mr-1" />
+          {config.label}
+        </Badge>
       </div>
     </div>
   );
