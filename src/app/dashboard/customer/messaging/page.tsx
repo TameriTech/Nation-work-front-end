@@ -140,7 +140,10 @@ const sampleMessages: Record<string, Message[]> = {
 };
 
 const MessagingPage = () => {
-  const [activeConversation, setActiveConversation] = useState<string>("1");
+  const [activeConversation, setActiveConversation] = useState<string | null>(
+    "1"
+  );
+  const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] =
     useState<Record<string, Message[]>>(sampleMessages);
 
@@ -148,9 +151,15 @@ const MessagingPage = () => {
     ...sampleRecentConversations,
     ...sampleAllConversations,
   ];
+
   const currentConversation = allConversations.find(
     (c) => c.id === activeConversation
   );
+
+  const handleSelectConversation = (id: string) => {
+    setActiveConversation(id);
+    setShowChat(true); // 👉 mobile: bascule vers le chat
+  };
 
   const handleSendMessage = (content: string) => {
     if (!activeConversation) return;
@@ -172,24 +181,47 @@ const MessagingPage = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-transparent overflow-hidden gap-2.5">
-      <div className="w-80 shrink-0">
-        <ConversationList
-          recentConversations={sampleRecentConversations}
-          allConversations={sampleAllConversations}
-          activeId={activeConversation}
-          onSelect={setActiveConversation}
-        />
+    <div className="flex gap-2 h-[calc(100vh-4rem)] bg-transparent overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`
+          w-full md:w-80 shrink-0
+          ${showChat ? "hidden md:block" : "block"}
+        `}
+      >
+        <div
+          className={`
+    w-full md:w-80 shrink-0
+    ${showChat ? "hidden md:block" : "block"}
+  `}
+        >
+          <ConversationList
+            recentConversations={sampleRecentConversations}
+            allConversations={sampleAllConversations}
+            activeId={activeConversation}
+            onSelect={(id) => {
+              setActiveConversation(id);
+              setShowChat(true); // 👈 mobile
+            }}
+          />
+        </div>
       </div>
 
-      <div className="flex-1">
+      {/* Chat area */}
+      <div
+        className={`
+          flex-1
+          ${!showChat ? "hidden md:flex" : "flex"}
+        `}
+      >
         {currentConversation ? (
           <ChatArea
             contactName={currentConversation.name}
             contactAvatar={currentConversation.avatar}
             isTyping={currentConversation.isTyping}
-            messages={messages[activeConversation] || []}
+            messages={messages[activeConversation!] || []}
             onSendMessage={handleSendMessage}
+            onBack={() => setShowChat(false)} // 👈 mobile back
           />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">

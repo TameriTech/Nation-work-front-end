@@ -23,7 +23,7 @@ const job = {
 
 export function AgendaSidebar({ onApplyFilters }: JobFiltersProps) {
   return (
-    <div className="w-[312px] p-2.5 space-y-6 bg-white rounded-3xl flex-shrink-0">
+    <div className="w-full lg:w-[312px] p-4 space-y-6 bg-white rounded-3xl flex-shrink-0">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-blue-900">

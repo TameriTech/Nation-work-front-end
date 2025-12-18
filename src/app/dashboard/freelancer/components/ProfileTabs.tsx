@@ -21,12 +21,12 @@ const tabs = [
 export function ProfileTabs() {
   return (
     <Tabs defaultValue="generale" className="w-full">
-      <TabsList className="w-full py-4 px-2 justify-between bg-white rounded-[30px] h-auto gap-0">
+      <TabsList className="w-full py-4 px-2 justify-between flex-wrap bg-white rounded-[30px] h-auto gap-0">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="relative px-6  text-sm font-medium text-gray-600 rounded-none border-b-2 border-transparent data-[state=active]:border-[#F3742C] data-[state=active]:text-[#F3742C] data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-[#F3742C] hover:border-[#F3742C] transition-colors"
+            className="relative px-4 py-2 text-sm font-medium text-gray-600 border-b-2 border-transparent rounded-none flex-shrink-0 data-[state=active]:border-[#F3742C] data-[state=active]:text-[#F3742C]  data-[state=active]:bg-transparent  hover:text-[#F3742C] transition-colors md:px-6 "
           >
             {tab.label}
           </TabsTrigger>

@@ -26,7 +26,7 @@ const SkillsSection = ({
 }: SkillsSectionProps) => (
   <div className="space-y-4">
     {/* Section Header */}
-    <div className="flex items-center justify-between">
+    <div className="flex flex-wrap gap-2 items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
           <svg

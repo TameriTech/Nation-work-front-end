@@ -3,16 +3,38 @@ import { SidebarProCard } from "./SidebarProCard";
 import { Icon } from "@iconify/react";
 import { navigation } from "@/data/constants";
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   return (
-    <aside className="flex w-56 flex-col bg-white rounded-4xl px-[15px] py-[10px]">
-      {/* Logo */}
-      <div className="mb-8">
-        <span className="text-2xl font-bold">
-          <img src="/icons/logo-text.png" alt="Logo" className="h-12" />
-        </span>
+    <aside
+      className={`
+        fixed lg:static z-50
+        h-full lg:h-auto
+        w-64
+        bg-white rounded-3xl
+        px-4 py-4
+        transform transition-transform duration-300
+        ${open ? "translate-x-0" : "-translate-x-[105%]"}
+        lg:translate-x-0
+      `}
+    >
+      {/* Close button (mobile) */}
+      <div className="flex items-center justify-between">
+        {/* Logo */}
+        <img src="/icons/logo-text.png" className="h-10 mb-6" />
+        <button
+          onClick={onClose}
+          className="lg:hidden mb-4 text-base text-gray-500 bg-gray-50 flex items-center justify-center w-8 h-8 rounded-lg"
+        >
+          <Icon icon="bx:x" className="inline-block" />
+        </button>
       </div>
 
+      {/* Navigation */}
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
         {navigation.map((group) => (
@@ -38,7 +60,6 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Pro Card */}
       <SidebarProCard />
     </aside>
   );

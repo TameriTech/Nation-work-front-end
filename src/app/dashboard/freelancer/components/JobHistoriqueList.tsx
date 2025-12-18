@@ -108,7 +108,7 @@ export function JobHistoryContent({
   return (
     <>
       {/* Search Bars */}
-      <div className="flex gap-4 mb-0">
+      <div className="flex flex-wrap gap-4 mb-0">
         <div className="flex-1 relative">
           <Input
             value={searchQuery}

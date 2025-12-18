@@ -90,7 +90,7 @@ function SectionHeader({
   onAdd: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl text-blue-900 bg-blue-900/10 flex items-center justify-center">
           {icon}
@@ -102,7 +102,7 @@ function SectionHeader({
         className="rounded-full bg-blue-900 hover:bg-blue-900/90 text-white px-5 h-10 gap-2"
       >
         <Icon icon={"bi:plus"} className="w-4 h-4" />
-        Ajouter
+        <span className="">Ajouter</span>
       </Button>
     </div>
   );
@@ -132,7 +132,7 @@ function ExperienceItemCard({
             </div>
 
             <div className="flex items-center gap-4 shrink-0">
-              <span className="text-sm text-gray-500 whitespace-nowrap">
+              <span className="text-sm hidden md:inline text-gray-500 whitespace-nowrap">
                 debut_{item.startDate} – fin_{item.endDate}
               </span>
               <div className="flex items-center gap-2">
@@ -149,11 +149,14 @@ function ExperienceItemCard({
             </div>
           </div>
 
-          <p className="text-sm text-gray-500 leading-relaxed">
+          <p className="text-sm hidden sm:block text-gray-500 leading-relaxed">
             {item.description}
           </p>
         </div>
       </div>
+      <p className="text-sm block sm:hidden text-gray-500 leading-relaxed">
+        {item.description}
+      </p>
     </div>
   );
 }
@@ -181,16 +184,16 @@ function EducationItemCard({
               <p className="text-sm text-muted-foreground italic">
                 {item.cycle}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs hidden lg:inline text-muted-foreground mt-0.5">
                 debut_{item.startDate} - fin_{item.endDate}
               </p>
             </div>
 
             <div className="flex items-start gap-4">
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+              <p className="text-sm hidden md:block text-muted-foreground leading-relaxed max-w-md">
                 {item.description}
               </p>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="items-center gap-2 shrink-0">
                 <button className="p-1.5 hover:bg-muted rounded-lg transition-colors">
                   <Icon
                     icon={"bx:bx-edit-alt"}
@@ -205,6 +208,9 @@ function EducationItemCard({
           </div>
         </div>
       </div>
+      <p className="text-sm block md:hidden text-muted-foreground leading-relaxed max-w-md">
+        {item.description}
+      </p>
     </div>
   );
 }

@@ -51,20 +51,20 @@ export function ProvidersList() {
 
   return (
     <section className="w-full bg-white mx-auto px-6 py-20">
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-[52px] font-semibold text-gray-700">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-700">
           Oui, +200 <span className="text-orange-500">Prestataires</span>
         </h2>
         <a
           href="#"
-          className="bg-blue-900 text-white border px-5 py-3 text-xl rounded-[50px] font-semibold"
+          className="bg-blue-900 text-white border px-5 py-3 text-base md:text-2xl text-nowrap rounded-[50px] font-semibold"
         >
           Trouvez un profil
         </a>
       </div>
 
       {/** Services tab header */}
-      <div className="flex justify-between text-xl font-semibold text-gray-600 gap-6 border-b mb-6">
+      <div className="mb-6 flex overflow-x-auto md:overflow-visible border-b text-sm sm:text-base justify-between font-semibold">
         {categories.map((cat, i) => (
           <button
             key={i}
@@ -94,7 +94,7 @@ export function ProvidersList() {
                 className=" w-full top-0 left-0"
               >
                 <h2 className="text-2xl hidden font-bold mb-6">{cat}</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg: col-span-3 gap-6">
                   {providersByCategory[cat]
                     .slice(0, 4)
                     .map((provider, index) => (

@@ -1,4 +1,5 @@
 "use client";
+
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
@@ -8,6 +9,7 @@ interface HeaderProps {
   userName?: string;
   userRole?: string;
   userAvatar?: string;
+  onMenuClick?: () => void;
 }
 
 export function Header({
@@ -16,70 +18,68 @@ export function Header({
   userName = "Cali Biba",
   userRole = "Etudiante / Ménagère",
   userAvatar,
+  onMenuClick,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <header className="grid grid-cols-12 items-center gap-4 bg-transparent text-black py-4">
-      {/* Left section: Title and date */}
-      <div className="col-span-4 flex flex-col">
-        <h1 className="text-lg font-bold text-gray-800 tracking-wide">
-          {title}
-        </h1>
-        <span className="text-sm text-gray-500">{date}</span>
+    <header className="flex gap-3 md:flex-row md:items-center md:justify-between justify-between">
+      {/* Left */}
+      <div className="flex items-center gap-3">
+        {/* Burger */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-2 rounded-full bg-white border border-blue-900"
+        >
+          <Icon icon="bx:chevron-right" className="text-xl text-blue-900 " />
+        </button>
+
+        <div>
+          <h1 className="text-lg font-bold text-gray-800">{title}</h1>
+          <span className="text-xs text-gray-500">{date}</span>
+        </div>
       </div>
 
-      {/* Right section: Icons and user profile */}
-      <div className="col-span-8 flex items-center justify-end gap-3">
-        {/* Search bar */}
-        <div className="relative w-full flex items-center">
+      {/* Right */}
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* Search (hidden on very small screens) */}
+        <div className="hidden sm:flex relative">
           <input
-            type="text"
-            placeholder="Effectuer une recherche"
+            className="bg-white rounded-full px-4 py-2 text-sm w-56"
+            placeholder="Recherche"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white text-gray-900 placeholder:text-gray-500 rounded-[50px] text-sm py-2 pr-10 pl-4 focus:outline-none transition-colors"
           />
-          {searchQuery ? (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
-            </button>
-          ) : null}
           <Icon
-            icon={"bx:search"}
-            className="absolute right-2 h-8 w-8 text-blue-900"
+            icon="bx:search"
+            className="absolute right-3 top-2.5 text-blue-900"
           />
         </div>
-        {/* Icon buttons */}
-        <button className="p-2 rounded-full border bg-white border-blue-900 text-blue-900 hover:cursor-pointer transition-colors">
-          <Icon icon={"bx:help-circle"} className="h-5 w-5" />
-        </button>
-        <button className="p-2 rounded-full border bg-white border-blue-900 text-blue-900 hover:cursor-pointer transition-colors">
-          <Icon icon={"bi:bell"} className="h-5 w-5" />
+
+        <button className="p-2 rounded-full border border-blue-900 text-blue-900 bg-white">
+          <Icon icon="bx:help-circle" />
         </button>
 
-        {/* User avatar */}
-        <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-primary-foreground">
-          {userAvatar ? (
-            <img
-              src={userAvatar}
-              alt={userName}
-              className="h-full w-full rounded-full object-cover"
-            />
-          ) : (
-            <div className="text-lg w-10 h-10 flex items-center justify-center font-semibold">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
+        <button className="p-2 rounded-full border border-blue-900 text-blue-900 bg-white">
+          <Icon icon="bi:bell" />
+        </button>
 
-        {/* User info */}
-        <div className="flex flex-col min-w-fit">
-          <span className="text-sm font-medium text-gray-800">{userName}</span>
-          <span className="text-xs text-gray-500">{userRole}</span>
+        {/* User */}
+        <div className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-full bg-white border-blue-900 text-blue-900 flex items-center justify-center">
+            {userAvatar ? (
+              <img src={userAvatar} className="h-full w-full rounded-full" />
+            ) : (
+              userName[0]
+            )}
+          </div>
+
+          <div className="hidden md:flex flex-col">
+            <span className="text-sm font-medium text-gray-800">
+              {userName}
+            </span>
+            <span className="text-xs text-gray-500">{userRole}</span>
+          </div>
         </div>
       </div>
     </header>

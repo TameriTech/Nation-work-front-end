@@ -18,7 +18,7 @@ interface InfoCardProps {
 function InfoCard({ icon, title, data, onEdit }: InfoCardProps) {
   return (
     <Card className="rounded-3xl shadow-lg border-0 bg-white">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between pb-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-blue-900 text-white flex items-center justify-center">
             {icon}

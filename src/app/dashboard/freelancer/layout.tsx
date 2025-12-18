@@ -7,7 +7,7 @@ export default function FreelancerLayout({
 }>) {
   return (
     <>
-      <div className="bg-blue-50 min-h-screen p-6">
+      <div className="bg-blue-50 min-h-screen p-2 md:p-4 lg:p-6">
         <Header />
         {children}
       </div>

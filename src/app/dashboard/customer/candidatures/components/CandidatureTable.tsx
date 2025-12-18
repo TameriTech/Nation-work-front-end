@@ -63,42 +63,44 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   return (
     <Card className="bg-white text-gray-800 rounded-[30px]">
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
+      <CardHeader className="flex-col gap-4 lg:flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Activité récente
         </CardTitle>
 
-        {/* Search bar */}
-        <div className="relative max-w-[400px] flex items-center">
-          <input
-            type="text"
-            placeholder="Effectuer une recherche"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white text-gray-900 placeholder:text-gray-500 border rounded-[50px] text-sm py-2 pr-10 pl-4 focus:outline-none transition-colors"
-          />
-          {searchQuery ? (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
-            </button>
-          ) : null}
-          <Icon
-            icon={"bx:search"}
-            className="absolute right-2 h-8 w-8 text-blue-900"
-          />
-        </div>
+        <div className="flex flex-row md:flex-row md:items-center gap-4 md:gap-2">
+          {/* Search bar */}
+          <div className="relative max-w-[400px] flex items-center">
+            <input
+              type="text"
+              placeholder="Effectuer une recherche"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white text-gray-900 placeholder:text-gray-500 border rounded-[50px] text-sm py-2 pr-10 pl-4 focus:outline-none transition-colors"
+            />
+            {searchQuery ? (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
+              </button>
+            ) : null}
+            <Icon
+              icon={"bx:search"}
+              className="absolute right-2 h-8 w-8 text-blue-900"
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="gap-1 text-red-900 bg-transparent rounded-[50px] border border-red-900"
-          >
-            <Icon icon={"bi:x"} className="h-4 w-4" />
-            Tout rejeter
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="gap-1 text-red-900 bg-transparent rounded-[50px] border border-red-900"
+            >
+              <Icon icon={"bi:x"} className="h-4 w-4" />
+              Tout rejeter
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

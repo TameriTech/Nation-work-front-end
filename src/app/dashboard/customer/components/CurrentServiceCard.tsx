@@ -47,7 +47,7 @@ export const CurrentServiceCard = ({
   const currentStatus = statusConfig[status];
 
   return (
-    <Card className="h-full bg-white rounded-[30px]">
+    <Card className="h-full w-full bg-white rounded-[30px]">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-800">
           Services en cours

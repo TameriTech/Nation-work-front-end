@@ -97,9 +97,9 @@ function StarRating({ rating, size = 24 }: { rating: number; size?: number }) {
 
 function RatingOverviewCard() {
   return (
-    <div className="rounded-3xl bg-white p-8 mb-6">
+    <div className="rounded-3xl bg-white p-6 mb-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row items-start lg:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
             <Icon icon={"bx:star"} className="w-5 h-5 text-accent hidden" />
@@ -156,14 +156,14 @@ function RatingOverviewCard() {
       </div>
 
       {/* Content Row */}
-      <div className="flex items-center gap-8">
+      <div className="inline md:flex space-y-4 items-center gap-8">
         {/* Stars */}
         <div className="flex-shrink-0">
           <StarRating rating={4} size={36} />
         </div>
 
         {/* Chart */}
-        <div className="flex-1 h-40">
+        <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={monthlyRatings}>
               <XAxis
@@ -199,7 +199,7 @@ function RatingOverviewCard() {
         </div>
 
         {/* Rating Badge */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 hidden md:flex items-center">
           <div className="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center">
             <span className="text-2xl flex gap-2 font-bold text-emerald-600">
               4.8 <span className="text-blue-900">/</span>{" "}
@@ -259,7 +259,7 @@ function CommentCard({
 
 function CommentsSection() {
   return (
-    <div className="rounded-3xl bg-card  p-8">
+    <div className="rounded-3xl bg-card  p-4 md:p-6 lg:p-8">
       {/* Section Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-blue-900/10 flex items-center justify-center">

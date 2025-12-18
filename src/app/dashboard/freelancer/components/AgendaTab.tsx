@@ -70,14 +70,14 @@ export function AgendaTab() {
   };
 
   return (
-    <div className="flex-1 p-6 bg-transparent overflow-auto">
+    <div className="flex-1 p-2 md:px-6 bg-transparent overflow-auto">
       {/* Tabs */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         className="mb-6 bg-transparent"
       >
-        <TabsList className="bg-white px-6 py-4 rounded-4xl w-full justify-start gap-8 h-auto">
+        <TabsList className="bg-white p-2 md:px-6 flex flex-wrap rounded-4xl w-full justify-between lg:justify-start gap-3 md:gap-8 h-auto">
           <TabsTrigger
             value="calendar"
             className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
@@ -104,13 +104,13 @@ export function AgendaTab() {
         >
           <ServiceCalendar events={sampleEvents} showPublishService={false} />
         </TabsContent>
-        <TabsContent value="history" className="mt-6 bg-white rounded-4xl p-4">
+        <TabsContent value="history" className="mt-6 bg-white rounded-4xl">
           <JobHistoryContent
             favorites={favorites}
             toggleFavorite={toggleFavorite}
           />
         </TabsContent>
-        <TabsContent value="payments" className="mt-6 bg-white rounded-4xl p-4">
+        <TabsContent value="payments" className="mt-6 bg-white rounded-4xl">
           <PaymentsTable payments={payments} />
         </TabsContent>
       </Tabs>

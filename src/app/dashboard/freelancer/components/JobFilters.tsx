@@ -10,7 +10,7 @@ interface JobFiltersProps {
 
 export function JobFilters({ onApplyFilters }: JobFiltersProps) {
   return (
-    <div className="w-[312px] p-6 space-y-6 flex-shrink-0">
+    <div className="w-full lg:w-[312px] p-0 lg:p-6 space-y-6 flex-shrink-0">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-blue-900">

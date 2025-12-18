@@ -347,12 +347,12 @@ export default function DocumentsTabContent() {
         {/* Left Column */}
         <div className="">
           {/* Documents Validés */}
-          <div className=" bg-card py-3">
+          <div className="bg-card py-3">
             <SectionHeader
               icon={"bi:clipboard2-check"}
               title="Documents Validés"
             />
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {validatedDocuments.map((doc) => (
                 <ValidatedDocumentItem key={doc.id} document={doc} />
               ))}
@@ -365,7 +365,7 @@ export default function DocumentsTabContent() {
               icon={"bi:clipboard2-check"}
               title="Documents en cours"
             />
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {inProgressDocuments.map((doc) => (
                 <InProgressDocumentItem key={doc.id} document={doc} />
               ))}
@@ -379,7 +379,7 @@ export default function DocumentsTabContent() {
               title="Documents en attentes"
               showAddButton
             />
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pendingDocuments.map((doc) => (
                 <PendingDocumentItem key={doc.id} document={doc} />
               ))}

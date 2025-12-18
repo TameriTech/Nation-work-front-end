@@ -5,7 +5,7 @@ import { ProfileTabs } from "./components/ProfileTabs";
 export default function CustomerHomePage() {
   return (
     <div className="min-h-screen text-gray-800">
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left sidebar - Profile */}
           <CustomerProfileSidebar />

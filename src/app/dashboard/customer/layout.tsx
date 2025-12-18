@@ -1,9 +1,11 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 
 interface DashboardLayoutProps {
-  children: ReactNode; // children is required for layout
+  children: ReactNode;
   title?: string;
   date?: string;
   userName?: string;
@@ -11,7 +13,6 @@ interface DashboardLayoutProps {
   userAvatar?: string;
 }
 
-// **Default export required**
 export default function CustomerLayout({
   children,
   title,
@@ -20,20 +21,34 @@ export default function CustomerLayout({
   userRole,
   userAvatar,
 }: DashboardLayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen gap-5 p-5 bg-linear-to-b from-[#DCEFFF] to-white">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 ">
+    <div className="min-h-screen bg-linear-to-b from-[#DCEFFF] to-white">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex gap-2 p-4">
+        {/* Sidebar */}
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
           <Header
             title={title}
             date={date}
             userName={userName}
             userRole={userRole}
             userAvatar={userAvatar}
+            onMenuClick={() => setSidebarOpen(true)}
           />
-          {children}
-        </main>
+          <main className="flex-1 mt-4">{children}</main>
+        </div>
       </div>
     </div>
   );

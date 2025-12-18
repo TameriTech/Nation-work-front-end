@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Pagination } from "@/app/components/ui/pagination";
+import { PaginationSmart } from "./PaymentsPagination";
 
 interface PaymentsTableProps {
   payments: PaymentProps[];
@@ -54,13 +55,13 @@ const statusConfig = {
 export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   return (
-    <Card className="bg-white shadow-none text-gray-800 rounded-[30px]">
-      <CardHeader className="">
+    <Card className="bg-white shadow-none text-gray-800 rounded-[30px] p-0">
+      <CardHeader className="p-0">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide text-blue-900 mb-4">
           Historique des paiements
         </CardTitle>
 
-        <div className="flex items-center justify-between space-y-0 pb-4">
+        <div className="flex flex-wrap gap-2 items-center justify-start lg:justify-between space-y-0 pb-4">
           {/* Search bar */}
           <div className="relative max-w-[400px] flex items-center">
             <input
@@ -102,7 +103,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
             variant="ghost"
             className="text-sm text-white bg-blue-900 rounded-full"
           >
-            <Icon icon={"bx:bx-filter"} className="h-4 w-4 text-white" />
+            <Icon icon={"bi:funnel"} className="h-4 w-4 text-white" />
             <span className="hidden">Filtres avancés</span>
           </Button>
 
@@ -126,7 +127,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow className="border-b border-blue-900">

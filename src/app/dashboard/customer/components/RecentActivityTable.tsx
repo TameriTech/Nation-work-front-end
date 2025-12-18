@@ -74,7 +74,7 @@ export const RecentActivityTable = ({
   return (
     <div className="">
       <Card className="bg-white text-gray-800 rounded-[30px]">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex-col md:flex-row gap-4 items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Activité récente
           </CardTitle>

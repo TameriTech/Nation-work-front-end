@@ -19,7 +19,10 @@ export function JobListings() {
     <div className="flex-1 p-6 overflow-auto">
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="bg-transparent rounded-none w-full justify-start gap-8 h-auto p-0">
+        <TabsList
+          className="w-full bg-transparent flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide justify-start h-auto p-0 md:gap-8
+  "
+        >
           <TabsTrigger
             value="liste"
             className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"

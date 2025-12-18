@@ -25,7 +25,7 @@ export const StatusDistributionChart = ({
   total,
 }: StatusDistributionChartProps) => {
   return (
-    <Card className="h-full bg-white rounded-[30px]">
+    <Card className="h-full w-full bg-white rounded-[30px]">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-800">
           Répartition des statuts

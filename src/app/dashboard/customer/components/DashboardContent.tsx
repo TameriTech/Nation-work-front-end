@@ -68,81 +68,90 @@ const statusData = [
 
 export const DashboardContent = () => {
   return (
-    <div className="space-y-6 grid grid-cols-10 gap-5">
-      {/* Top Stats Row */}
-      <div className="col-span-7 grid  gap-4 grid-cols-2">
-        <StatCard
-          icon={"bi:check-circle"}
-          label="Services publiés"
-          value={34}
-          change="+12,4% vs le mois dernier"
-          actionLabel="Historique"
-          variant="primary"
-        />
-        <StatCard
-          icon={"bi:briefcase"}
-          label="Candidatures reçues"
-          value={87}
-          change="+8,3% vs le mois dernier"
-          actionLabel="Consulter"
-        />
-        <StatCard
-          icon={"bi:phone"}
-          label="Services en cours"
-          value="02"
-          change="Ménage + Livraison"
-          actionLabel="Voir"
-        />
-        <Card className="bg-white text-gray-900 rounded-[30px]">
-          <CardContent className="flex flex-col items-center justify-between p-5">
-            <div className="w-full flex justify-between items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <Icon icon={"bi:calendar"} className="h-5 w-5 text-primary" />
+    <div className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-12">
+      {/* LEFT COLUMN */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-8 grid">
+        {/* Stats */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          <StatCard
+            icon="bi:check-circle"
+            label="Services publiés"
+            value={34}
+            change="+12,4% vs le mois dernier"
+            actionLabel="Historique"
+            variant="primary"
+          />
+
+          <StatCard
+            icon="bi:briefcase"
+            label="Candidatures reçues"
+            value={87}
+            change="+8,3% vs le mois dernier"
+            actionLabel="Consulter"
+          />
+
+          <StatCard
+            icon="bi:phone"
+            label="Services en cours"
+            value="02"
+            change="Ménage + Livraison"
+            actionLabel="Voir"
+          />
+
+          {/* Next service card */}
+          <Card className="bg-white rounded-[30px]">
+            <CardContent className="flex flex-col gap-4 p-5">
+              <div className="flex justify-between items-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900/10">
+                  <Icon icon="bi:calendar" className="h-5 w-5 text-blue-900" />
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full border-blue-900 text-xs"
+                >
+                  Consulter
+                </Button>
               </div>
 
-              <Button
-                variant="outline"
-                className="text-xs bg-transparent border-1 border-blue-900 rounded-[50px]"
-                size="sm"
-              >
-                Consulter
-              </Button>
-            </div>
-            <div className="flex w-full justify-between items-center gap-2">
-              <div>
-                <p className="text-sm py-2 text-muted-foreground">
-                  Prochain service
-                </p>
-                <p className="text-xl font-bold">14h - 26/12/25</p>
-              </div>
-              <Avatar className="h-10 w-10 rounded-sm">
-                <AvatarImage src="/images/image.png" alt="Provider" />
-                <AvatarFallback>P</AvatarFallback>
-              </Avatar>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">Prochain service</p>
+                  <p className="text-lg font-bold text-gray-800">
+                    14h - 26/12/25
+                  </p>
+                </div>
 
-        {/* Activity Table - Takes 2 columns */}
-        <div className="col-span-full space-y-6">
+                <Avatar className="h-10 w-10 rounded-sm">
+                  <AvatarImage src="/images/image.png" />
+                  <AvatarFallback>P</AvatarFallback>
+                </Avatar>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Activity table */}
+        <div className="mt-6 overflow-x-auto">
           <RecentActivityTable activities={activities} />
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="col-span-3 grid grid-cols-1 gap-6">
-        {/* Right Sidebar Cards */}
+      {/* RIGHT COLUMN */}
+      <div className="col-span-1 md:col-span-2 w-full lg:col-span-4 grid gap-6">
         <CurrentServiceCard
           title="Intitulé ou type de service"
           providerName="Nom + Prenom"
           providerSpecialty="Spécialité du prestatai..."
           providerRating={4}
-          description="Courte description ici Courte description ici Courte description ici Courte description ici"
+          description="Courte description ici Courte description ici"
           startTime="08 - 20"
           address="Lagos"
           estimatedTime="5h"
           status="en_cours"
         />
+
         <StatusDistributionChart data={statusData} total={42} />
       </div>
     </div>

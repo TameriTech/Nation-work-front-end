@@ -60,7 +60,7 @@ export default function DashboardContent() {
   return (
     <div className="space-y-6">
       {/* Top Stats Row */}
-      <div className="grid  gap-4 grid-cols-3">
+      <div className="grid  gap-4 grid-cols-1 md:grid-cols-3">
         <Card className="bg-blue-900 text-white rounded-[30px]">
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">

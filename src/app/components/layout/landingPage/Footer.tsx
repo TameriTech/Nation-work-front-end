@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="pt-16 bg-blue-900 text-white">
-      <div className="flex  px-6 gap-2">
+      <div className="flex  px-2 md:px-6 gap-2">
         <img
           src={"/icons/logo.png"}
           className="w-[57px]"
@@ -14,7 +14,7 @@ export function Footer() {
         />
       </div>
 
-      <div className="container  px-6 mx-auto pt-5 grid md:grid-cols-4 gap-10">
+      <div className="container px-2 md:px-6 mx-auto pt-5 grid md:grid-cols-4 gap-10">
         <div>
           <h4 className="font-semibold mb-2">Catégories</h4>
           <ul className="text-sm text-blue-200 space-y-1">
@@ -54,7 +54,7 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="text-center bg-blue-950 py-5 px-6 text-xs mt-10">
+      <div className="text-center bg-blue-950 py-5 px-2 md:px-6 text-xs mt-10">
         <div className="flex justify-between items-center">
           <span className="text-sm">
             © 2025 Nation Work. Tous droits réservés.

@@ -1,4 +1,4 @@
-import { ServiceCalendar } from "@/app/components/shared/calendar/Agenda";
+import { ServiceCalendar } from "./components/Agenda";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { sampleEvents } from "@/data/constants";
 export default function Calendar() {

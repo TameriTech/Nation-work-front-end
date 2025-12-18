@@ -48,7 +48,7 @@ const MessageInput = ({ onSend, onUpload }: MessageInputProps) => {
         className="rounded-full text-white px-6 gap-2 bg-blue-900 hover:bg-blue-900/90"
       >
         <Icon icon={"mdi:send"} className="h-4 w-4" />
-        Envoyer
+        <span className="hidden md:inline">Envoyer</span>
       </Button>
     </div>
   );

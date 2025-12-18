@@ -46,91 +46,80 @@ export function Services() {
   ];
 
   return (
-    <section className="w-full bg-white mx-auto px-6 py-20">
-      <div className="max-w-7xl m-auto p-6 ">
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-[52px] font-semibold text-gray-700">
+    <section className="w-full bg-white py-16 px-4 md:px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-700">
             Services Populaires
           </h2>
+
           <a
             href="#"
-            className="bg-blue-900 text-white border px-5 py-3 text-xl rounded-[50px] font-semibold"
+            className="self-start md:self-auto rounded-full bg-blue-900 px-5 py-3 text-base md:text-xl font-semibold text-white"
           >
             Liste des Services
           </a>
         </div>
 
-        {/** Services tab header */}
-        <div className="flex justify-between text-xl font-semibold text-gray-600 gap-6 border-b mb-6">
+        {/* Tabs */}
+        <div className="mb-6 flex overflow-x-auto md:overflow-visible border-b text-sm sm:text-base justify-between font-semibold">
           {Object.keys(CATEGORY_SERVICES).map((cat) => (
             <button
               key={cat}
               onClick={() => setActive(cat as CategoryName)}
-              className={[
-                "w-1/4 text-center p-4 hover:cursor-pointer",
-                active === cat
-                  ? "text-blue-900 border-b-2 border-blue-900"
-                  : "text-gray-500",
-              ].join(" ")}
+              className={`px-4 py-3 whitespace-nowrap
+                ${
+                  active === cat
+                    ? "text-blue-900 border-b-2 border-blue-900"
+                    : "text-gray-500"
+                }`}
             >
               {cat}
             </button>
           ))}
         </div>
-        <div className="hidden justify-between text-xl font-semibold text-gray-600 gap-6 border-b mb-6">
-          <button className="text-blue-900 border-blue-900 border-b-2 p-4 w-1/4 font-semibold text-center hover:cursor-pointer">
-            Assistance Maison
-          </button>
-          <button className="w-1/4 font-semibold text-center hover:cursor-pointer">
-            Assistance Entreprise
-          </button>
-          <button className="w-1/4 font-semibold text-center hover:cursor-pointer">
-            Technique
-          </button>
-          <button className="w-1/4 font-semibold text-center hover:cursor-pointer">
-            Industriel
-          </button>
-        </div>
 
-        {/** Services tab content */}
+        {/* Carousel */}
         <div className="embla relative">
-          {/* Viewport */}
           <div className="embla__viewport overflow-hidden" ref={emblaRef}>
-            {/* Container */}
-            <div className="embla__container flex">
+            <div className="embla__container flex gap-4 justify-around">
               {services.map((s) => (
                 <div
                   key={s}
                   className="
-                        embla__slide 
-                        flex-[0_0_100%] 
-                        sm:flex-[0_0_50%] 
-                        md:flex-[0_0_25%]
-                        px-3
-                      "
+                    embla__slide
+                    flex-[0_0_100%]
+                    sm:flex-[0_0_50%]
+                    md:flex-[0_0_33.333%]
+                    lg:flex-[0_0_25%]
+                  "
                 >
                   <ServiceCard title={s} />
                 </div>
               ))}
             </div>
           </div>
-          {/** navigation */}
+
+          {/* Navigation */}
           <button
-            className="absolute top-1/2 w-20 h-20 flex justify-center items-center -left-6 transform -translate-y-1/2 bg-white/50 shadow rounded-full p-2"
             onClick={scrollPrev}
+            className="absolute left-0 top-1/2 -translate-y-1/2 hidden md:flex
+                       h-14 w-14 items-center justify-center rounded-full bg-white/70 shadow"
           >
             <Icon
               icon="material-symbols:chevron-left"
-              className=" w-10 h-10 text-blue-900"
+              className="h-8 w-8 text-blue-900"
             />
           </button>
+
           <button
-            className="absolute top-1/2 w-20 h-20 flex justify-center items-center -right-6 transform -translate-y-1/2 bg-white/50 shadow rounded-full p-2"
             onClick={scrollNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex
+                       h-14 w-14 items-center justify-center rounded-full bg-white/70 shadow"
           >
             <Icon
               icon="material-symbols:chevron-right"
-              className=" w-10 h-10 text-blue-900"
+              className="h-8 w-8 text-blue-900"
             />
           </button>
         </div>

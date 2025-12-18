@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";
@@ -19,6 +19,7 @@ interface ChatAreaProps {
   isTyping?: boolean;
   messages: Message[];
   onSendMessage: (message: string) => void;
+  onBack?: () => void;
 }
 
 const ChatArea = ({
@@ -27,6 +28,7 @@ const ChatArea = ({
   isTyping = false,
   messages,
   onSendMessage,
+  onBack,
 }: ChatAreaProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -37,11 +39,12 @@ const ChatArea = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-4xl">
+    <div className="flex flex-col h-full w-full bg-white rounded-4xl">
       <ChatHeader
         name={contactName}
         avatar={contactAvatar}
         isTyping={isTyping}
+        onBack={onBack}
       />
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
