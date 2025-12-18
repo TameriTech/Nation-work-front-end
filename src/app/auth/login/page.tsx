@@ -76,6 +76,15 @@ const LoginPage = () => {
             </div>
           </div>
 
+          <nav className="flex md:hidden gap-6 font-medium text-gray-700 text-base">
+            <span className="hover:text-orange-500">
+              {"Vous avez déjà un compte ?"}
+            </span>
+            <a href="/auth/register" className="text-blue-900">
+              Inscrivez-vous
+            </a>
+          </nav>
+
           {/* Submit */}
           <div className="flex justify-end pt-4">
             <Button

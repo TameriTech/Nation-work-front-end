@@ -53,6 +53,15 @@ const Step1AccountType = () => {
         </div>
       </div>
 
+      <nav className="md:hidden flex gap-6 font-medium text-gray-700 text-base">
+        <span className="hover:text-orange-500">
+          {"Vous n'avez pas de compte ?"}
+        </span>
+        <a href="/auth/login" className="text-blue-900">
+          Connectez vous
+        </a>
+      </nav>
+
       {/* Navigation */}
       <div className="flex justify-end">
         <Button

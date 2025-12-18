@@ -16,8 +16,8 @@ export default function AuthLayout({
   return (
     <div className="flex flex-col items-center justify-start p-5 bg-gray-50">
       <Header />
-      <main className="grid grid-cols-2 gap-5 w-full items-start justify-between mt-5">
-        <div className="relative w-full h-full">
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full items-start justify-between mt-5">
+        <div className="relative w-full h-full hidden lg:block rounded-2xl overflow-hidden">
           <div
             className="absolute inset-0 bg-cover rounded-2xl bg-top"
             style={{ backgroundImage: `url(${image})` }}
