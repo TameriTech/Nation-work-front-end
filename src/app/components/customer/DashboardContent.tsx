@@ -11,9 +11,6 @@ import {
   AvatarImage,
 } from "@/app/components/ui/avatar";
 import { Icon } from "@iconify/react";
-import { ServiceFormWizard } from "@/app/components/shared/service-form/ServiceFormWizard";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 const activities = [
   {

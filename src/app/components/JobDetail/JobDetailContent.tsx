@@ -9,7 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/app/components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import { Button } from "../../ui/button";
+import { Button } from "@/app/components/ui/button";
 
 const JobDetailContent = ({ applied }: { applied: boolean }) => {
   const skills = [
