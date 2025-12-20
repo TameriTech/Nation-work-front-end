@@ -1,0 +1,60 @@
+"use client";
+import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
+import { JobListingsContent } from "../freelancer/JobListingsContent";
+import { FavoritesJobsContent } from "../freelancer/FavoritesJobsContent";
+
+export function JobListings() {
+  const [activeTab, setActiveTab] = useState("liste");
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+    );
+  };
+
+  return (
+    <div className="flex-1 p-6 overflow-auto">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList
+          className="w-full bg-transparent flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide justify-start h-auto p-0 md:gap-8
+  "
+        >
+          <TabsTrigger
+            value="liste"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
+          >
+            {"Liste d'emploi"}
+          </TabsTrigger>
+          <TabsTrigger
+            value="carte"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
+          >
+            {"Carte d'emploi"}
+          </TabsTrigger>
+          <TabsTrigger
+            value="favorites"
+            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
+          >
+            Favorites
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="liste" className="mt-6">
+          <JobListingsContent
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
+        </TabsContent>
+        <TabsContent value="carte" className="mt-6">
+          <div className="">comming soon</div>
+        </TabsContent>
+        <TabsContent value="favorites" className="mt-6">
+          <FavoritesJobsContent toggleFavorite={toggleFavorite} />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
