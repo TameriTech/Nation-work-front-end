@@ -1,6 +1,6 @@
 "use client";
-import { AgendaTab } from "@/app/components/freelancer/AgendaTab";
-import { AgendaSidebar } from "@/app/components/freelancer/AgendaSidebar";
+import { AgendaTab } from "@/app/components/features/calendar/AgendaTab";
+import { AgendaSidebar } from "@/app/components/features/calendar/AgendaSidebar";
 import {
   Accordion,
   AccordionContent,

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";

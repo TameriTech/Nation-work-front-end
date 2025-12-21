@@ -1,7 +1,7 @@
 import {
   ServicesTable,
   Candidature,
-} from "@/app/components/customer/ServicesTable";
+} from "@/app/components/sections/customer/ServicesTable";
 import { Card, CardContent } from "@/app/components/ui/card";
 
 const activities: Candidature[] = [

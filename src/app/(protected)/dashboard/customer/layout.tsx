@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { Sidebar } from "@/app/components/customer/CustomerSidebar";
-import { Header } from "@/app/components/customer/CustomerHeader";
+import { Sidebar } from "@/app/components/layouts/sidebars/CustomerSidebar";
+import { Header } from "@/app/components/layouts/headers/CustomerHeader";
 import "@/app/globals.css";
 
 interface DashboardLayoutProps {

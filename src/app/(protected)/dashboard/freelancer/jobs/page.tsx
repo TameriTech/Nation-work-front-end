@@ -5,8 +5,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import { JobFilters } from "@/app/components/job/JobFilters";
-import { JobListings } from "@/app/components/job/JobListingsTab";
+import { JobFilters } from "@/app/components/features/job/JobFilters";
+import { JobListings } from "@/app/components/features/job/JobListingsTab";
 import { Icon } from "@iconify/react";
 
 export default function JobListingsPage() {

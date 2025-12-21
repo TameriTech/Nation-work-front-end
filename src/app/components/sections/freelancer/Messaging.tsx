@@ -2,8 +2,10 @@
 import { useState } from "react";
 import ConversationList, {
   Conversation,
-} from "@/app/components/messaging/ConversationList";
-import ChatArea, { Message } from "@/app/components/messaging/ChatArea";
+} from "@/app/components/features/messaging/ConversationList";
+import ChatArea, {
+  Message,
+} from "@/app/components/features/messaging/ChatArea";
 
 const sampleRecentConversations: Conversation[] = [
   {

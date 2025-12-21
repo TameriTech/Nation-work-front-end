@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { ServiceCalendar } from "@/app/components/calendar/FreelancerServiceCalendar";
+import { ServiceCalendar } from "@/app/components/features/calendar/freelancer/ServiceCalendar";
 import { sampleEvents } from "@/data/constants";
-import { JobHistoryContent } from "./JobHistoriqueList";
-import { PaymentsTable } from "./PaymentsTable";
+import { JobHistoryContent } from "../job/tabs/JobHistoriqueList";
+import { PaymentsTable } from "../../sections/freelancer/PaymentsTable";
 import { PaymentProps } from "@/app/types/payments";
 
 const payments: PaymentProps[] = [

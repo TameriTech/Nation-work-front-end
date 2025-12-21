@@ -1,5 +1,5 @@
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
-import RegistrationWizard from "@/app/components/auth/RegistrationWizard";
+import RegistrationWizard from "@/app/components/features/auth/RegistrationWizard";
 
 const RegisterPage = () => {
   return (

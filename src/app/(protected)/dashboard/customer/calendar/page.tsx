@@ -1,4 +1,4 @@
-import { ServiceCalendar } from "@/app/components/calendar/CustomerServiceCalendar";
+import { ServiceCalendar } from "@/app/components/features/calendar/customer/ServiceCalendar";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { sampleEvents } from "@/data/constants";
 export default function Calendar() {

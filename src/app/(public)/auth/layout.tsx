@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/app/components/auth/AuthHeader";
+import Header from "@/app/components/layouts/headers/AuthHeader";
 import { usePathname } from "next/navigation";
 import "@/app/globals.css";
 

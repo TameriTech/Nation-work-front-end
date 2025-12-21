@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { JobListingsContent } from "../freelancer/JobListingsContent";
-import { FavoritesJobsContent } from "../freelancer/FavoritesJobsContent";
+import { JobListingsContent } from "./tabs/JobListingsContent";
+import { FavoritesJobsContent } from "./tabs/FavoritesJobsContent";
 
 export function JobListings() {
   const [activeTab, setActiveTab] = useState("liste");

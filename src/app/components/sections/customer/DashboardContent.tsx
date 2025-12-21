@@ -1,7 +1,7 @@
 "use client";
-import { StatCard } from "./StatCard";
+import { StatCard } from "../../ui/Cards/StatCard";
 import { CurrentServiceCard } from "./CurrentServiceCard";
-import { RecentActivityTable } from "./RecentActivityTable";
+import { RecentActivityTable } from "./../customer/RecentActivityTable";
 import { StatusDistributionChart } from "./StatusDistributionChart";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";

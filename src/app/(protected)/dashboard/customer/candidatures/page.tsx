@@ -1,5 +1,5 @@
 "use client";
-import { CandidatureTable } from "@/app/components/customer/CandidatureTable";
+import { CandidatureTable } from "@/app/components/sections/customer/CandidatureTable";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Candidature } from "@/app/types/candidature";
 

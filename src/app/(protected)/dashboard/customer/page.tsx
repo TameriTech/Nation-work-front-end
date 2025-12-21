@@ -1,4 +1,4 @@
-import { DashboardContent } from "@/app/components/customer/DashboardContent";
+import { DashboardContent } from "@/app/components/sections/customer/DashboardContent";
 
 const Index = () => {
   return <DashboardContent />;

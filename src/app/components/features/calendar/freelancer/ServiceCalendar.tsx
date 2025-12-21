@@ -1,12 +1,12 @@
 "use client";
 import { useRef, useState } from "react";
 
-import { CalendarHeader } from "./FreelancerCalendarHeader";
+import { CalendarHeader } from "./CalendarHeader";
 import {
   CalendarEventCard,
   CalendarEvent,
   EventStatus,
-} from "./FreelancerCalendarEventCard";
+} from "./CalendarEventCard";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { EventContentArg } from "@fullcalendar/core";

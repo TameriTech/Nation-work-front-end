@@ -1,5 +1,5 @@
-import { CustomerProfileSidebar } from "@/app/components/freelancer/FreelancerProfileSidebar";
-import { ProfileTabs } from "@/app/components/freelancer/ProfileTabs";
+import { CustomerProfileSidebar } from "@/app/components/layouts/sidebars/FreelancerProfileSidebar";
+import { ProfileTabs } from "@/app/components/features/profile/ProfileTabs";
 
 export default function CustomerHomePage() {
   return (

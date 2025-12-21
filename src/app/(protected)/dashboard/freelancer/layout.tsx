@@ -1,4 +1,4 @@
-import Header from "@/app/components/freelancer/FreelancerHeader";
+import Header from "@/app/components/layouts/headers/FreelancerHeader";
 import "@/app/globals.css";
 
 export default function FreelancerLayout({

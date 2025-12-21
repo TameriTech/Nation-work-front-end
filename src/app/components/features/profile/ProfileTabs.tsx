@@ -4,11 +4,11 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/app/components/ui/tabs";
-import { GeneraleTabContent } from "./GeneraleTabContent";
-import { ExperienceTabContent } from "./ExperienceTabContent";
-import CompetencesTabContent from "./CompetencesTabContent";
-import DocumentsTabContent from "./DocumentsTabContent";
-import EvaluationsTabContent from "./EvaluationsTabContent";
+import { GeneraleTabContent } from "./tabs/GeneraleTab";
+import { ExperienceTabContent } from "./tabs/ExperienceTab";
+import CompetencesTabContent from "./tabs/CompetencesTab";
+import DocumentsTabContent from "./tabs/DocumentsTab";
+import EvaluationsTabContent from "./tabs/EvaluationsTab";
 
 const tabs = [
   { value: "generale", label: "Générale" },

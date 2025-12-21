@@ -1,5 +1,5 @@
-import ClientSidebar from "@/app/components/JobDetail/ClientSidebar";
-import JobDetailContent from "@/app/components/JobDetail/JobDetailContent";
+import ClientSidebar from "@/app/components/features/job-detail/ClientSidebar";
+import JobDetailContent from "@/app/components/features/job-detail/JobDetailContent";
 
 const JobDetailPage = () => {
   return (

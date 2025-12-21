@@ -1,12 +1,12 @@
-import { Footer } from "@/app/components/guest/GuestFooter";
-import { CTA } from "@/app/components/guest/sections/CTA";
-import { Testimonials } from "@/app/components/guest/sections/Testimonials";
-import { WhySection } from "@/app/components/guest/sections/WhySection";
-import { ProvidersList } from "@/app/components/guest/sections/ProviderList";
-import { FreelanceBanner } from "@/app/components/guest/sections/FreelanceBanner";
-import Header from "@/app/components/guest/GuestHeader";
-import { Hero } from "@/app/components/guest/sections/HomeHero";
-import { Services } from "@/app/components/guest/sections/Services";
+import { Footer } from "@/app/components/layouts/footer/GuestFooter";
+import { CTA } from "@/app/components/sections/public/CTA";
+import { Testimonials } from "@/app/components/sections/public/Testimonials";
+import { WhySection } from "@/app/components/sections/public/WhySection";
+import { ProvidersList } from "@/app/components/sections/public/ProviderList";
+import { FreelanceBanner } from "@/app/components/sections/public/FreelanceBanner";
+import Header from "@/app/components/layouts/headers/GuestHeader";
+import { Hero } from "@/app/components/sections/public/HomeHero";
+import { Services } from "@/app/components/sections/public/Services";
 import "@/app/globals.css";
 
 export default function Home() {

@@ -2,14 +2,16 @@
 import { Icon } from "@iconify/react";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
-import { JobCard } from "../job/JobCard";
+import { JobCard } from "../JobCard";
 import { useState } from "react";
 
 interface JobListingsContentProps {
+  favorites: number[];
   toggleFavorite: (id: number) => void;
 }
 
-export function FavoritesJobsContent({
+export function JobListingsContent({
+  favorites,
   toggleFavorite,
 }: JobListingsContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,13 +70,39 @@ export function FavoritesJobsContent({
       rating: 4,
       postedDate: "6 j",
     },
+    {
+      id: 5,
+      title: "Titre du Job",
+      price: "1000 Frs",
+      duration: "30j",
+      type: "à Distance",
+      description:
+        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
+      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
+      location: "Lagos",
+      rating: 5,
+      postedDate: "6 j",
+    },
+    {
+      id: 6,
+      title: "Titre du Job",
+      price: "1000 Frs",
+      duration: "30j",
+      type: "à Distance",
+      description:
+        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
+      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
+      location: "Lagos",
+      rating: 4,
+      postedDate: "6 j",
+    },
   ];
 
   return (
     <>
       {/* Title */}
       <h1 className="text-3xl font-bold text-gray-800 mb-4">
-        Travaux enregistrés dans vos favoris
+        Trouvez votre parfait Job
       </h1>
       {/* Search Bars */}
       <div className="flex gap-4 mb-0">
@@ -128,7 +156,8 @@ export function FavoritesJobsContent({
           <JobCard
             key={job.id}
             {...job}
-            isFavorite={true}
+            showRate={true}
+            isFavorite={favorites.includes(job.id)}
             onFavoriteClick={() => toggleFavorite(job.id)}
           />
         ))}

@@ -2,7 +2,7 @@
 import { Icon } from "@iconify/react";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
-import { JobCard } from "../job/JobCard";
+import { JobCard } from "../JobCard";
 import { useState } from "react";
 import { JobCardProps } from "@/app/types/job";
 

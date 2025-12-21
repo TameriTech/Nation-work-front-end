@@ -31,7 +31,6 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Pagination } from "@/app/components/ui/pagination";
-import { PaginationSmart } from "./PaymentsPagination";
 
 interface PaymentsTableProps {
   payments: PaymentProps[];

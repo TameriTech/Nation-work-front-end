@@ -40,7 +40,8 @@ export function useLogin() {
     setLoading(true);
 
     // Simule un appel API
-    await new Promise((r) => setTimeout(r, 700));
+    //await new Promise((r) => setTimeout(r, 700));
+    console.log("Email:", email);
 
     toast({
       title: "Connexion réussie",
