@@ -75,7 +75,9 @@ export default function Header({
           <button className="hidden md:flex p-2 rounded-full border border-[#69BBFF] text-blue-900">
             <Icon icon="bi:bell" className="w-5 h-5" />
           </button>
-
+          {/** //TODO : Change the user with dropdown */}
+          {/** //TODO : Implement logout in the dropdown */}
+          {/** //TODO : Add user settings in the dropdown */}
           {/* User (desktop only) */}
           <div className="hidden md:flex items-center gap-2">
             <div className="h-10 w-10 rounded-full bg-gray-400 gap-2 flex items-center justify-center">

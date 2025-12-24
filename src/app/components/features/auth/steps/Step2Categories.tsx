@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistration } from "@/app/contexts/RegistrationContext";
 import { Button } from "@/app/components/ui/button";
 import CategoryBadge from "../CategoryBadge";
 import CategoryModal from "../CategoryModal";

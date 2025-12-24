@@ -77,6 +77,7 @@ const activities: Candidature[] = [
 ];
 
 export default function DashboardContent() {
+  // TODO fetch data from API and replace the hardcoded values
   return (
     <div className="space-y-6">
       {/* Top Stats Row */}

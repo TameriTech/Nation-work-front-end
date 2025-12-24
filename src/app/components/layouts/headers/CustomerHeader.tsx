@@ -1,11 +1,12 @@
 "use client";
 
+import { logout } from "@/app/services/auth.service";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface HeaderProps {
   title?: string;
-  date?: string;
+  //date?: string;
   userName?: string;
   userRole?: string;
   userAvatar?: string;
@@ -14,13 +15,19 @@ interface HeaderProps {
 
 export function Header({
   title = "DASHBOARD",
-  date = new Date().toLocaleDateString("fr-FR"),
+  //date = new Date().toLocaleDateString("fr-FR"),
   userName = "Cali Biba",
   userRole = "Etudiante / Ménagère",
   userAvatar,
   onMenuClick,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [date, setDate] = useState<string | null>(null);
+  //const [date] = useState(new Date().toLocaleDateString("fr-FR"));
+
+  useEffect(() => {
+    setDate(new Date().toLocaleDateString("fr-FR"));
+  }, []);
 
   return (
     <header className="flex gap-3 md:flex-row md:items-center md:justify-between justify-between">
@@ -60,11 +67,17 @@ export function Header({
           <Icon icon="bx:help-circle" />
         </button>
 
-        <button className="p-2 rounded-full border border-blue-900 text-blue-900 bg-white">
+        <button
+          onClick={() => logout()}
+          className="p-2 rounded-full hover:cursor-pointer border border-blue-900 text-blue-900 bg-white"
+        >
           <Icon icon="bi:bell" />
         </button>
 
         {/* User */}
+        {/** //TODO : Change the user with dropdown */}
+        {/** //TODO : Implement logout in the dropdown */}
+        {/** //TODO : Add user settings in the dropdown */}
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-full bg-white border-blue-900 text-blue-900 flex items-center justify-center">
             {userAvatar ? (

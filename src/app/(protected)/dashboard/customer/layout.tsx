@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { Sidebar } from "@/app/components/layouts/sidebars/CustomerSidebar";
 import { Header } from "@/app/components/layouts/headers/CustomerHeader";
 import "@/app/globals.css";
+import { AuthProvider } from "@/app/contexts/LoginContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -17,7 +18,7 @@ interface DashboardLayoutProps {
 export default function CustomerLayout({
   children,
   title,
-  date,
+  //date,
   userName,
   userRole,
   userAvatar,
@@ -44,13 +45,15 @@ export default function CustomerLayout({
             <div className="flex-1 flex flex-col">
               <Header
                 title={title}
-                date={date}
+                //date={date}
                 userName={userName}
                 userRole={userRole}
                 userAvatar={userAvatar}
                 onMenuClick={() => setSidebarOpen(true)}
               />
-              <main className="flex-1 mt-4">{children}</main>
+              <main className="flex-1 mt-4">
+                <AuthProvider>{children}</AuthProvider>
+              </main>
             </div>
           </div>
         </div>

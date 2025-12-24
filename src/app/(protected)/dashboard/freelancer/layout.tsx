@@ -1,4 +1,5 @@
 import Header from "@/app/components/layouts/headers/FreelancerHeader";
+import { AuthProvider } from "@/app/contexts/LoginContext";
 import "@/app/globals.css";
 
 export default function FreelancerLayout({
@@ -12,7 +13,7 @@ export default function FreelancerLayout({
         <body>
           <div className="bg-blue-50 min-h-screen p-2 md:p-4 lg:p-6">
             <Header />
-            {children}
+            <AuthProvider>{children}</AuthProvider>
           </div>
         </body>
       </html>

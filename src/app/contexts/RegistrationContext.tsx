@@ -1,11 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { register } from "@/app/services/auth.service";
 
 export type AccountType = "freelancer" | "client" | null;
 
 interface RegistrationData {
   accountType: AccountType;
   username: string;
+  // make category to be empty array for client account type
   categories: string[];
   email: string;
   password: string;
@@ -28,15 +30,16 @@ interface RegistrationContextType {
   prevStep: () => void;
   getTotalSteps: () => number;
   reset: () => void;
+  submitRegistration: () => Promise<void>;
 }
 
 const initialData: RegistrationData = {
-  accountType: null,
-  username: "",
+  accountType: "client",
+  username: "Ludivin",
   categories: [],
   email: "",
-  password: "",
-  confirmPassword: "",
+  password: "Ludivin123",
+  confirmPassword: "Ludivin123",
 };
 
 const RegistrationContext = createContext<RegistrationContextType | undefined>(
@@ -108,6 +111,19 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
     setStep(1);
     setData(initialData);
   };
+  const submitRegistration = async () => {
+    if (!data.accountType) {
+      throw new Error("Type de compte manquant");
+    }
+
+    await register({
+      role: data.accountType === "client" ? "client" : "freelancer",
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      categories: data.accountType === "freelancer" ? data.categories : [],
+    });
+  };
 
   return (
     <RegistrationContext.Provider
@@ -127,6 +143,7 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
         prevStep,
         getTotalSteps,
         reset,
+        submitRegistration,
       }}
     >
       {children}

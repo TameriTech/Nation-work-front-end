@@ -1,4 +1,5 @@
 export default function ForgotPasswordPage() {
+  // TODO: Implement forgot password functionality
   return (
     <div>
       <h1>Forgot Password</h1>

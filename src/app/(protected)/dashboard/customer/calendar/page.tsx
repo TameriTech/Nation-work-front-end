@@ -2,6 +2,8 @@ import { ServiceCalendar } from "@/app/components/features/calendar/customer/Ser
 import { Card, CardContent } from "@/app/components/ui/card";
 import { sampleEvents } from "@/data/constants";
 export default function Calendar() {
+  // TODO fetch data from API and replace the hardcoded values
+  // TODO Implement stats logic and filter
   return (
     <>
       <div className="grid  gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">

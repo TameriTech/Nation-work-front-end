@@ -1,5 +1,5 @@
 "use client";
-import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistration } from "@/app/contexts/RegistrationContext";
 import RegistrationProgressBar from "./RegistrationProgressBar";
 import Step1AccountType from "./steps/Step1AccountType";
 import Step2Categories from "./steps/Step2Categories";

@@ -1,23 +1,33 @@
 "use client";
-import { useState } from "react";
-import { useRegistration } from "@/contexts/RegistrationContext";
+import React, { useState } from "react";
+import { useRegistration } from "@/app/contexts/RegistrationContext";
 import { Button } from "@/app/components/ui/button";
 import { useToast } from "@/app/hooks/use-toast";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 const Step3Credentials = () => {
-  const { data, setEmail, setPassword, setConfirmPassword, prevStep } =
-    useRegistration();
+  const {
+    data,
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    prevStep,
+    submitRegistration,
+    reset,
+  } = useRegistration();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const canProceed =
     data.email.trim().length > 0 &&
     data.password.length >= 6 &&
     data.password === data.confirmPassword;
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!canProceed) return;
 
     // Validation
@@ -49,15 +59,28 @@ const Step3Credentials = () => {
       return;
     }
 
-    // Success - would normally submit to API
-    toast({
-      title: "Compte créé !",
-      description: `Bienvenue ${data.username} ! Votre compte ${data.accountType} a été créé avec succès.`,
-    });
+    try {
+      await submitRegistration();
+
+      // Success - would normally submit to API
+      toast({
+        title: "Compte créé !",
+        description: `Bienvenue ${data.username} ! Votre compte ${data.accountType} a été créé avec succès.`,
+      });
+
+      reset();
+      router.push("/auth/login");
+    } catch (e: any) {
+      toast({
+        title: "Échec de l'inscription",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="space-y-6 bg-transparent">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-transparent">
       {/* Title */}
       <h2 className="text-xl font-medium text-gray-900">
         Information de Connexion
@@ -137,14 +160,13 @@ const Step3Credentials = () => {
           Précédent
         </Button>
         <Button
-          onClick={handleSubmit}
           disabled={!canProceed}
           className="px-10 py-3 rounded-full bg-blue-900 hover:bg-blue-900/90 text-white font-medium disabled:opacity-50"
         >
           Créer mon Compte
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 

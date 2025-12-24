@@ -182,6 +182,7 @@ const MessagingPage = () => {
     }));
   };
 
+  // TODO fetch data from API and replace the hardcoded values
   return (
     <div className="flex gap-2 h-[calc(100vh-4rem)] bg-transparent overflow-hidden">
       {/* Sidebar */}

@@ -1,4 +1,4 @@
-import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistration } from "@/app/contexts/RegistrationContext";
 import AccountTypeCard from "../AccountTypeCard";
 import { Button } from "@/app/components/ui/button";
 

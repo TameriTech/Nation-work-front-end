@@ -1,4 +1,4 @@
-import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistration } from "@/app/contexts/RegistrationContext";
 
 const RegistrationProgressBar = () => {
   const { step, getTotalSteps } = useRegistration();
