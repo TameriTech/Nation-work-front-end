@@ -68,7 +68,7 @@ export const StatCard = ({
           <p
             className={cn(
               "text-sm",
-              isPrimary ? "text-primary-foreground/80" : "text-muted-foreground"
+              isPrimary ? "text-primary-foreground/80" : "text-slate-400"
             )}
           >
             {label}
@@ -79,9 +79,7 @@ export const StatCard = ({
               <span
                 className={cn(
                   "text-xs",
-                  isPrimary
-                    ? "text-primary-foreground/70"
-                    : "text-muted-foreground"
+                  isPrimary ? "text-primary-foreground/70" : "text-slate-400"
                 )}
               >
                 {change}
@@ -92,9 +90,7 @@ export const StatCard = ({
             <p
               className={cn(
                 "mt-1 text-sm",
-                isPrimary
-                  ? "text-primary-foreground/70"
-                  : "text-muted-foreground"
+                isPrimary ? "text-primary-foreground/70" : "text-slate-400"
               )}
             >
               {description}

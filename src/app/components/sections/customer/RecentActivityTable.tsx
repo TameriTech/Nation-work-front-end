@@ -24,7 +24,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ServiceFormWizard } from "@/app/types";
+import ServiceFormWizard from "@/app/components/features/service-form/ServiceFormWizard";
 
 interface Activity {
   id: string;
@@ -62,7 +62,7 @@ const statusConfig = {
   },
   en_attente: {
     label: "En attente",
-    className: "bg-muted text-muted-foreground border-border",
+    className: "bg-muted text-slate-400 border-border",
   },
 };
 
@@ -75,7 +75,7 @@ export const RecentActivityTable = ({
     <div className="">
       <Card className="bg-white text-gray-800 rounded-[30px]">
         <CardHeader className="flex-col md:flex-row gap-4 items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-slate-400">
             Activité récente
           </CardTitle>
           <div className="flex gap-2">
@@ -121,7 +121,7 @@ export const RecentActivityTable = ({
                       {/** change background when checkbox is checked */}
                       <Checkbox className="bg-gray-100" />
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-nowrap">
+                    <TableCell className="text-slate-400 text-nowrap">
                       {activity.date}
                     </TableCell>
                     <TableCell>{activity.type}</TableCell>
@@ -137,7 +137,7 @@ export const RecentActivityTable = ({
                               ? "bg-emerald-500"
                               : activity.status === "annule"
                               ? "bg-destructive"
-                              : "bg-muted-foreground"
+                              : "bg-slate-400"
                           }`}
                         />
                         {status.label}
@@ -159,13 +159,13 @@ export const RecentActivityTable = ({
                             <p className="text-sm font-medium text-nowrap">
                               {activity.provider.name}
                             </p>
-                            <p className="text-xs text-muted-foreground text-nowrap">
+                            <p className="text-xs text-slate-400 text-nowrap">
                               {activity.provider.phone}
                             </p>
                           </div>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-slate-400">-</span>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
@@ -176,13 +176,13 @@ export const RecentActivityTable = ({
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Icon
                             icon={"bi:eye"}
-                            className="h-4 w-4 text-muted-foreground"
+                            className="h-4 w-4 text-slate-400"
                           />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Icon
                             icon={"bi:link-45deg"}
-                            className="h-4 w-4 text-muted-foreground"
+                            className="h-4 w-4 text-slate-400"
                           />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -201,11 +201,7 @@ export const RecentActivityTable = ({
         </CardContent>
       </Card>
       {isOpen && (
-        <ServiceFormWizard
-          mode="create"
-          onSubmit={(data) => console.log(data)}
-          onCancel={() => setIsOpen(false)}
-        />
+        <ServiceFormWizard mode="create" onCancel={() => setIsOpen(false)} />
       )}
     </div>
   );

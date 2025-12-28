@@ -40,10 +40,7 @@ const Step2Categories = () => {
             <span className="text-gray-800 font-medium">
               Ajouter une Catégorie
             </span>
-            <Icon
-              icon={"bi:search"}
-              className="w-5 h-5 text-muted-foreground"
-            />
+            <Icon icon={"bi:search"} className="w-5 h-5 text-slate-400" />
           </div>
         </div>
       </button>

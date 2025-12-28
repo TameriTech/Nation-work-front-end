@@ -212,15 +212,13 @@ function InProgressDocumentItem({ document }: { document: Document }) {
       {document.adminComment && (
         <div className="ml-14 pl-4 border-l-2 border-border/60 flex items-start justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">
-              {document.adminComment}
-            </p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
+            <p className="text-sm text-slate-400">{document.adminComment}</p>
+            <p className="text-xs text-slate-400/70 mt-1">
               {document.commentDate}
             </p>
           </div>
           <button className="p-1 hover:bg-destructive/10 rounded transition-colors">
-            <Icon icon="mdi:close" className="h-4 w-4 text-muted-foreground" />
+            <Icon icon="mdi:close" className="h-4 w-4 text-slate-400" />
           </button>
         </div>
       )}
@@ -236,7 +234,7 @@ function RejectedDocumentItem({ document }: { document: Document }) {
           <DocumentIcon variant="blue" />
           <div>
             <p className="font-semibold text-foreground">{document.name}</p>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+            <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
               <Icon icon="mdi:calendar" className="h-3.5 w-3.5" />
               <span>{document.submissionDate}</span>
             </div>
@@ -245,10 +243,7 @@ function RejectedDocumentItem({ document }: { document: Document }) {
         <div className="flex items-center gap-3">
           <StatusBadge status={document.status} />
           <button className="p-1.5 hover:bg-muted rounded-md transition-colors">
-            <Icon
-              icon="mdi:refresh-cw"
-              className="h-4 w-4 text-muted-foreground"
-            />
+            <Icon icon="mdi:refresh-cw" className="h-4 w-4 text-slate-400" />
           </button>
           <button className="p-1.5 hover:bg-destructive/10 rounded-md transition-colors">
             <Icon icon="mdi:trash-2" className="h-4 w-4 text-destructive" />
@@ -258,15 +253,13 @@ function RejectedDocumentItem({ document }: { document: Document }) {
       {document.adminComment && (
         <div className="ml-14 pl-4 border-l-2 border-border/60 flex items-start justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">
-              {document.adminComment}
-            </p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
+            <p className="text-sm text-slate-400">{document.adminComment}</p>
+            <p className="text-xs text-slate-400/70 mt-1">
               {document.commentDate}
             </p>
           </div>
           <button className="p-1 hover:bg-destructive/10 rounded transition-colors">
-            <Icon icon="mdi:close" className="h-4 w-4 text-muted-foreground" />
+            <Icon icon="mdi:close" className="h-4 w-4 text-slate-400" />
           </button>
         </div>
       )}

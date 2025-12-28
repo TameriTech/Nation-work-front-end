@@ -194,7 +194,7 @@ const MessagingPage = () => {
             onSendMessage={handleSendMessage}
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
+          <div className="flex items-center justify-center h-full text-slate-400">
             Sélectionnez une conversation
           </div>
         )}

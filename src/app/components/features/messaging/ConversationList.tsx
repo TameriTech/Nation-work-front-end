@@ -47,7 +47,7 @@ const ConversationList = ({
         <div className="relative">
           <Icon
             icon={"mdi:search"}
-            className="absolute right-3 text-blue-900 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground"
+            className="absolute right-3 text-blue-900 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-400"
           />
           <Input
             value={search}
@@ -58,7 +58,7 @@ const ConversationList = ({
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-14 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-14 top-1/2 -translate-y-1/2 text-slate-400 hover:text-foreground"
             >
               <Icon icon={"mdi:close"} className="h-6 w-6 text-gray-500" />
             </button>

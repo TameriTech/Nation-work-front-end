@@ -126,9 +126,7 @@ export function ServiceCalendar({
             return (
               <div
                 className={`text-center py-2 ${
-                  isToday
-                    ? "font-bold text-foreground"
-                    : "text-muted-foreground"
+                  isToday ? "font-bold text-foreground" : "text-slate-400"
                 }`}
               >
                 <span>
@@ -162,7 +160,7 @@ export function ServiceCalendar({
         }
         .calendar-wrapper .fc-timegrid-slot-label {
           font-size: 0.875rem;
-          color: hsl(var(--muted-foreground));
+          color: hsl(var(--slate-400));
           font-weight: 500;
         }
         .calendar-wrapper .fc-timegrid-axis-cushion {

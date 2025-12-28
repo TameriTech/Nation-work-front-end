@@ -110,7 +110,7 @@ export function FavoritesJobsContent({
                 onClick={() => setCategoryQuery("")}
                 className="p-1 hover:bg-muted rounded"
               >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-muted-foreground" />
+                <Icon icon={"bi:x"} className="w-4 h-4 text-slate-400" />
               </button>
             )}
             <button className="p-1 hover:bg-muted rounded border border-border">

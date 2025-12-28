@@ -79,7 +79,7 @@ export function CalendarEventCard({ event }: CalendarEventCardProps) {
       <div className="flex items-start gap-1">
         <Avatar className="h-7 w-7 shrink-0 rounded-[10px]">
           <AvatarImage src={event.avatarUrl} alt="Avatar" />
-          <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+          <AvatarFallback className="bg-muted text-slate-400 text-xs">
             {event.avatarFallback || "U"}
           </AvatarFallback>
         </Avatar>

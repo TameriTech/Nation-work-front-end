@@ -39,7 +39,7 @@ const ConversationItem = ({
     >
       <Avatar className="h-12 w-12 shrink-0">
         <AvatarImage src={avatar} alt={name} />
-        <AvatarFallback className="bg-muted text-muted-foreground">
+        <AvatarFallback className="bg-muted text-slate-400">
           {name.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
@@ -56,7 +56,7 @@ const ConversationItem = ({
       </div>
 
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <span className="text-xs text-muted-foreground">{time}</span>
+        <span className="text-xs text-slate-400">{time}</span>
         {unreadCount > 0 ? (
           <span className="flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-orange-500 text-white text-xs font-medium">
             {unreadCount}

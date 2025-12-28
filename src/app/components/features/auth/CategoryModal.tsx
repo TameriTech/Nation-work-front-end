@@ -106,7 +106,7 @@ const CategoryModal = ({
                 />
                 <Icon
                   icon={"bi:search"}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
                 />
               </div>
             </div>
@@ -139,7 +139,7 @@ const CategoryModal = ({
                       "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
                       isSelected
                         ? "border-accent bg-accent"
-                        : "border-muted-foreground/30"
+                        : "border-slate-400/30"
                     )}
                   >
                     {isSelected && (

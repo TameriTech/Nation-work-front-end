@@ -39,7 +39,7 @@ export const StatusDistributionChart = ({
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-muted-foreground">
+              <span className="text-slate-400">
                 {item.name} - {item.value}
               </span>
             </div>
@@ -65,9 +65,7 @@ export const StatusDistributionChart = ({
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xs text-muted-foreground">
-              Total Services
-            </span>
+            <span className="text-xs text-slate-400">Total Services</span>
             <span className="text-2xl font-bold">{total}</span>
           </div>
         </div>

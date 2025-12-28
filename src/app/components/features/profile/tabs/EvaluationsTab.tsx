@@ -170,13 +170,13 @@ function RatingOverviewCard() {
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 12, fill: "hsl(var(--slate-400))" }}
               />
               <YAxis
                 domain={[0, 4]}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 12, fill: "hsl(var(--slate-400))" }}
                 ticks={[0, 1, 2, 3, 4]}
               />
               <Tooltip
@@ -249,9 +249,7 @@ function CommentCard({
       {/* Footer */}
       <div className="flex items-center justify-between">
         <StarRating rating={rating} size={18} />
-        <span className="text-sm text-muted-foreground">
-          noté il y a {daysAgo} j
-        </span>
+        <span className="text-sm text-slate-400">noté il y a {daysAgo} j</span>
       </div>
     </div>
   );

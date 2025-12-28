@@ -73,7 +73,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
             {searchQuery ? (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-8 text-slate-400 hover:text-foreground transition-colors"
               >
                 <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
               </button>
@@ -170,13 +170,13 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                           <p className="text-sm font-medium text-nowrap">
                             {payment.job.provider}
                           </p>
-                          <p className="text-xs text-muted-foreground text-nowrap">
+                          <p className="text-xs text-slate-400 text-nowrap">
                             {payment.job.title}
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">-</span>
+                      <span className="text-slate-400">-</span>
                     )}
                   </TableCell>
 
@@ -190,7 +190,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                             ? "bg-emerald-500"
                             : payment.status === "canceled"
                             ? "bg-red-500"
-                            : "bg-muted-foreground"
+                            : "bg-slate-400"
                         }`}
                       />
                       {status.label}
@@ -201,7 +201,7 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Icon
                           icon={"bi:arrow-up"}
-                          className="h-4 w-4 text-muted-foreground"
+                          className="h-4 w-4 text-slate-400"
                         />
                       </Button>
                     </div>

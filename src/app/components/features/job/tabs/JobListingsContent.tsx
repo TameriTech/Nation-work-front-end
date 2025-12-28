@@ -3,7 +3,8 @@ import { Icon } from "@iconify/react";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getServices } from "@/app/services/service.service";
 
 interface JobListingsContentProps {
   favorites: number[];
@@ -97,6 +98,28 @@ export function JobListingsContent({
       postedDate: "6 j",
     },
   ];
+  const [services, setServices] = useState(MOCK_JOBS);
+
+  useEffect(() => {
+    // Here you can implement filtering logic based on searchQuery and categoryQuery
+    let filteredServices = getServices();
+
+    if (searchQuery) {
+      filteredServices = filteredServices.filter((job) =>
+        job.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (categoryQuery) {
+      filteredServices = filteredServices.filter((job) =>
+        job.skills.some((skill) =>
+          skill.toLowerCase().includes(categoryQuery.toLowerCase())
+        )
+      );
+    }
+
+    setServices(filteredServices);
+  }, [searchQuery, categoryQuery]);
 
   return (
     <>
@@ -138,7 +161,7 @@ export function JobListingsContent({
                 onClick={() => setCategoryQuery("")}
                 className="p-1 hover:bg-muted rounded"
               >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-muted-foreground" />
+                <Icon icon={"bi:x"} className="w-4 h-4 text-slate-400" />
               </button>
             )}
             <button className="p-1 hover:bg-muted rounded border border-border">

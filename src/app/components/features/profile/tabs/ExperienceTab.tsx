@@ -181,16 +181,14 @@ function EducationItemCard({
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <h4 className="font-semibold text-foreground">{item.school}</h4>
-              <p className="text-sm text-muted-foreground italic">
-                {item.cycle}
-              </p>
-              <p className="text-xs hidden lg:inline text-muted-foreground mt-0.5">
+              <p className="text-sm text-slate-400 italic">{item.cycle}</p>
+              <p className="text-xs hidden lg:inline text-slate-400 mt-0.5">
                 debut_{item.startDate} - fin_{item.endDate}
               </p>
             </div>
 
             <div className="flex items-start gap-4">
-              <p className="text-sm hidden md:block text-muted-foreground leading-relaxed max-w-md">
+              <p className="text-sm hidden md:block text-slate-400 leading-relaxed max-w-md">
                 {item.description}
               </p>
               <div className="items-center gap-2 shrink-0">
@@ -208,7 +206,7 @@ function EducationItemCard({
           </div>
         </div>
       </div>
-      <p className="text-sm block md:hidden text-muted-foreground leading-relaxed max-w-md">
+      <p className="text-sm block md:hidden text-slate-400 leading-relaxed max-w-md">
         {item.description}
       </p>
     </div>

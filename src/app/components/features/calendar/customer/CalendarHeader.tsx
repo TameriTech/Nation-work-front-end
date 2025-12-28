@@ -107,25 +107,22 @@ export function CalendarHeader({
             onClick={onPrevWeek}
             className="p-1 hover:bg-muted rounded-full transition-colors"
           >
-            <Icon
-              icon={"bi:chevron-left"}
-              className="h-5 w-5 text-muted-foreground"
-            />
+            <Icon icon={"bi:chevron-left"} className="h-5 w-5 text-slate-400" />
           </button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-slate-400">
             Semaine du {getMonthStart(currentDate)}
           </span>
           <span className="text-lg font-semibold text-primary">
             {currentMonth} {currentYear}
           </span>
-          <span className="text-sm text-muted-foreground">Semaine du 30</span>
+          <span className="text-sm text-slate-400">Semaine du 30</span>
           <button
             onClick={onNextWeek}
             className="p-1 hover:bg-muted rounded-full transition-colors"
           >
             <Icon
               icon={"bi:chevron-right"}
-              className="h-5 w-5 text-muted-foreground"
+              className="h-5 w-5 text-slate-400"
             />
           </button>
         </div>
@@ -135,12 +132,9 @@ export function CalendarHeader({
             onClick={onPrevMonth}
             className="p-1 hover:bg-muted rounded-full transition-colors"
           >
-            <Icon
-              icon={"bi:chevron-left"}
-              className="h-5 w-5 text-muted-foreground"
-            />
+            <Icon icon={"bi:chevron-left"} className="h-5 w-5 text-slate-400" />
           </button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-slate-400">
             {months[prevMonthIndex]}
           </span>
           <span className="text-sm text-foreground font-medium">
@@ -152,7 +146,7 @@ export function CalendarHeader({
           >
             <Icon
               icon={"bi:chevron-right"}
-              className="h-5 w-5 text-muted-foreground"
+              className="h-5 w-5 text-slate-400"
             />
           </button>
         </div>

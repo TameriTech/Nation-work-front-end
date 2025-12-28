@@ -22,7 +22,7 @@ import {
 } from "@/app/components/ui/table";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import { Candidature } from "@/app/types/candidature";
+import { Candidature } from "@/app/types/candidatures";
 
 interface CandidatureTableProps {
   candidatures: Candidature[];
@@ -64,7 +64,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
   return (
     <Card className="bg-white text-gray-800 rounded-[30px]">
       <CardHeader className="flex-col gap-4 lg:flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           List of candidatures
         </CardTitle>
 
@@ -81,7 +81,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
             {searchQuery ? (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-8 text-slate-400 hover:text-foreground transition-colors"
               >
                 <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
               </button>
@@ -148,7 +148,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                             ? "bg-emerald-500"
                             : candidature.offerStatus === "canceled"
                             ? "bg-destructive"
-                            : "bg-muted-foreground"
+                            : "bg-slate-400"
                         }`}
                       />
                       {status.label}
@@ -170,13 +170,13 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                           <p className="text-sm font-medium text-nowrap">
                             {candidature.provider.name}
                           </p>
-                          <p className="text-xs text-muted-foreground text-nowrap">
+                          <p className="text-xs text-slate-400 text-nowrap">
                             {candidature.provider.phone}
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">-</span>
+                      <span className="text-slate-400">-</span>
                     )}
                   </TableCell>
                   <TableCell className="text-gray-500 text-nowrap">
@@ -209,7 +209,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                             ? "bg-blue-500"
                             : candidature.candidacyStatus === "rejected"
                             ? "bg-red-500"
-                            : "bg-muted-foreground"
+                            : "bg-slate-400"
                         }`}
                       />
                       {status.label}
@@ -223,13 +223,13 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Icon
                           icon={"bi:eye"}
-                          className="h-4 w-4 text-muted-foreground"
+                          className="h-4 w-4 text-slate-400"
                         />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Icon
                           icon={"bi:link-45deg"}
-                          className="h-4 w-4 text-muted-foreground"
+                          className="h-4 w-4 text-slate-400"
                         />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8">

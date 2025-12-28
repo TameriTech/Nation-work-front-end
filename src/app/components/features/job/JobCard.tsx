@@ -1,5 +1,5 @@
 import { Badge } from "@/app/components/ui/badge";
-import { JobCardProps, JobStatus } from "@/app/types/job";
+import { JobCardProps, JobStatus } from "@/app/types/services";
 import { Icon } from "@iconify/react";
 
 const skillColors = [
@@ -152,7 +152,7 @@ export function JobCard({
                   className={`w-4 h-4 ${
                     i < Math.floor(rating)
                       ? "fill-yellow-400 text-yellow-400"
-                      : "text-muted-foreground/30"
+                      : "text-slate-400/30"
                   }`}
                 />
               ))}

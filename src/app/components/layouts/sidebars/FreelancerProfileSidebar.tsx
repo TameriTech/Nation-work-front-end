@@ -202,7 +202,7 @@ export function CustomerProfileSidebar({
                 icon={
                   <Icon
                     icon={"bi:telephone"}
-                    className="h-4 w-4 text-muted-foreground"
+                    className="h-4 w-4 text-slate-400"
                   />
                 }
                 label="Téléphone"
@@ -210,20 +210,14 @@ export function CustomerProfileSidebar({
               />
               <InfoRow
                 icon={
-                  <Icon
-                    icon={"bi:flag"}
-                    className="h-4 w-4 text-muted-foreground"
-                  />
+                  <Icon icon={"bi:flag"} className="h-4 w-4 text-slate-400" />
                 }
                 label="Nationalité"
                 value={profile.nationality}
               />
               <InfoRow
                 icon={
-                  <Icon
-                    icon={"bi:gender"}
-                    className="h-4 w-4 text-muted-foreground"
-                  />
+                  <Icon icon={"bi:gender"} className="h-4 w-4 text-slate-400" />
                 }
                 label="Sexe"
                 value={profile.gender}
@@ -232,7 +226,7 @@ export function CustomerProfileSidebar({
                 icon={
                   <Icon
                     icon={"bi:calendar"}
-                    className="h-4 w-4 text-muted-foreground"
+                    className="h-4 w-4 text-slate-400"
                   />
                 }
                 label="Age"
