@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { getCategories } from "../services/category.service";
 
 export async function getFormCategories() {
