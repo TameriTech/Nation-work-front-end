@@ -11,7 +11,7 @@ export default function Calendar() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Candidatures en attente
                 </p>
                 <div className="mt-1 flex items-center gap-2">
@@ -45,9 +45,7 @@ export default function Calendar() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Candidatures assignées
-                </p>
+                <p className="text-sm text-slate-400">Candidatures assignées</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-3xl font-bold">{2}</span>
                   <span className="text-xs text-primary-foreground/70">
@@ -83,9 +81,7 @@ export default function Calendar() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Candidatures assignées
-                </p>
+                <p className="text-sm text-slate-400">Candidatures assignées</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-3xl font-bold">{18}</span>
                   <span className="text-xs text-primary-foreground/70">
@@ -121,9 +117,7 @@ export default function Calendar() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Candidatures assignées
-                </p>
+                <p className="text-sm text-slate-400">Candidatures assignées</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-3xl font-bold">{3}</span>
                   <span className="text-xs text-primary-foreground/70">

@@ -1,7 +1,7 @@
 "use client";
 import { CandidatureTable } from "@/app/components/sections/customer/CandidatureTable";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Candidature } from "@/app/types/candidature";
+import { Candidature } from "@/app/types/candidatures";
 
 const activities: Candidature[] = [
   {
@@ -66,7 +66,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Candidatures en attente
                 </p>
                 <div className="mt-1 flex items-center gap-2">
@@ -99,9 +99,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Candidatures assignées
-                </p>
+                <p className="text-sm text-slate-400">Candidatures assignées</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-3xl font-bold">{13}</span>
                   <span className="text-xs text-primary-foreground/70">
@@ -137,7 +135,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="grid grid-cols-12 w-full justify-between items-center gap-2">
               <div className="col-span-10">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Taux d’acceptation des prestataires
                 </p>
                 <div className="mt-1 flex items-center gap-2">

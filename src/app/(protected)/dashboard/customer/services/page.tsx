@@ -1,83 +1,24 @@
-import {
-  ServicesTable,
-  Candidature,
-} from "@/app/components/sections/customer/ServicesTable";
-import { Card, CardContent } from "@/app/components/ui/card";
+"use client";
 
-const activities: Candidature[] = [
-  {
-    id: "1",
-    offerTitle: "Develo...",
-    offerStatus: "published",
-    requiredSkills: ["React", "Next.js", "TypeScript"],
-    averageNote: 4.6,
-    amount: "4 500 ₦",
-    provider: {
-      name: "Ludivin Dev",
-      phone: "+234 055 31...",
-      avatar: "",
-    },
-    candidates: [
-      { name: "Derick", avatar: "" },
-      { name: "Michael", avatar: "" },
-    ],
-  },
-  {
-    id: "2",
-    offerTitle: "Cuisine",
-    offerStatus: "draft",
-    requiredSkills: ["Cuisine locale", "Hygiène"],
-    averageNote: 0,
-    amount: "500 ₦",
-    provider: undefined,
-    candidates: [],
-  },
-  {
-    id: "3",
-    offerTitle: "UI Design",
-    offerStatus: "closed",
-    requiredSkills: ["Figma", "UX", "Design System"],
-    averageNote: 4.2,
-    amount: "1 500 ₦",
-    provider: {
-      name: "Derick NA...",
-      phone: "+237 655 31...",
-      avatar: "",
-    },
-    candidates: [{ name: "Anna", avatar: "" }],
-  },
-  {
-    id: "4",
-    offerTitle: "Managem...",
-    offerStatus: "closed",
-    requiredSkills: ["Leadership", "Planning"],
-    averageNote: 3.9,
-    amount: "0 ₦",
-    provider: {
-      name: "Michael",
-      phone: "+234 055 31...",
-      avatar: "",
-    },
-    candidates: [{ name: "Chris", avatar: "" }],
-  },
-  {
-    id: "5",
-    offerTitle: "Analyste",
-    offerStatus: "published",
-    requiredSkills: ["Excel", "Reporting", "Data analysis"],
-    averageNote: 4.8,
-    amount: "14 500 ₦",
-    provider: undefined,
-    candidates: [
-      { name: "Sarah", avatar: "" },
-      { name: "Amadou", avatar: "" },
-      { name: "Lina", avatar: "" },
-    ],
-  },
-];
+import { ServicesTable } from "@/app/components/sections/customer/ServicesTable";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { useEffect, useState } from "react";
+import { getClientServices } from "@/app/services/service.service";
+import { Service } from "@/app/types";
 
 export default function DashboardContent() {
   // TODO fetch data from API and replace the hardcoded values
+  const [services, setServices] = useState<Service[]>([]);
+  useEffect(() => {
+    document.title = "Tableau de bord - Services";
+    // load services data here
+    const fetchData = async () => {
+      const data = await getClientServices();
+      setServices(data.services as unknown as Service[]);
+      console.log(data);
+    };
+    fetchData();
+  }, []);
   return (
     <div className="space-y-6">
       {/* Top Stats Row */}
@@ -86,7 +27,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Candidatures en attente
                 </p>
                 <div className="mt-1 flex items-center gap-2">
@@ -119,9 +60,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="flex w-full justify-between items-center gap-2">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Candidatures assignées
-                </p>
+                <p className="text-sm text-slate-400">Candidatures assignées</p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-3xl font-bold">{13}</span>
                   <span className="text-xs text-primary-foreground/70">
@@ -157,7 +96,7 @@ export default function DashboardContent() {
           <CardContent className="flex flex-col items-center justify-between p-5">
             <div className="grid grid-cols-12 w-full justify-between items-center gap-2">
               <div className="col-span-10">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Taux d’acceptation des prestataires
                 </p>
                 <div className="mt-1 flex items-center gap-2">
@@ -189,7 +128,7 @@ export default function DashboardContent() {
 
         {/* Activity Table - Takes 2 columns */}
         <div className="col-span-full space-y-6">
-          <ServicesTable candidatures={activities} />
+          <ServicesTable services={services} />
         </div>
       </div>
     </div>
