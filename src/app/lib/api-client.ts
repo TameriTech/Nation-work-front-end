@@ -13,12 +13,13 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const token = localStorage.getItem("access_token");
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
+    authorization: `Bearer ${token}`,
     },
-    credentials: "include",
     ...options,
   });
 
@@ -30,10 +31,12 @@ export async function apiClient<T>(
   }
 
   if (!res.ok) {
+    console.log(res);
     throw new ApiError(
       data?.message || "Erreur serveur",
       res.status
     );
+    
   }
 
   return data as T;
