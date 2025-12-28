@@ -5,24 +5,24 @@ import {
   Control,
   Controller,
 } from "react-hook-form";
-import { Service, DURATION_OPTIONS } from "@/app/types";
-import { SkillsTagInput } from "../SkillsTagInput";
+import { DURATION_OPTIONS } from "@/app/types";
+import { ServiceFormValues } from "@/app/types/services";
 
-interface Step2PracticalProps {
-  register: UseFormRegister<Service>;
-  errors: FieldErrors<Service>;
-  control: Control<Service>;
+interface Step2SchedulingProps {
+  register: UseFormRegister<ServiceFormValues>;
+  errors: FieldErrors<ServiceFormValues>;
+  control: Control<ServiceFormValues>;
   inputClassName?: string;
   labelClassName?: string;
 }
 
-export const Step2Practical: React.FC<Step2PracticalProps> = ({
+export const Step2Scheduling: React.FC<Step2SchedulingProps> = ({
   register,
   errors,
   control,
   inputClassName = "",
   labelClassName = "",
-}) => {
+}: Step2SchedulingProps) => {
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-foreground">
@@ -36,11 +36,13 @@ export const Step2Practical: React.FC<Step2PracticalProps> = ({
           </label>
           <input
             type="date"
-            {...register("date")}
+            {...register("date_pratique")}
             className={`${inputClassName} bg-white text-gray-800 placeholder:text-gray-500`}
           />
-          {errors.date && (
-            <p className="text-sm text-destructive">{errors.date.message}</p>
+          {errors.date_pratique && (
+            <p className="text-sm text-destructive">
+              {errors.date_pratique.message}
+            </p>
           )}
         </div>
       </div>
@@ -71,42 +73,15 @@ export const Step2Practical: React.FC<Step2PracticalProps> = ({
           <label className={`${labelClassName} text-gray-500`}>Heure</label>
           <input
             type="time"
-            {...register("time")}
+            {...register("start_time")}
             className={`${inputClassName} bg-white text-gray-800 placeholder:text-gray-500`}
           />
-          {errors.time && (
-            <p className="text-sm text-destructive">{errors.time.message}</p>
+          {errors.start_time && (
+            <p className="text-sm text-destructive">
+              {errors.start_time.message}
+            </p>
           )}
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className={`${labelClassName} text-gray-500`}>Adresse</label>
-        <input
-          {...register("address")}
-          placeholder="Lagos - Central Market"
-          className={`${inputClassName} bg-white text-gray-800 placeholder:text-gray-500`}
-        />
-        {errors.address && (
-          <p className="text-sm text-destructive">{errors.address.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <label className={`${labelClassName} text-gray-500`}>
-          Compétences requises (facultatif)
-        </label>
-        <Controller
-          name="skills"
-          control={control}
-          render={({ field }) => (
-            <SkillsTagInput
-              value={field.value || []}
-              onChange={field.onChange}
-              inputClassName={`${inputClassName} bg-white text-gray-800 placeholder:text-gray-500`}
-            />
-          )}
-        />
       </div>
     </div>
   );

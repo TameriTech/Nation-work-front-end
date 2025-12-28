@@ -23,24 +23,13 @@ import {
 } from "@/app/components/ui/table";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-
-export interface Candidature {
-  id: string;
-  offerTitle: string;
-  offerStatus: "draft" | "published" | "closed" | "canceled" | "pending";
-  requiredSkills?: string[];
-  averageNote: number;
-  amount: string;
-  provider?: {
-    name: string;
-    phone: string;
-    avatar?: string;
-  };
-  candidates?: { name: string; avatar?: string }[];
-}
+import ServiceFormWizard from "@/app/components/features/service-form/ServiceFormWizard";
+import { Service } from "@/app/types/services";
+import { deleteService } from "@/app/services/service.service";
+import { toast } from "../../ui/sonner";
 
 interface CandidatureTableProps {
-  candidatures: Candidature[];
+  services: Service[] | [];
 }
 
 const statusConfig = {
@@ -66,12 +55,44 @@ const statusConfig = {
   },
 } as const;
 
-export const ServicesTable = ({ candidatures }: CandidatureTableProps) => {
+const deleteServices = async (serviceId: number) => {
+  await deleteService(serviceId);
+  console.log(`Delete service with ID: ${serviceId}`);
+};
+
+const copyServiceLinkToClipboard = (link: string) => {
+  navigator.clipboard.writeText(link).then(() => {
+    toast.success("Service link copied to clipboard!");
+    console.log("Service link copied to clipboard:", link);
+  });
+};
+
+const viewServiceDetails = (serviceId: number) => {
+  // navigate to service details page
+  window.location.href = `/dashboard/customer/services/${serviceId}`;
+};
+
+export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [editServiceId, setEditServiceId] = useState<number | undefined>(
+    undefined
+  );
+
+  const openFormWizard = (mode: "create" | "edit", serviceId?: number) => {
+    setFormMode(mode);
+    // set form wizard data if edit mode
+    if (mode === "edit" && serviceId) {
+      setEditServiceId(serviceId);
+    }
+    setIsOpen(true);
+  };
+
   return (
-    <Card className="bg-white text-gray-800 rounded-[30px]">
+    <Card className="relative bg-white text-gray-800 rounded-[30px]">
       <CardHeader className="flex-col lg:flex-row items-center gap-4 justify-between space-y-0 pb-4">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           My Services offers
         </CardTitle>
 
@@ -88,7 +109,7 @@ export const ServicesTable = ({ candidatures }: CandidatureTableProps) => {
             {searchQuery ? (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-8 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-8 text-slate-400 hover:text-foreground transition-colors"
               >
                 <Icon icon={"bx:x"} className="text-2xl mr-5 text-blue-900" />
               </button>
@@ -100,10 +121,12 @@ export const ServicesTable = ({ candidatures }: CandidatureTableProps) => {
           </div>
 
           <div className="flex gap-2">
-            <Button className="gap-2 bg-amber-600 rounded-[50px] hover:bg-orange-900 text-white">
+            <Button
+              onClick={() => openFormWizard("create")}
+              className="gap-2 bg-amber-600 rounded-[50px] hover:bg-orange-900 text-white"
+            >
               <Icon icon={"bi:plus"} className="h-4 w-4" />
-              Publier un service{" "}
-              <span className="hidden md:visible">sur Nation Work</span>
+              Publier un service sur Nation Work
             </Button>
           </div>
         </div>
@@ -126,134 +149,180 @@ export const ServicesTable = ({ candidatures }: CandidatureTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {candidatures.map((candidature) => {
-              const status = statusConfig[candidature.offerStatus];
-              if (!status) return null;
-              return (
-                <TableRow
-                  key={candidature.id}
-                  className="border-b border-gray-300"
-                >
-                  <TableCell>
-                    <Checkbox className="bg-gray-100" />
-                  </TableCell>
+            {/** fix service.map is not a function */}
+            {Array.isArray(services) ? (
+              services.map((service) => {
+                const status = statusConfig[service.status];
+                if (!status) return null;
+                return (
+                  <TableRow
+                    key={service.id}
+                    className="border-b border-gray-300"
+                  >
+                    <TableCell>
+                      <Checkbox className="bg-gray-100" />
+                    </TableCell>
 
-                  <TableCell>{candidature.offerTitle}</TableCell>
+                    <TableCell>{service.title}</TableCell>
 
-                  <TableCell>
-                    <Badge variant="outline" className={status.className}>
-                      <span
-                        className={`mr-1.5 h-1.5 w-1.5 rounded-full text-nowrap ${
-                          candidature.offerStatus === "pending"
-                            ? "bg-amber-500"
-                            : candidature.offerStatus === "published"
-                            ? "bg-blue-500"
-                            : candidature.offerStatus === "closed"
-                            ? "bg-emerald-500"
-                            : candidature.offerStatus === "canceled"
-                            ? "bg-destructive"
-                            : "bg-muted-foreground"
-                        }`}
-                      />
-                      {status.label}
-                    </Badge>
-                  </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={status.className}>
+                        <span
+                          className={`mr-1.5 h-1.5 w-1.5 rounded-full text-nowrap ${
+                            service.status === "draft"
+                              ? "bg-amber-500"
+                              : service.status === "published"
+                              ? "bg-blue-500"
+                              : service.status === "completed"
+                              ? "bg-emerald-500"
+                              : service.status === "canceled"
+                              ? "bg-destructive"
+                              : "bg-slate-400"
+                          }`}
+                        />
+                        {status.label}
+                      </Badge>
+                    </TableCell>
 
-                  <TableCell className="font-medium flex flex-wrap gap-2">
-                    {candidature.requiredSkills?.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="mr-1 bg-blue-900/10 text-nowrap text-blue-900 px-2 py-1 rounded-full text-xs"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </TableCell>
-
-                  {/** use stars */}
-
-                  <TableCell className="font-medium">
-                    {candidature.amount}
-                  </TableCell>
-                  <TableCell className="flex gap-1">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Icon
-                        icon={"bi:star"}
-                        key={index}
-                        className={
-                          index < candidature.averageNote
-                            ? "text-yellow-500"
-                            : "text-gray-500"
-                        }
-                      />
-                    ))}
-                  </TableCell>
-
-                  <TableCell className="font-medium">
-                    <div className="flex -space-x-5 overflow-hidden">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="w-8 h-8 rounded-full border border-white bg-gray-300"
-                        ></div>
+                    <TableCell className="font-medium flex flex-wrap gap-2">
+                      {service.required_skills?.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="mr-1 bg-blue-900/10 text-nowrap text-blue-900 px-2 py-1 rounded-full text-xs"
+                        >
+                          {skill}
+                        </span>
                       ))}
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell>
-                    {candidature.provider ? (
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage
-                            src={candidature.provider.avatar}
-                            alt={candidature.provider.name}
-                          />
-                          <AvatarFallback>
-                            {candidature.provider.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium text-nowrap">
-                            {candidature.provider.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground text-nowrap">
-                            {candidature.provider.phone}
-                          </p>
-                        </div>
+                    {/** use stars */}
+
+                    <TableCell className="font-medium">
+                      {service.proposed_amount}
+                    </TableCell>
+                    <TableCell className="flex gap-1">
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <Icon
+                          icon={"bi:star"}
+                          key={index}
+                          className={
+                            index < service.client_rating
+                              ? "text-yellow-500"
+                              : "text-gray-500"
+                          }
+                        />
+                      ))}
+                    </TableCell>
+
+                    <TableCell className="font-medium">
+                      <div className="flex -space-x-5 overflow-hidden">
+                        {[1, 2, 3].map((i) => (
+                          <div
+                            key={i}
+                            className="w-8 h-8 rounded-full border border-white bg-gray-300"
+                          ></div>
+                        ))}
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Icon
-                          icon={"bi:eye"}
-                          className="h-4 w-4 text-muted-foreground"
-                        />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Icon
-                          icon={"bi:link-45deg"}
-                          className="h-4 w-4 text-muted-foreground"
-                        />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Icon
-                          icon={"bi:trash"}
-                          className="h-4 w-4 text-destructive"
-                        />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                    <TableCell>
+                      {service.provider ? (
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage
+                              src={service.provider.avatar}
+                              alt={service.provider.name}
+                            />
+                            <AvatarFallback>
+                              {service.provider.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium text-nowrap">
+                              {service.provider.name}
+                            </p>
+                            <p className="text-xs text-slate-400 text-nowrap">
+                              {service.provider.phone}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          onClick={() => viewServiceDetails(service.id)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Icon
+                            icon={"bi:eye"}
+                            className="h-4 w-4 text-slate-400"
+                          />
+                        </Button>
+                        <Button
+                          onClick={() => openFormWizard("edit", service.id)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Icon
+                            icon={"bi:pen"}
+                            className="h-4 w-4 text-slate-400"
+                          />
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            copyServiceLinkToClipboard(
+                              "/dashboard/customer/services/" + service.id
+                            )
+                          }
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Icon
+                            icon={"bi:link-45deg"}
+                            className="h-4 w-4 text-slate-400"
+                          />
+                        </Button>
+                        <Button
+                          onClick={() => deleteServices(service.id)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Icon
+                            icon={"bi:trash"}
+                            className="h-4 w-4 text-destructive"
+                          />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-4">
+                  No services found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>
+      {isOpen && (
+        <ServiceFormWizard
+          mode={formMode}
+          serviceId={editServiceId}
+          onCancel={() => setIsOpen(false)}
+        />
+      )}
     </Card>
   );
 };

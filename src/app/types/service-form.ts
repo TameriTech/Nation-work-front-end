@@ -16,27 +16,8 @@ export const serviceSchema = z.object({
 
 export type Service = z.infer<typeof serviceSchema>;
 
-export interface ServiceFormWizardProps {
-  mode: "create" | "edit";
-  defaultValues?: Partial<Service>;
-  onSubmit: (data: Service) => void;
-  onCancel: () => void;
-  containerClassName?: string;
-  inputClassName?: string;
-  buttonClassName?: string;
-  labelClassName?: string;
-}
 
-export const SERVICE_CATEGORIES = [
-  "Développement",
-  "Design",
-  "Marketing",
-  "Rédaction",
-  "Traduction",
-  "Consulting",
-  "Formation",
-  "Autre",
-];
+
 
 export const DURATION_OPTIONS = [
   { value: "30min", label: "30 minutes" },

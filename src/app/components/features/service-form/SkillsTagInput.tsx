@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 
 interface SkillsTagInputProps {
   value: string[];
-  onChange: (skills: string[]) => void;
+  onChange: (required_skills: string[]) => void;
   inputClassName?: string;
   placeholder?: string;
 }
@@ -25,7 +25,9 @@ export const SkillsTagInput: React.FC<SkillsTagInputProps> = ({
   };
 
   const removeSkill = (skillToRemove: string) => {
-    onChange(value.filter((skill) => skill !== skillToRemove));
+    onChange(
+      value.filter((required_skills) => required_skills !== skillToRemove)
+    );
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -41,7 +43,7 @@ export const SkillsTagInput: React.FC<SkillsTagInputProps> = ({
         {value.map((skill) => (
           <span
             key={skill}
-            className="inline-flex items-center gap-1 px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm"
+            className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-slate-800 rounded-full text-sm"
           >
             {skill}
             <button
