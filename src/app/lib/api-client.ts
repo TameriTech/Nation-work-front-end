@@ -1,29 +1,33 @@
-export class ApiError extends Error {
-  status: number;
+import { cookies } from "next/headers";
 
-  constructor(message: string, status: number) {
+export class ApiError extends Error {
+  response: Response | null;
+
+  constructor(message: string, response: Response | null = null) {
     super(message);
-    this.status = status;
+    this.response = response;
   }
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
+const API_BASE_URL = process.env.API_INTERNAL_URL!;
 
-export async function apiClient<T>(
+export async function apiClient<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
-  const token = localStorage.getItem("access_token");
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('access_token')?.value || null;
+  
+
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
     },
     ...options,
   });
 
-  let data;
+  let data: any = null;
   try {
     data = await res.json();
   } catch {
@@ -31,13 +35,17 @@ export async function apiClient<T>(
   }
 
   if (!res.ok) {
-    console.log(res);
-    throw new ApiError(
-      data?.message || "Erreur serveur",
-      res.status
-    );
+    //console.log("Error from api client: ", res);
     
+    // If external API returns validation errors (422) or other errors
+    throw {
+      status: res.status,
+      statusText: res.statusText,
+      errors: data?.errors, // field-level validation errors
+      message: data?.message || "Server Error",
+      raw: data,
+    };
   }
 
-  return data as T;
+  return data;
 }

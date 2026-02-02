@@ -9,6 +9,9 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+AI requests
+/.idea
+/.vscode
 
 # testing
 /coverage

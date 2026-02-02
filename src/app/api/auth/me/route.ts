@@ -1,0 +1,14 @@
+import { apiClient } from "@/app/lib/api-client";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+    const cookieStore = cookies();
+    const token = (await cookieStore).get('access_token')?.value || null;
+    const data = await apiClient("/auth/me", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+  return NextResponse.json(data);
+}
