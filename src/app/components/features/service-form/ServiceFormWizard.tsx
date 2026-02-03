@@ -95,7 +95,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
     formState: { errors },
   } = useForm<ServiceFormValues>({
     defaultValues,
-    resolver: zodResolver(createServiceSchema),
+    //resolver: zodResolver(createServiceSchema),
     mode: "onBlur",
   });
 
@@ -103,12 +103,12 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
     "w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground",
     "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
     "transition-colors",
-    inputClassName
+    inputClassName,
   );
 
   const defaultLabelClass = cn(
     "block text-sm font-medium text-slate-400 mb-1",
-    labelClassName
+    labelClassName,
   );
 
   /* ======================================================
@@ -165,7 +165,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
   /* ======================================================
    * Submit
    * ====================================================== */
-  const onSubmit = async (data: ServiceFormValues) => {
+  const onSubmit = async (data: CreateServicePayload) => {
     if (mode === "create") {
       const response = await createService(data as CreateServicePayload);
       console.log("Service created:", response);
@@ -185,7 +185,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
         onClick={(e) => e.stopPropagation()}
         className={cn(
           "bg-white rounded-2xl max-h-[95vh] overflow-y-auto p-8 shadow-lg max-w-2xl w-full",
-          containerClassName
+          containerClassName,
         )}
       >
         {/* Header */}
@@ -204,12 +204,12 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
 
         {/* Progress Bar */}
         <div className="flex gap-2 pt-4">
-          {Object.values(STEP_FIELDS).map((step) => (
+          {Object.values(STEP_FIELDS).map((step, index) => (
             <div
-              key={step.id}
+              key={index}
               className={cn(
                 "h-2.5 flex-1 transition-colors duration-500",
-                step.id <= currentStep ? "bg-blue-900" : "bg-blue-900/30"
+                index <= currentStep ? "bg-blue-900" : "bg-blue-900/30",
               )}
             />
           ))}
@@ -266,7 +266,6 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
               <Step6Media
                 register={register}
                 errors={errors}
-                control={control}
                 inputClassName={defaultInputClass}
                 labelClassName={defaultLabelClass}
               />
@@ -282,7 +281,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
                 className={cn(
                   "flex items-center gap-2 px-6 py-3 border border-blue-900 text-blue-900 rounded-full",
                   "hover:bg-blue-900/5 transition-colors font-medium",
-                  buttonClassName
+                  buttonClassName,
                 )}
               >
                 <Icon icon={"mdi:chevron-left"} className="h-4 w-4" />
@@ -297,7 +296,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
                 className={cn(
                   "flex items-center gap-2 px-6 ml-auto py-3 bg-blue-900 text-white rounded-full float-end",
                   "hover:bg-blue-900/90 transition-colors font-medium",
-                  buttonClassName
+                  buttonClassName,
                 )}
               >
                 Suivant
@@ -309,7 +308,7 @@ export const ServiceFormWizard: React.FC<ServiceFormWizardProps> = ({
                 className={cn(
                   "flex items-center gap-2 px-6 py-3 bg-blue-900 text-white rounded-full",
                   "hover:bg-blue-900/90 transition-colors font-medium",
-                  buttonClassName
+                  buttonClassName,
                 )}
               >
                 <Icon icon={"mdi:send"} className="h-4 w-4" />

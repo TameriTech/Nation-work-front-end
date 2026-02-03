@@ -1,6 +1,5 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { register } from "@/app/services/auth.service";
 
 export type AccountType = "freelancer" | "client" | null;
 
@@ -30,7 +29,6 @@ interface RegistrationContextType {
   prevStep: () => void;
   getTotalSteps: () => number;
   reset: () => void;
-  submitRegistration: () => Promise<void>;
 }
 
 const initialData: RegistrationData = {
@@ -43,7 +41,7 @@ const initialData: RegistrationData = {
 };
 
 const RegistrationContext = createContext<RegistrationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
@@ -111,19 +109,6 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
     setStep(1);
     setData(initialData);
   };
-  const submitRegistration = async () => {
-    if (!data.accountType) {
-      throw new Error("Type de compte manquant");
-    }
-
-    await register({
-      role: data.accountType === "client" ? "client" : "freelancer",
-      username: data.username,
-      email: data.email,
-      password: data.password,
-      categories: data.accountType === "freelancer" ? data.categories : [],
-    });
-  };
 
   return (
     <RegistrationContext.Provider
@@ -143,7 +128,6 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
         prevStep,
         getTotalSteps,
         reset,
-        submitRegistration,
       }}
     >
       {children}
@@ -155,7 +139,7 @@ export const useRegistration = () => {
   const context = useContext(RegistrationContext);
   if (!context) {
     throw new Error(
-      "useRegistration must be used within a RegistrationProvider"
+      "useRegistration must be used within a RegistrationProvider",
     );
   }
   return context;

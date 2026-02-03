@@ -4,7 +4,7 @@ import { ServicesTable } from "@/app/components/sections/customer/ServicesTable"
 import { Card, CardContent } from "@/app/components/ui/card";
 import { useEffect, useState } from "react";
 import { getClientServices } from "@/app/services/service.service";
-import { Service } from "@/app/types";
+import { Service } from "@/app/types/services";
 
 export default function DashboardContent() {
   // TODO fetch data from API and replace the hardcoded values

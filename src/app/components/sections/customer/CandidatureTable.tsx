@@ -122,9 +122,8 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
           </TableHeader>
           <TableBody>
             {candidatures.map((candidature) => {
-              const status = statusConfig[candidature.offerStatus];
-              const statusCandidature =
-                statusConfig[candidature.candidacyStatus];
+              const status = statusConfig[candidature.status];
+              const statusCandidature = statusConfig[candidature.status];
               if (!status) return null;
               return (
                 <TableRow
@@ -135,20 +134,18 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                     {/** change background when checkbox is checked */}
                     <Checkbox className="bg-gray-100" />
                   </TableCell>
-                  <TableCell>{candidature.offerTitle}</TableCell>
+                  <TableCell>{candidature.service.title}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={status.className}>
                       <span
                         className={`mr-1.5 h-1.5 w-1.5 rounded-full text-nowrap ${
-                          candidature.offerStatus === "pending"
+                          candidature.service.status === "in_progress"
                             ? "bg-amber-500"
-                            : candidature.offerStatus === "published"
-                            ? "bg-blue-500"
-                            : candidature.offerStatus === "closed"
-                            ? "bg-emerald-500"
-                            : candidature.offerStatus === "canceled"
-                            ? "bg-destructive"
-                            : "bg-slate-400"
+                            : candidature.service.status === "published"
+                              ? "bg-blue-500"
+                              : candidature.service.status === "canceled"
+                                ? "bg-destructive"
+                                : "bg-slate-400"
                         }`}
                       />
                       {status.label}
@@ -180,7 +177,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                     )}
                   </TableCell>
                   <TableCell className="text-gray-500 text-nowrap">
-                    {candidature.candidacyDate}
+                    {candidature.updated_at}
                   </TableCell>
                   {/** use stars */}
                   <TableCell className="flex gap-1">
@@ -189,7 +186,7 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                         icon={"bi:star"}
                         key={index}
                         className={
-                          index < candidature.averageNote
+                          index < candidature.provider.average_rating
                             ? "text-yellow-500"
                             : "text-gray-500"
                         }
@@ -203,20 +200,20 @@ export const CandidatureTable = ({ candidatures }: CandidatureTableProps) => {
                     >
                       <span
                         className={`mr-1.5 h-1.5 w-1.5 rounded-full text-nowrap ${
-                          candidature.candidacyStatus === "pending"
+                          candidature.status === "pending"
                             ? "bg-amber-500"
-                            : candidature.candidacyStatus === "accepted"
-                            ? "bg-blue-500"
-                            : candidature.candidacyStatus === "rejected"
-                            ? "bg-red-500"
-                            : "bg-slate-400"
+                            : candidature.status === "accepted"
+                              ? "bg-blue-500"
+                              : candidature.status === "rejected"
+                                ? "bg-red-500"
+                                : "bg-slate-400"
                         }`}
                       />
                       {status.label}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {candidature.amount}
+                    {candidature.service.proposed_amount}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">

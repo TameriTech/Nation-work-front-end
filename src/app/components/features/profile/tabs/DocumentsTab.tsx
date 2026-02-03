@@ -294,7 +294,7 @@ export default function DocumentsTabContent() {
     pendingDocuments.length;
   const validatedCount = validatedDocuments.length;
   const progressPercentage = Math.round(
-    (validatedCount / totalDocuments) * 100
+    (validatedCount / totalDocuments) * 100,
   );
 
   return (

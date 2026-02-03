@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiClient } from "./app/lib/api-client";
 
 const PUBLIC_EXACT_ROUTES = ["/", "/auth/login", "/auth/register"];
 const PUBLIC_PREFIX_ROUTES = ["/auth"];
@@ -29,14 +30,10 @@ export async function proxy(req: NextRequest) {
   }
 
   // 3️⃣ Verify token with backend
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const res = await apiClient("/auth/me", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
   if (!res.ok) {
     return NextResponse.redirect(new URL("/auth/login", req.url));

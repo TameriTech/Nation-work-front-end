@@ -1,4 +1,5 @@
-import  {calendarEventProps} from "@/app/types/calender-events"
+import { CalendarEvent } from "@/app/types/calender-events";
+
 // src/constants.js
 interface NavItem {
   label: string;
@@ -141,7 +142,7 @@ export const CATEGORY_SERVICES/*: ServiceMap*/ = {
 };
 
 
-export const sampleEvents: calendarEventProps[] = [
+export const sampleEvents: CalendarEvent[] = [
   {
     id: "1",
     title: "Nom du service",

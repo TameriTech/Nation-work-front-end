@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { Service } from "../types/services";
 
 export const createServiceSchema = z.object({
   title: z.string().min(5),

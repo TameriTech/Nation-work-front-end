@@ -4,6 +4,7 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
 import { useState } from "react";
+import { sampleServices } from "@/data/mock";
 
 interface JobListingsContentProps {
   toggleFavorite: (id: number) => void;
@@ -15,60 +16,7 @@ export function FavoritesJobsContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
 
-  const MOCK_JOBS = [
-    {
-      id: 1,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 2,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 3,
-      postedDate: "6 j",
-    },
-    {
-      id: 3,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 4,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-  ];
+  const MOCK_JOBS = sampleServices;
 
   return (
     <>
@@ -127,7 +75,7 @@ export function FavoritesJobsContent({
         {MOCK_JOBS.map((job) => (
           <JobCard
             key={job.id}
-            {...job}
+            service={job}
             isFavorite={true}
             onFavoriteClick={() => toggleFavorite(job.id)}
           />

@@ -2,23 +2,82 @@
 import { Icon } from "@iconify/react";
 import { Button } from "@/app/components/ui/button";
 import { useLogin } from "@/app/hooks/use-login";
+import { useState } from "react";
+import { useAuthStore } from "@/app/stores/auth.store";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginPage = () => {
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    showPassword,
-    setShowPassword,
-    loading,
-    submit,
-  } = useLogin();
+  const [email, setEmail] = useState("admin@example.com");
+  const [password, setPassword] = useState("password123");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+  const safeRedirect = redirect && redirect.startsWith("/") ? redirect : null;
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    submit();
-  };
+    setError("");
+    setLoading(true);
+    setErrors({});
+
+    // Validation simple côté client
+    const newErrors: { email?: string; password?: string } = {};
+    if (!email) newErrors.email = "L'email est requis";
+    if (!password) newErrors.password = "Le mot de passe est requis";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setLoading(false);
+      return;
+    }
+
+    // Appel API pour la connexion
+
+    try {
+      const res = await fetch(`/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        setError(errData.message || "Login failed");
+        return;
+      }
+
+      const data = await res.json();
+      setUser(data);
+
+      // Redirection selon le rôle
+      if (safeRedirect) {
+        router.replace(safeRedirect);
+      } else if (
+        data.user.roles.includes("admin") ||
+        data.user.roles.includes("editor") ||
+        data.user.roles.includes("moderator")
+      ) {
+        router.replace("/dashboard/admin");
+      } else {
+        router.replace("/dashboard/user");
+      }
+    } catch (err) {
+      console.log(err);
+
+      setError("Network error");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="bg-white rounded-3xl flex items-center justify-center p-4">

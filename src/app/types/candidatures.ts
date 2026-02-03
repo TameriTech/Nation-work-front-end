@@ -1,16 +1,24 @@
+import { Service } from "./services"
+
+export interface Freelancer {
+  id: number,
+  name: string,
+  email: string,
+  phone?: string,
+  role?: "freelancer" | "admin",
+  avatar?: string,
+  average_rating: number,
+  total_reviews: number
+}
+
 export interface Candidature {
   id: number,
   service_id: number,
+  service: Service,
+  status: "pending" | "accepted" | "rejected" | "canceled",
   freelancer_id: number,
-  proposed_price: number,
-  estimated_duration: string,
   cover_letter: string,
-  status: "en_attente" | "acceptee" | "refusee",
   application_date: string,
   updated_at: string,
-  freelancer_name: string,
-  freelancer_rating: number,
-  freelancer_profile_picture: string,
-  service_title: string,
-  service_proposed_amount: number
+  provider: Freelancer,
 }

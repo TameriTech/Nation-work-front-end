@@ -1,18 +1,8 @@
 import { Badge } from "@/app/components/ui/badge";
+import { CalendarEvent } from "@/app/types/calender-events";
 import { Icon } from "@iconify/react";
 
 export type EventStatus = "completed" | "published" | "upcoming" | "assigned";
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  price: number;
-  status: EventStatus;
-  avatarUrl?: string;
-  avatarFallback?: string;
-}
 
 interface CalendarEventCardProps {
   event: CalendarEvent;

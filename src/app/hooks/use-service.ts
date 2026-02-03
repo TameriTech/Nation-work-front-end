@@ -3,6 +3,7 @@ import {
   createService as apiCreate,
   updateService as apiUpdate,
   getService as apiGet,
+  destroyService,
 } from "@/app/services/service.service";
 import { CreateServicePayload, UpdateServicePayload } from "@/app/types/services";
 
@@ -47,7 +48,7 @@ export function useService() {
     setLoading(true);
     setError(null);
     try {
-      await apiDelete(id);
+      await destroyService(id);
     } catch (e: any) {
       setError(e.message ?? "Deletion failed");
       throw e;

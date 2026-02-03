@@ -1,5 +1,5 @@
 import { Badge } from "@/app/components/ui/badge";
-import { JobCardProps, JobStatus } from "@/app/types/services";
+import { JobCardProps, JobStatus, ServiceStatus } from "@/app/types/services";
 import { Icon } from "@iconify/react";
 
 const skillColors = [
@@ -16,13 +16,23 @@ const statusColors = {
 };
 
 const statusData: Record<
-  JobStatus,
+  ServiceStatus,
   {
     label: string;
     icon: string;
     color: string;
   }
 > = {
+  published: {
+    label: "Publié",
+    icon: "bi:check-circle",
+    color: "bg-green-100 text-green-700",
+  },
+  in_progress: {
+    label: "En cours",
+    icon: "bi:arrow-repeat",
+    color: "bg-yellow-100 text-yellow-700",
+  },
   completed: {
     label: "Terminé",
     icon: "bi:check",
@@ -33,25 +43,15 @@ const statusData: Record<
     icon: "bi:x",
     color: "bg-red-100 text-red-700",
   },
-  inProgress: {
-    label: "En cours",
-    icon: "bi:arrow-repeat",
-    color: "bg-yellow-100 text-yellow-700",
+  draft: {
+    label: "Brouillon",
+    icon: "bi:pencil",
+    color: "bg-gray-100 text-gray-700",
   },
 };
 
 export function JobCard({
-  title,
-  price,
-  duration,
-  type,
-  description,
-  status,
-  skills,
-  location,
-  rating,
-  postedDate,
-  avatarUrl,
+  service,
   isVerified = true,
   isFavorite = false,
   onFavoriteClick,
@@ -62,10 +62,10 @@ export function JobCard({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white bg-muted flex-shrink-0">
-            {avatarUrl ? (
+            {service.client.avatar ? (
               <img
-                src={avatarUrl}
-                alt={title}
+                src={service.client.avatar}
+                alt={service.title}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -73,9 +73,10 @@ export function JobCard({
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{title}</h3>
+            <h3 className="font-semibold text-gray-900">{service.title}</h3>
             <p className="text-xs text-gray-500">
-              Prix [{price}] - Durée [{duration}] - Type [{type}]
+              Prix [{service.proposed_amount}] - Durée [{service.duration}] -
+              Type [{service.service_type}]
             </p>
           </div>
         </div>
@@ -87,15 +88,20 @@ export function JobCard({
               "completed"
                 ? statusColors.completed
                 : status === "canceled"
-                ? statusColors.canceled
-                : status === "inProgress"
-                ? statusColors.inProgress
-                : "bg-gray-100 text-gray-700 border border-gray-300"
+                  ? statusColors.canceled
+                  : status === "in_progress"
+                    ? statusColors.inProgress
+                    : "bg-gray-100 text-gray-700 border border-gray-300"
             }
             variant="secondary"
           >
-            <Icon icon={statusData[status].icon} className="w-4 h-4 mr-1" />
-            <span className="text-nowrap">{statusData[status].label}</span>
+            <Icon
+              icon={statusData[service.status].icon}
+              className="w-4 h-4 mr-1"
+            />
+            <span className="text-nowrap">
+              {statusData[service.status].label}
+            </span>
           </Badge>
         ) : (
           <button
@@ -114,12 +120,12 @@ export function JobCard({
 
       {/* Description */}
       <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
-        {description}
+        {service.short_description}
       </p>
 
       {/* Skills */}
       <div className="flex flex-wrap gap-2">
-        {skills.map((skill, index) => (
+        {service.required_skills.map((skill, index) => (
           <Badge
             key={skill}
             variant="outline"
@@ -141,16 +147,17 @@ export function JobCard({
               <span className="text-xs text-gray-700">Paiement vérifié</span>
             </div>
           )}
-          {rating ? (
+          {service.client.rating ? (
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Icon
                   icon={
-                    "bi:star-" + (i < Math.floor(rating) ? "fill" : "empty")
+                    "bi:star-" +
+                    (i < Math.floor(service.client.rating) ? "fill" : "empty")
                   }
                   key={i}
                   className={`w-4 h-4 ${
-                    i < Math.floor(rating)
+                    i < Math.floor(service.client.rating)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-slate-400/30"
                   }`}
@@ -164,9 +171,11 @@ export function JobCard({
         <div className="flex items-center gap-3 text-gray-700 text-xs">
           <div className="flex items-center gap-1">
             <Icon icon={"bi:map-pin"} className="w-3.5 h-3.5" />
-            <span>{location}</span>
+            <span>{service.country}</span>
           </div>
-          <span className="text-gray-500">Posté il y a {postedDate}</span>
+          <span className="text-gray-500">
+            Posté il y a {service.created_at}
+          </span>
         </div>
       </div>
     </div>

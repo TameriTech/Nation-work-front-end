@@ -5,6 +5,9 @@ import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
 import { useEffect, useState } from "react";
 import { getServices } from "@/app/services/service.service";
+import { Service, ServiceStatus, ServiceType } from "@/app/types/services";
+import { User } from "@/app/types/user";
+import { sampleServices } from "@/data/mock";
 
 interface JobListingsContentProps {
   favorites: number[];
@@ -18,107 +21,36 @@ export function JobListingsContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
 
-  const MOCK_JOBS = [
-    {
-      id: 1,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 2,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 3,
-      postedDate: "6 j",
-    },
-    {
-      id: 3,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 4,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 5,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 5,
-      postedDate: "6 j",
-    },
-    {
-      id: 6,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-  ];
-  const [services, setServices] = useState(MOCK_JOBS);
+  const [services, setServices] = useState<Service[]>(sampleServices);
 
   useEffect(() => {
-    // Here you can implement filtering logic based on searchQuery and categoryQuery
-    let filteredServices = getServices();
+    const fetchAndFilterServices = async () => {
+      try {
+        const allServices = await getServices(); // await the Promise
 
-    if (searchQuery) {
-      filteredServices = filteredServices.filter((job) =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+        let filteredServices = allServices;
 
-    if (categoryQuery) {
-      filteredServices = filteredServices.filter((job) =>
-        job.skills.some((skill) =>
-          skill.toLowerCase().includes(categoryQuery.toLowerCase())
-        )
-      );
-    }
+        if (searchQuery) {
+          filteredServices = filteredServices.filter((job: Service) =>
+            job.title.toLowerCase().includes(searchQuery.toLowerCase()),
+          );
+        }
 
-    setServices(filteredServices);
+        if (categoryQuery) {
+          filteredServices = filteredServices.filter((job: Service) =>
+            job.required_skills.some((skill) =>
+              skill.toLowerCase().includes(categoryQuery.toLowerCase()),
+            ),
+          );
+        }
+
+        setServices(filteredServices);
+      } catch (error) {
+        console.error("Failed to fetch services:", error);
+      }
+    };
+
+    fetchAndFilterServices();
   }, [searchQuery, categoryQuery]);
 
   return (
@@ -175,10 +107,10 @@ export function JobListingsContent({
       </div>
       ;{/* Job Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {MOCK_JOBS.map((job) => (
+        {services.map((job) => (
           <JobCard
             key={job.id}
-            {...job}
+            service={job}
             showRate={true}
             isFavorite={favorites.includes(job.id)}
             onFavoriteClick={() => toggleFavorite(job.id)}

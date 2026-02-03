@@ -2,28 +2,17 @@
 import { useRef, useState } from "react";
 
 import { CalendarHeader } from "./CalendarHeader";
-import {
-  CalendarEventCard,
-  CalendarEvent,
-  EventStatus,
-} from "./CalendarEventCard";
+import { CalendarEventCard } from "./CalendarEventCard";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { EventContentArg } from "@fullcalendar/core";
+import { CalendarEvent } from "@/app/types/calender-events";
 
 // Sample event data
-interface calendarEventProps {
-  id: number;
-  title: string;
-  start: Date;
-  end: Date;
-  price: number;
-  status: EventStatus;
-  avatarUrl?: string;
-}
+
 interface serviceCalendarProps {
   events: CalendarEvent[];
-  onEventClick?: (event: calendarEventProps) => void;
+  onEventClick?: (event: CalendarEvent) => void;
   showPublishService?: boolean;
 }
 

@@ -5,80 +5,68 @@ import { Button } from "@/app/components/ui/button";
 import { useToast } from "@/app/hooks/use-toast";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/stores/auth.store";
 
 const Step3Credentials = () => {
-  const {
-    data,
-    setEmail,
-    setPassword,
-    setConfirmPassword,
-    prevStep,
-    submitRegistration,
-    reset,
-  } = useRegistration();
+  const { data, setEmail, setPassword, setConfirmPassword, prevStep, reset } =
+    useRegistration();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const canProceed =
     data.email.trim().length > 0 &&
     data.password.length >= 6 &&
     data.password === data.confirmPassword;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canProceed) return;
-
-    // Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      toast({
-        title: "Email invalide",
-        description: "Veuillez entrer une adresse email valide.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (data.password.length < 6) {
-      toast({
-        title: "Mot de passe trop court",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (data.password !== data.confirmPassword) {
-      toast({
-        title: "Mots de passe différents",
-        description: "Les mots de passe ne correspondent pas.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    setLoading(true);
     try {
-      await submitRegistration();
-
-      // Success - would normally submit to API
-      toast({
-        title: "Compte créé !",
-        description: `Bienvenue ${data.username} ! Votre compte ${data.accountType} a été créé avec succès.`,
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
-      reset();
-      router.push("/auth/login");
+      if (!res.ok) {
+        const errData = await res.json();
+
+        if (errData.errors) {
+          setErrors({
+            name: errData.errors.name?.[0],
+            first_name: errData.errors.first_name?.[0],
+            email: errData.errors.email?.[0],
+            password: errData.errors.password?.[0],
+            confirm_password: errData.errors.password_confirmation?.[0],
+          });
+        } else {
+          setError(errData.message || "Registration failed");
+        }
+
+        return;
+      }
+
+      const resData = await res.json();
+      setUser(resData);
+      // Redirect basé sur rôle
+      router.push("/dashboard/user");
     } catch (e: any) {
+      console.log(e);
       toast({
-        title: "Échec de l'inscription",
+        title: "Erreur de connexion",
         description: e.message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-transparent">
       {/* Title */}
@@ -163,7 +151,7 @@ const Step3Credentials = () => {
           disabled={!canProceed}
           className="px-10 py-3 rounded-full bg-blue-900 hover:bg-blue-900/90 text-white font-medium disabled:opacity-50"
         >
-          Créer mon Compte
+          {loading ? "..." : "Créer mon Compte"}
         </Button>
       </div>
     </form>

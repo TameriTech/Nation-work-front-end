@@ -18,6 +18,7 @@ export async function apiClient<T = any>(
   const cookieStore = cookies();
   const token = (await cookieStore).get('access_token')?.value || null;
   
+  //console.log("API Client Request:", { API_BASE_URL, endpoint, options, tokenPresent: !!token });
 
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {

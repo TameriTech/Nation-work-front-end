@@ -5,6 +5,7 @@ import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
 import { useState } from "react";
 import { JobCardProps } from "@/app/types/services";
+import { sampleServices } from "@/data/mock";
 
 interface JobHistoryContentProps {
   favorites: number[];
@@ -17,93 +18,6 @@ export function JobHistoryContent({
 }: JobHistoryContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryQuery, setCategoryQuery] = useState("");
-
-  const MOCK_JOBS: JobCardProps[] = [
-    {
-      id: 1,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "canceled",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 2,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "inProgress",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 3,
-      postedDate: "6 j",
-    },
-    {
-      id: 3,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "completed",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 4,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "canceled",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-    {
-      id: 5,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "completed",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 5,
-      postedDate: "6 j",
-    },
-    {
-      id: 6,
-      title: "Titre du Job",
-      price: "1000 Frs",
-      duration: "30j",
-      type: "à Distance",
-      status: "inProgress",
-      description:
-        "Courte description du job Courte description du job Courte description du job Courte description du job Courte description du job.",
-      skills: ["compétence 1", "compétence 2", "compétence 3", "compétence N"],
-      location: "Lagos",
-      rating: 4,
-      postedDate: "6 j",
-    },
-  ];
 
   return (
     <>
@@ -155,10 +69,10 @@ export function JobHistoryContent({
       </div>
       ;{/* Job Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {MOCK_JOBS.map((job) => (
+        {sampleServices.map((job) => (
           <JobCard
             key={job.id}
-            {...job}
+            service={job}
             isFavorite={favorites.includes(job.id)}
             onFavoriteClick={() => toggleFavorite(job.id)}
           />

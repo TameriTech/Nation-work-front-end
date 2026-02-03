@@ -5,7 +5,7 @@ import {
   Control,
   Controller,
 } from "react-hook-form";
-import { DURATION_OPTIONS } from "@/app/types";
+import { DURATION_OPTIONS } from "@/app/types/service-form";
 import { ServiceFormValues } from "@/app/types/services";
 
 interface Step2SchedulingProps {

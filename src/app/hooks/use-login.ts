@@ -1,7 +1,6 @@
 // hooks/use-login.ts
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/app/services/auth.service";
 import { useAuth } from "@/app/contexts/LoginContext";
 import { useToast } from "@/app/hooks/use-toast";
 
@@ -15,6 +14,7 @@ export function useLogin() {
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+
 
   const submit = async () => {
     setLoading(true);

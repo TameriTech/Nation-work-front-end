@@ -2,31 +2,31 @@ import { cn } from "@/app/lib/utils";
 
 interface MessageBubbleProps {
   content: string;
-  time: string;
-  isSent: boolean;
+  created_at: string;
+  is_sent: boolean;
   images?: string[];
 }
 
 const MessageBubble = ({
   content,
-  time,
-  isSent,
+  created_at,
+  is_sent,
   images,
 }: MessageBubbleProps) => {
   return (
     <div
       className={cn(
         "flex flex-col gap-1 max-w-[70%]",
-        isSent ? "items-start" : "items-end"
+        is_sent ? "items-end" : "items-start",
       )}
     >
       {content && (
         <div
           className={cn(
             "px-4 py-3 rounded-2xl shadow-sm",
-            isSent
+            is_sent
               ? "bg-blue-100 text-gray-800 rounded-bl-md"
-              : "bg-gray-200 text-gray-800 rounded-br-md"
+              : "bg-gray-200 text-gray-800 rounded-br-md",
           )}
         >
           <p className="text-sm leading-relaxed">{content}</p>
@@ -46,7 +46,7 @@ const MessageBubble = ({
         </div>
       )}
 
-      <span className="text-xs text-gray-500 px-1">{time}</span>
+      <span className="text-xs text-gray-500 px-1">{created_at}</span>
     </div>
   );
 };

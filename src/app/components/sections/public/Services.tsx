@@ -5,7 +5,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useCallback, useState } from "react";
 import { ServiceCard } from "../../ui/Cards/Service";
 import { Icon } from "@iconify/react";
-import { CategoryName } from "@/app/types/service";
+import { Service } from "@/app/types/services";
 
 export function Services() {
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -14,7 +14,7 @@ export function Services() {
       slidesToScroll: 1, // IMPORTANT → scroll one column at a time
       align: "start",
     },
-    [Autoplay({ delay: 4000 })]
+    [Autoplay({ delay: 4000 })],
   );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -33,10 +33,13 @@ export function Services() {
   const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
   const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
-  //
+  type CategoryName = keyof typeof CATEGORY_SERVICES;
+  type ServiceMap = {
+    [key in CategoryName]: string[];
+  };
   const [active, setActive] = useState<CategoryName>("Assistance Maison");
 
-  const services = CATEGORY_SERVICES[active];
+  const services: string[] = CATEGORY_SERVICES[active];
 
   const items = [
     "Assistance Maison",
@@ -83,7 +86,7 @@ export function Services() {
         <div className="embla relative">
           <div className="embla__viewport overflow-hidden" ref={emblaRef}>
             <div className="embla__container flex gap-4 justify-around">
-              {services.map((s) => (
+              {services.map((s: string) => (
                 <div
                   key={s}
                   className="

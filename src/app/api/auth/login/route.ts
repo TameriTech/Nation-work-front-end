@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     console.log("Login successful:", data);
     return response;
   } catch (error) {
-    console.error(error);
+    console.error('Error from /auth/login:', error);
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }

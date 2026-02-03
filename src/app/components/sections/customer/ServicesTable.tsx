@@ -25,7 +25,7 @@ import { Icon } from "@iconify/react";
 import { useState } from "react";
 import ServiceFormWizard from "@/app/components/features/service-form/ServiceFormWizard";
 import { Service } from "@/app/types/services";
-import { deleteService } from "@/app/services/service.service";
+import { destroyService } from "@/app/services/service.service";
 import { toast } from "../../ui/sonner";
 
 interface CandidatureTableProps {
@@ -36,6 +36,10 @@ const statusConfig = {
   draft: {
     label: "draft",
     className: "bg-amber-100 text-amber-700 border-amber-200",
+  },
+  in_progress: {
+    label: "in progress",
+    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
   },
   published: {
     label: "published",
@@ -49,6 +53,10 @@ const statusConfig = {
     label: "canceled",
     className: "bg-destructive/10 text-destructive border-destructive/20",
   },
+  completed: {
+    label: "completed",
+    className: "bg-green-100 text-green-700 border-green-200",
+  },
   pending: {
     label: "pending",
     className: "bg-orange-100 text-orange-700 border-orange-200",
@@ -56,7 +64,7 @@ const statusConfig = {
 } as const;
 
 const deleteServices = async (serviceId: number) => {
-  await deleteService(serviceId);
+  await destroyService(serviceId);
   console.log(`Delete service with ID: ${serviceId}`);
 };
 
@@ -77,7 +85,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editServiceId, setEditServiceId] = useState<number | undefined>(
-    undefined
+    undefined,
   );
 
   const openFormWizard = (mode: "create" | "edit", serviceId?: number) => {
@@ -169,15 +177,15 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
                       <Badge variant="outline" className={status.className}>
                         <span
                           className={`mr-1.5 h-1.5 w-1.5 rounded-full text-nowrap ${
-                            service.status === "draft"
+                            service.status === "in_progress"
                               ? "bg-amber-500"
                               : service.status === "published"
-                              ? "bg-blue-500"
-                              : service.status === "completed"
-                              ? "bg-emerald-500"
-                              : service.status === "canceled"
-                              ? "bg-destructive"
-                              : "bg-slate-400"
+                                ? "bg-blue-500"
+                                : service.status === "completed"
+                                  ? "bg-emerald-500"
+                                  : service.status === "canceled"
+                                    ? "bg-destructive"
+                                    : "bg-slate-400"
                           }`}
                         />
                         {status.label}
@@ -206,7 +214,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
                           icon={"bi:star"}
                           key={index}
                           className={
-                            index < service.client_rating
+                            index < service.client.rating
                               ? "text-yellow-500"
                               : "text-gray-500"
                           }
@@ -278,7 +286,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
                         <Button
                           onClick={() =>
                             copyServiceLinkToClipboard(
-                              "/dashboard/customer/services/" + service.id
+                              "/dashboard/customer/services/" + service.id,
                             )
                           }
                           variant="ghost"

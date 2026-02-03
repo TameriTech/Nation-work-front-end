@@ -2,59 +2,7 @@
 import { CandidatureTable } from "@/app/components/sections/customer/CandidatureTable";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Candidature } from "@/app/types/candidatures";
-
-const activities: Candidature[] = [
-  {
-    id: "1",
-    offerTitle: "Develo...",
-    offerStatus: "published",
-    candidacyDate: "2024-02-10",
-    averageNote: 4.6,
-    candidacyStatus: "pending",
-    provider: { name: "Ludivin Dev", phone: "+234 055 31...", avatar: "" },
-    amount: "4 500 ₦",
-  },
-  {
-    id: "2",
-    offerTitle: "Cuisine",
-    offerStatus: "draft",
-    candidacyDate: "2024-03-05",
-    averageNote: 0,
-    candidacyStatus: "pending",
-    provider: undefined,
-    amount: "500 ₦",
-  },
-  {
-    id: "3",
-    offerTitle: "UI Design",
-    offerStatus: "closed",
-    candidacyDate: "2024-03-12",
-    averageNote: 4.2,
-    candidacyStatus: "accepted",
-    provider: { name: "Derick NA...", phone: "+237 655 31...", avatar: "" },
-    amount: "1 500 ₦",
-  },
-  {
-    id: "4",
-    offerTitle: "Managem...",
-    offerStatus: "closed",
-    candidacyDate: "2024-03-18",
-    averageNote: 3.9,
-    candidacyStatus: "rejected",
-    provider: { name: "Michael", phone: "+234 055 31...", avatar: "" },
-    amount: "0 ₦",
-  },
-  {
-    id: "5",
-    offerTitle: "Analyste",
-    offerStatus: "published",
-    candidacyDate: "2024-03-20",
-    averageNote: 4.8,
-    candidacyStatus: "pending",
-    provider: undefined,
-    amount: "14 500 ₦",
-  },
-];
+import { candidatures } from "@/data/mock";
 
 export default function DashboardContent() {
   // TODO fetch data from API and replace the hardcoded values
@@ -167,7 +115,7 @@ export default function DashboardContent() {
 
         {/* Activity Table - Takes 2 columns */}
         <div className="col-span-full space-y-6">
-          <CandidatureTable candidatures={activities} />
+          <CandidatureTable candidatures={candidatures} />
         </div>
       </div>
     </div>

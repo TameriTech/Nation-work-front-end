@@ -4,14 +4,7 @@ import { ScrollArea } from "@/app/components/ui/scroll-area";
 import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
-
-export interface Message {
-  id: string;
-  content: string;
-  time: string;
-  isSent: boolean;
-  images?: string[];
-}
+import { Message } from "@/app/types/chat";
 
 interface ChatAreaProps {
   contactName: string;
@@ -52,7 +45,7 @@ const ChatArea = ({
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.isSent ? "justify-start" : "justify-end"}`}
+              className={`flex ${msg.is_sent ? "justify-start" : "justify-end"}`}
             >
               <MessageBubble {...msg} />
             </div>

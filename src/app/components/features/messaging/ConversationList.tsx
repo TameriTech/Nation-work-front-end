@@ -3,23 +3,13 @@ import { useState } from "react";
 import { Input } from "@/app/components/ui/input";
 import ConversationItem from "./ConversationItem";
 import { Icon } from "@iconify/react";
-
-export interface Conversation {
-  id: string;
-  name: string;
-  avatar?: string;
-  lastMessage: string;
-  time: string;
-  isTyping?: boolean;
-  isRead?: boolean;
-  unreadCount?: number;
-}
+import { Conversation } from "@/app/types/chat";
 
 interface ConversationListProps {
   recentConversations: Conversation[];
   allConversations: Conversation[];
-  activeId: string | null;
-  onSelect: (id: string) => void;
+  activeId: number | null;
+  onSelect: (id: number) => void;
 }
 
 const ConversationList = ({
@@ -33,7 +23,7 @@ const ConversationList = ({
   const filterConversations = (conversations: Conversation[]) => {
     if (!search) return conversations;
     return conversations.filter((c) =>
-      c.name.toLowerCase().includes(search.toLowerCase())
+      c.recipient.name.toLowerCase().includes(search.toLowerCase()),
     );
   };
 
@@ -75,8 +65,8 @@ const ConversationList = ({
             <div className="space-y-1">
               {filterConversations(recentConversations).map((conv) => (
                 <ConversationItem
+                  conversation={conv}
                   key={conv.id}
-                  {...conv}
                   isActive={activeId === conv.id}
                   onClick={() => onSelect(conv.id)}
                 />
@@ -94,7 +84,7 @@ const ConversationList = ({
               {filterConversations(allConversations).map((conv) => (
                 <ConversationItem
                   key={conv.id}
-                  {...conv}
+                  conversation={conv}
                   isActive={activeId === conv.id}
                   onClick={() => onSelect(conv.id)}
                 />
