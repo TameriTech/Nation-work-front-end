@@ -58,17 +58,17 @@ const LoginPage = () => {
       const data = await res.json();
       setUser(data);
 
+      console.log(data);
+
       // Redirection selon le rôle
       if (safeRedirect) {
         router.replace(safeRedirect);
-      } else if (
-        data.user.roles.includes("admin") ||
-        data.user.roles.includes("editor") ||
-        data.user.roles.includes("moderator")
-      ) {
+      } else if (data.user.role && data.user.role === "admin") {
         router.replace("/dashboard/admin");
-      } else {
-        router.replace("/dashboard/user");
+      } else if (data.user.role && data.user.role === "client") {
+        router.replace("/dashboard/customer");
+      } else if (data.user.role && data.user.role === "freelancer") {
+        router.replace("/dashboard/freelancer");
       }
     } catch (err) {
       console.log(err);
