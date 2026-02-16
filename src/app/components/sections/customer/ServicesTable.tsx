@@ -158,7 +158,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
           </TableHeader>
           <TableBody>
             {/** fix service.map is not a function */}
-            {Array.isArray(services) ? (
+            {Array.isArray(services) && services.length > 0 ? (
               services.map((service) => {
                 const status = statusConfig[service.status];
                 if (!status) return null;

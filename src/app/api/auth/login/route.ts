@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { apiClient } from "@/app/lib/api-client";
+import { log } from "console";
 
 export async function POST(req: Request) {
   try {
@@ -13,15 +14,31 @@ export async function POST(req: Request) {
     });
 
     // Vérifie qu'on a bien la réponse
-    if (!data || !data.user || !data.access_token) {
+    if (!data ||!data.access_token) {
       return NextResponse.json(
         { message: "Invalid credentials" },
         { status: 401 }
       );
     }
 
+    // get authenticated user data
+    const res = await apiClient("/auth/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.access_token}`,
+      },
+    });
+
+    if (!res) {
+      return NextResponse.json(
+        { message: "Failed to fetch user data" },
+        { status: 500 }
+      );
+    }
+
     // Pose le token dans un cookie httpOnly
-    const response = NextResponse.json({ user: data.user });
+    const response = NextResponse.json({ user: res });
 
     response.cookies.set({
       name: "access_token",
@@ -32,10 +49,9 @@ export async function POST(req: Request) {
       path: "/",
     });
 
-    console.log("Login successful:", data);
     return response;
   } catch (error) {
-    console.error('Error from /auth/login:', error);
+    
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }

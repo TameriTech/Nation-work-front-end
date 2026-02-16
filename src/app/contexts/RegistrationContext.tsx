@@ -4,27 +4,26 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 export type AccountType = "freelancer" | "client" | null;
 
 interface RegistrationData {
-  accountType: AccountType;
+  role: AccountType;
   username: string;
-  // make category to be empty array for client account type
-  categories: string[];
+  category_ids: string[];
   email: string;
   password: string;
-  confirmPassword: string;
+  phone_number: string;
 }
 
 interface RegistrationContextType {
   step: number;
   data: RegistrationData;
   setStep: (step: number) => void;
-  setAccountType: (type: AccountType) => void;
+  setRole: (role: AccountType) => void;
   setUsername: (username: string) => void;
-  setCategories: (categories: string[]) => void;
+  setCategory_ids: (category_ids: string[]) => void;
   addCategory: (category: string) => void;
   removeCategory: (category: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  setConfirmPassword: (confirmPassword: string) => void;
+  setPhoneNumber: (phone_number: string) => void;
   nextStep: () => void;
   prevStep: () => void;
   getTotalSteps: () => number;
@@ -32,12 +31,12 @@ interface RegistrationContextType {
 }
 
 const initialData: RegistrationData = {
-  accountType: "client",
+  role: "client",
   username: "Ludivin",
-  categories: [],
+  category_ids: [],
   email: "",
   password: "Ludivin123",
-  confirmPassword: "Ludivin123",
+  phone_number: "0606060606",
 };
 
 const RegistrationContext = createContext<RegistrationContextType | undefined>(
@@ -48,23 +47,23 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<RegistrationData>(initialData);
 
-  const setAccountType = (type: AccountType) => {
-    setData((prev) => ({ ...prev, accountType: type }));
+  const setRole = (role: AccountType) => {
+    setData((prev) => ({ ...prev, role }));
   };
 
   const setUsername = (username: string) => {
     setData((prev) => ({ ...prev, username }));
   };
 
-  const setCategories = (categories: string[]) => {
-    setData((prev) => ({ ...prev, categories }));
+  const setCategory_ids = (category_ids: string[]) => {
+    setData((prev) => ({ ...prev, category_ids }));
   };
 
   const addCategory = (category: string) => {
-    if (data.categories.length < 5 && !data.categories.includes(category)) {
+    if (data.category_ids.length < 5 && !data.category_ids.includes(category)) {
       setData((prev) => ({
         ...prev,
-        categories: [...prev.categories, category],
+        category_ids: [...prev.category_ids, category],
       }));
     }
   };
@@ -72,7 +71,7 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
   const removeCategory = (category: string) => {
     setData((prev) => ({
       ...prev,
-      categories: prev.categories.filter((c) => c !== category),
+      category_ids: prev.category_ids.filter((c) => c !== category),
     }));
   };
 
@@ -84,12 +83,12 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
     setData((prev) => ({ ...prev, password }));
   };
 
-  const setConfirmPassword = (confirmPassword: string) => {
-    setData((prev) => ({ ...prev, confirmPassword }));
+  const setPhoneNumber = (phone_number: string) => {
+    setData((prev) => ({ ...prev, phone_number }));
   };
 
   const getTotalSteps = () => {
-    return data.accountType === "freelancer" ? 3 : 2;
+    return data.role === "freelancer" ? 3 : 2;
   };
 
   const nextStep = () => {
@@ -116,14 +115,14 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
         step,
         data,
         setStep,
-        setAccountType,
+        setRole,
         setUsername,
-        setCategories,
+        setCategory_ids,
         addCategory,
         removeCategory,
         setEmail,
         setPassword,
-        setConfirmPassword,
+        setPhoneNumber,
         nextStep,
         prevStep,
         getTotalSteps,

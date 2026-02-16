@@ -10,7 +10,7 @@ const RegistrationWizard = () => {
 
   const getTitle = () => {
     if (step === 1) return "Créez un compte";
-    if (data.accountType === "freelancer") {
+    if (data.role === "freelancer") {
       return (
         <>
           Créez un compte <span className="text-blue-900">Freelancer</span>
@@ -26,7 +26,7 @@ const RegistrationWizard = () => {
 
   const renderStep = () => {
     // For client, skip category step
-    if (data.accountType === "client") {
+    if (data.role === "client") {
       if (step === 1) return <Step1AccountType />;
       return <Step3Credentials />;
     }

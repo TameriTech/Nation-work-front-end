@@ -5,12 +5,22 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    const fromFrontend = {
+      email: body.email,
+      password: body.password,
+      name: body.name,
+      role: body.role,
+      category_ids: body.category_ids,
+      phone_number: body.phone_number,
+      username: body.username,
+    };
+
     const data = await apiClient<{ user: any; access_token: string }>(
       "/auth/register",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(fromFrontend),
       }
     );
 
@@ -27,7 +37,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    console.error(error);
+    console.error("Failed to register user:", error);
     if (error.status === 422) {
       return NextResponse.json(
         {

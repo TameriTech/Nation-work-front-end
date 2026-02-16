@@ -1,57 +1,41 @@
+// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
-import { apiClient } from "./app/lib/api-client";
+import jwt from "jsonwebtoken";
 
-const PUBLIC_EXACT_ROUTES = ["/", "/auth/login", "/auth/register"];
-const PUBLIC_PREFIX_ROUTES = ["/auth"];
-
-const ROLE_ROUTES: Record<string, string[]> = {
-  freelancer: ["/dashboard/freelancer"],
-  client: ["/dashboard/customer"],
-  admin: ["/dashboard/admin"],
-};
-
-export async function proxy(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isPublicRoute =
-  PUBLIC_EXACT_ROUTES.includes(pathname) ||
-  PUBLIC_PREFIX_ROUTES.some((prefix) => pathname.startsWith(prefix));
 
-  // 1️⃣ Public routes
-  if (isPublicRoute) {
-    return NextResponse.next();
-  }
-
-  // 2️⃣ Cookie
   const token = req.cookies.get("access_token")?.value;
-  
-
   if (!token) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  // 3️⃣ Verify token with backend
-  const res = await apiClient("/auth/me", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  try {
+    const payload = jwt.decode(token) as { role?: string };
 
-  if (!res.ok) {
+    if (!payload?.role) {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+
+    const ROLE_ROUTES: Record<string, string[]> = {
+      freelancer: ["/dashboard/freelancer"],
+      client: ["/dashboard/customer"],
+      admin: ["/dashboard/admin"],
+    };
+
+    const allowedRoutes = ROLE_ROUTES[payload.role] || [];
+    const allowed = allowedRoutes.some((r) =>
+      pathname.startsWith(r)
+    );
+
+    if (!allowed) {
+      return NextResponse.redirect(new URL("/403", req.url));
+    }
+
+    return NextResponse.next();
+  } catch {
     return NextResponse.redirect(new URL("/auth/login", req.url));
-  }  
-
-  const user = await res.json();
-
-  // 4️⃣ Role check
-  const allowedRoutes = ROLE_ROUTES[user.role] || [];
-  const allowed = allowedRoutes.some((r) =>
-    pathname.startsWith(r)
-  );
-
-  if (!allowed) {
-    return NextResponse.redirect(new URL("/403", req.url));
   }
-
-  return NextResponse.next();
 }
 
 export const config = {

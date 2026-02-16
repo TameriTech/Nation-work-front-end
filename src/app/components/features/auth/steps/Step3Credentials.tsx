@@ -8,11 +8,10 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/stores/auth.store";
 
 const Step3Credentials = () => {
-  const { data, setEmail, setPassword, setConfirmPassword, prevStep, reset } =
+  const { data, setEmail, setPassword, setPhoneNumber, prevStep, reset } =
     useRegistration();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
@@ -22,7 +21,7 @@ const Step3Credentials = () => {
   const canProceed =
     data.email.trim().length > 0 &&
     data.password.length >= 6 &&
-    data.password === data.confirmPassword;
+    data.phone_number.trim().length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +85,22 @@ const Step3Credentials = () => {
         />
       </div>
 
+      {/* Confirm Password Input */}
+      <div className="relative border border-border rounded-2xl p-4 focus-within:border-accent transition-colors">
+        <label className="text-xs text-gray-500 block mb-1">
+          Numero de telephone
+        </label>
+        <div className="flex items-center">
+          <input
+            type={"text"}
+            value={data.phone_number}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full bg-transparent text-gray-900 font-medium focus:outline-none"
+            placeholder="+33 6 12 34 56 78"
+          />
+        </div>
+      </div>
+
       {/* Password Input */}
       <div className="relative border border-border rounded-2xl p-4 focus-within:border-accent transition-colors">
         <label className="text-xs text-gray-500 block mb-1">Mot de passe</label>
@@ -110,34 +125,6 @@ const Step3Credentials = () => {
           </button>
         </div>
       </div>
-
-      {/* Confirm Password Input */}
-      <div className="relative border border-border rounded-2xl p-4 focus-within:border-accent transition-colors">
-        <label className="text-xs text-gray-500 block mb-1">
-          Confirmez le Mot de passe
-        </label>
-        <div className="flex items-center">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            value={data.confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full bg-transparent text-gray-900 font-medium focus:outline-none"
-            placeholder="••••••••••"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="p-1 text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            {showConfirmPassword ? (
-              <Icon icon={"bi:eye-off"} className="w-5 h-5" />
-            ) : (
-              <Icon icon={"bi:eye"} className="w-5 h-5" />
-            )}
-          </button>
-        </div>
-      </div>
-
       {/* Navigation */}
       <div className="flex justify-between pt-8">
         <Button

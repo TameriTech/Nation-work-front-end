@@ -10,8 +10,12 @@ import {
 } from "@/app/components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { Button } from "@/app/components/ui/button";
+import { Service } from "@/app/types/services";
 
-const JobDetailContent = ({ applied }: { applied: boolean }) => {
+const JobDetailContent = (
+  { applied }: { applied: boolean },
+  service: Service,
+) => {
   const skills = [
     "compétence 1",
     "compétence 2",
@@ -42,7 +46,7 @@ const JobDetailContent = ({ applied }: { applied: boolean }) => {
 
       {/* Title and Progress */}
       <div className="flex items-start justify-between gap-2">
-        <h1 className="text-3xl font-bold text-blue-900">Nom du travail</h1>
+        <h1 className="text-3xl font-bold text-blue-900">{service.title}</h1>
         {applied ? (
           <ProgressStepper />
         ) : (
@@ -65,26 +69,10 @@ const JobDetailContent = ({ applied }: { applied: boolean }) => {
           <h2 className="text-lg font-semibold text-gray-800">Description</h2>
           <span className="text-sm text-gray-500">Posté il y a 6 j</span>
         </div>
-        <div className="space-y-4 text-gray-500">
-          <p>
-            Courte description du job Courte description du job Courte
-            description du job Courte description du job. Courte description du
-            job Courte description du job Courte description du job Courte
-            description du job Courte.
-          </p>
-          <p>
-            Courte description du job Courte description du job Courte
-            description du job Courte description du job. Courte description du
-            job Courte description du job Courte description du job Courte
-            description du job.Courte description du job Courte description du
-            job Courte description du job Courte description du job Courte.
-          </p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Exigence spécifique 1</li>
-            <li>Exigence spécifique 2</li>
-            <li>Exigence spécifique 3</li>
-          </ul>
-        </div>
+        <div
+          className="space-y-4 text-gray-500"
+          dangerouslySetInnerHTML={{ __html: service.full_description }}
+        ></div>
       </div>
 
       {/* Project Tracking Section */}
@@ -101,7 +89,11 @@ const JobDetailContent = ({ applied }: { applied: boolean }) => {
           <div>
             <p className="text-sm text-gray-600 mb-1">Deadline</p>
             <p className="font-medium text-orange-500">
-              Livraison attendue le 20 Oct (Dans 3 jours)
+              {"Livraison attendue le" +
+                service.date_pratique +
+                "(Dans " +
+                service.date_pratique +
+                " jours)"}
             </p>
           </div>
           <div>

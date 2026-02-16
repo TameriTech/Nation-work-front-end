@@ -9,7 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = process.env.API_INTERNAL_URL!;
+const API_BASE_URL = process.env.API_INTERNAL_URL;
 
 export async function apiClient<T = any>(
   endpoint: string,
@@ -18,7 +18,7 @@ export async function apiClient<T = any>(
   const cookieStore = cookies();
   const token = (await cookieStore).get('access_token')?.value || null;
   
-  //console.log("API Client Request:", { API_BASE_URL, endpoint, options, tokenPresent: !!token });
+  console.log("API Client Request:", { url: API_BASE_URL + endpoint, options, tokenPresent: !!token });
 
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
@@ -36,7 +36,7 @@ export async function apiClient<T = any>(
   }
 
   if (!res.ok) {
-    //console.log("Error from api client: ", res);
+    console.log("Error from api client: ", res);
     
     // If external API returns validation errors (422) or other errors
     throw {

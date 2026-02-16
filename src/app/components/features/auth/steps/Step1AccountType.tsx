@@ -3,10 +3,9 @@ import AccountTypeCard from "../AccountTypeCard";
 import { Button } from "@/app/components/ui/button";
 
 const Step1AccountType = () => {
-  const { data, setAccountType, setUsername, nextStep } = useRegistration();
+  const { data, setRole, setUsername, nextStep } = useRegistration();
 
-  const canProceed =
-    data.accountType !== null && data.username.trim().length > 0;
+  const canProceed = data.role !== null && data.username.trim().length > 0;
 
   const handleNext = () => {
     if (canProceed) {
@@ -21,14 +20,14 @@ const Step1AccountType = () => {
         <AccountTypeCard
           title="Freelancer"
           description="Si vous offrez des Services"
-          selected={data.accountType === "freelancer"}
-          onClick={() => setAccountType("freelancer")}
+          selected={data.role === "freelancer"}
+          onClick={() => setRole("freelancer")}
         />
         <AccountTypeCard
           title="Client"
           description="Si vous recherchez des Freelancer"
-          selected={data.accountType === "client"}
-          onClick={() => setAccountType("client")}
+          selected={data.role === "client"}
+          onClick={() => setRole("client")}
         />
       </div>
 

@@ -7,11 +7,11 @@ import CategoryModal from "../CategoryModal";
 import { Icon } from "@iconify/react";
 
 const Step2Categories = () => {
-  const { data, setCategories, removeCategory, nextStep, prevStep } =
+  const { data, setCategory_ids, removeCategory, nextStep, prevStep } =
     useRegistration();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const canProceed = data.categories.length > 0;
+  const canProceed = data.category_ids.length > 0;
 
   const handleNext = () => {
     if (canProceed) {
@@ -46,13 +46,13 @@ const Step2Categories = () => {
       </button>
 
       {/* Selected Categories */}
-      {data.categories.length > 0 && (
+      {data.category_ids.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-gray-800">
             Catégories sélectionnées
           </h3>
           <div className="flex flex-wrap gap-2">
-            {data.categories.map((category) => (
+            {data.category_ids.map((category) => (
               <CategoryBadge
                 key={category}
                 label={category}
@@ -67,8 +67,8 @@ const Step2Categories = () => {
       <CategoryModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        selectedCategories={data.categories}
-        onConfirm={setCategories}
+        selectedCategories={data.category_ids}
+        onConfirm={setCategory_ids}
       />
 
       {/* Navigation */}
