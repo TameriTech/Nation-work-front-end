@@ -140,9 +140,19 @@ export interface RecentActivity {
 }
 
 export interface ChartData {
-  labels: string[];
-  data: number[];
-  colors?: string[];
+  registrations: {
+    labels: string[];
+    data: number[];
+  };
+  service_status: {
+    labels: string[];
+    data: number[];
+    colors: string[];
+  };
+  revenue: {
+    labels: string[];
+    data: number[];
+  };
 }
 
 // Types pour les utilisateurs
@@ -179,6 +189,8 @@ export interface UserFilters {
   search?: string;
   page?: number;
   per_page?: number;
+  sort_by?: string;
+  sort_order?: "asc" | "desc"
 }
 
 export interface PendingVerification {
@@ -193,42 +205,63 @@ export interface PendingVerification {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+export type ServiceStatus = "published" | "assigned" | "in_progress" | "completed" | "cancelled" | "disputed";
+
 // Types pour les services/missions
 export interface Service {
   id: number;
   title: string;
   short_description: string;
+  full_description?: string;
   category: string;
-  status: 'published' | 'assigned' | 'in_progress' | 'completed' | 'cancelled' | 'disputed';
+  category_id?: number;
+  status: ServiceStatus;
   client: {
     id: number;
     name: string;
     avatar?: string;
+    email?: string;
+    phone?: string;
   };
   freelancer?: {
     id: number;
     name: string;
     avatar?: string;
+    email?: string;
+    rating?: number;
   } | null;
   date: string;
+  start_time?: string;
+  duration?: string;
   completed_at?: string;
   cancelled_at?: string;
   cancellation_reason?: string;
   address: string;
+  city?: string;
+  postal_code?: string;
+  latitude?: number;
+  longitude?: number;
   budget: number;
+  proposed_amount?: number;
+  accepted_amount?: number;
   candidatures_count: number;
   created_at: string;
-  priority?: 'normal' | 'high';
+  updated_at?: string;
+  priority?: "normal" | "high";
   rating?: {
     score: number;
     comment: string;
+    created_at: string;
   };
   dispute?: {
     id: string;
     reason: string;
     opened_by: string;
     opened_at: string;
+    status: string;
   };
+  required_skills?: string[];
+  images?: string[];
 }
 
 export interface ServiceFilters {
@@ -241,8 +274,11 @@ export interface ServiceFilters {
   budget_min?: number;
   budget_max?: number;
   search?: string;
+  city?: string;
   page?: number;
   per_page?: number;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
 }
 
 export interface Category {
@@ -252,9 +288,29 @@ export interface Category {
   icon: string;
   color: string;
   is_active: boolean;
+  parent_id?: number;
   services_count: number;
   freelancers_count: number;
   average_price: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface CategoryFilters {
+  is_active?: boolean;
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface ServiceStats {
+  total: number;
+  by_status: Record<string, number>;
+  by_category: Record<string, number>;
+  average_budget: number;
+  completion_rate: number;
+  total_revenue: number;
+  platform_fees: number;
 }
 
 // Types pour les paiements
@@ -266,18 +322,22 @@ export interface Payment {
     id: number;
     name: string;
   };
+  client_id: number;
   freelancer?: {
     id: number;
     name: string;
   } | null;
+  freelancer_id?: number | null;
   amount: number;
   platform_fee: number;
   freelancer_payout: number | null;
-  status: 'pending' | 'paid' | 'escrow' | 'refunded' | 'failed';
-  payment_method: 'card' | 'mobile_money' | 'cash' | 'bank_transfer';
+  status: "pending" | "paid" | "escrow" | "refunded" | "failed";
+  payment_method: "card" | "mobile_money" | "cash" | "bank_transfer";
   transaction_id?: string;
+  payment_intent_id?: string;
   paid_at?: string;
   created_at: string;
+  updated_at?: string;
   refund_reason?: string;
   refunded_at?: string;
   escrow_release_date?: string;
@@ -290,6 +350,19 @@ export interface PaymentSummary {
   pending_payouts: number;
   monthly_revenue: number;
   monthly_growth: number;
+  by_status: {
+    pending: number;
+    paid: number;
+    escrow: number;
+    refunded: number;
+    failed: number;
+  };
+  by_method: {
+    card: number;
+    mobile_money: number;
+    cash: number;
+    bank_transfer: number;
+  };
 }
 
 export interface Payout {
@@ -297,15 +370,51 @@ export interface Payout {
   freelancer: {
     id: number;
     name: string;
+    avatar?: string;
   };
   amount: number;
   period: string;
-  method: string;
-  status: 'pending' | 'processed' | 'paid';
+  method: "bank_transfer" | "mobile_money" | "paypal";
+  status: "pending" | "processed" | "paid" | "failed";
   requested_at: string;
   processed_at?: string;
   paid_at?: string;
   transaction_id?: string;
+  notes?: string;
+  bank_details?: {
+    bank_name: string;
+    account_number: string;
+    iban?: string;
+    bic?: string;
+  };
+}
+
+export interface PaymentFilters {
+  status?: string;
+  method?: string;
+  client_id?: number;
+  freelancer_id?: number;
+  date_from?: string;
+  date_to?: string;
+  min_amount?: number;
+  max_amount?: number;
+  search?: string;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
+}
+
+export interface PayoutFilters {
+  status?: string;
+  method?: string;
+  freelancer_id?: number;
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
 }
 
 // Types pour les litiges
@@ -318,39 +427,86 @@ export interface Dispute {
   client: {
     id: number;
     name: string;
-    avatar?: string;
+    avatar?: string | null;  // Modifié pour accepter null
   };
   freelancer: {
     id: number;
     name: string;
-    avatar?: string;
+    avatar?: string | null;  // Modifié pour accepter null
   };
-  opened_by: 'client' | 'freelancer';
+  opened_by: "client" | "freelancer";
   opened_by_name: string;
   reason: string;
   description: string;
-  priority: 'low' | 'normal' | 'high';
-  status: 'open' | 'in_progress' | 'resolved' | 'dismissed';
+  priority: "low" | "normal" | "high" | "urgent";
+  status: "open" | "in_progress" | "resolved" | "dismissed" | "escalated";
   created_at: string;
-  assigned_to?: string;
+  assigned_to?: {
+    id: number;
+    name: string;
+    avatar?: string | null;  // Modifié pour accepter null
+  };
   assigned_at?: string;
   resolution?: string;
   resolved_at?: string;
-  resolved_by?: string;
+  resolved_by?: {
+    id: number;
+    name: string;
+  };
+  escalated_at?: string;  // Ajouté
+  escalated_reason?: string;  // Ajouté
   rejection_reason?: string;
   dismissed_at?: string;
-  dismissed_by?: string;
+  dismissed_by?: {
+    id: number;
+    name: string;
+  };
   evidence?: Array<{
-    type: string;
+    id: string;
+    type: "image" | "document" | "message" | "payment";
     url: string;
     description?: string;
+    uploaded_at: string;
+    uploaded_by: {
+      id: number;
+      name: string;
+      role: string;
+    };
   }>;
   messages?: Array<{
+    id: string;
     from: string;
-    role: string;
+    from_id: number;
+    role: "client" | "freelancer" | "admin";
     message: string;
     timestamp: string;
+    is_private?: boolean;
   }>;
+  timeline?: Array<{
+    id: string;
+    action: string;
+    description: string;
+    timestamp: string;
+    user: {
+      id: number;
+      name: string;
+      role: string;
+    };
+  }>;
+}
+
+export interface DisputeFilters {
+  status?: string;
+  priority?: string;
+  opened_by?: string;
+  date_from?: string;
+  date_to?: string;
+  assigned_to?: number;
+  search?: string;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
 }
 
 export interface DisputeStats {
@@ -358,15 +514,47 @@ export interface DisputeStats {
   in_progress: number;
   resolved: number;
   dismissed: number;
-  avg_resolution_time: string;
+  escalated: number;
+  total: number;
+  avg_resolution_time: string; // en heures
+  by_priority: {
+    low: number;
+    normal: number;
+    high: number;
+    urgent: number;
+  };
   by_reason: Record<string, number>;
+  by_month: Array<{
+    month: string;
+    count: number;
+  }>;
 }
 
 export interface DisputeAction {
-  type: 'resolve' | 'reject' | 'escalate' | 'assign';
-  resolution?: string;
+  type: "assign" | "resolve" | "reject" | "escalate" | "message";
+  payload: any;
+}
+
+export interface ResolveData {
+  resolution: string;
   refund_percentage?: number;
-  assigned_to?: number;
+  compensation?: number;
+  notify_users: boolean;
+}
+
+export interface RejectData {
+  reason: string;
+  notify_users: boolean;
+}
+
+export interface AssignData {
+  assigned_to: number;
+  notes?: string;
+}
+
+export interface MessageData {
+  message: string;
+  is_private: boolean;
 }
 
 // Types pour les paramètres
@@ -464,4 +652,86 @@ export interface SupportTicket {
     message: string;
     timestamp: string;
   }>;
+}
+
+
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+export interface ReportStats {
+  total_revenue: number;
+  total_services: number;
+  total_users: number;
+  total_freelancers: number;
+  average_rating: number;
+  completion_rate: number;
+  response_rate: number;
+  dispute_rate: number;
+  previous_period: {
+    revenue: number;
+    services: number;
+    users: number;
+    freelancers: number;
+  };
+}
+
+export interface RevenueData {
+  date: string;
+  revenue: number;
+  fees: number;
+  payouts: number;
+}
+
+export interface ServicesByCategory {
+  category: string;
+  count: number;
+  percentage: number;
+  color: string;
+}
+
+export interface ServicesByStatus {
+  status: string;
+  count: number;
+  percentage: number;
+  color: string;
+}
+
+export interface TopFreelancer {
+  id: number;
+  name: string;
+  avatar?: string;
+  services_completed: number;
+  total_earned: number;
+  average_rating: number;
+  response_rate: number;
+}
+
+export interface ActivityData {
+  date: string;
+  registrations: number;
+  services: number;
+  payments: number;
+}
+
+export interface GeographicDistribution {
+  city: string;
+  count: number;
+  percentage: number;
+}
+
+export interface PerformanceMetrics {
+  metric: string;
+  value: number;
+  target: number;
+  previous: number;
+  unit: string;
+}
+
+export interface ReportFilters {
+  dateRange: DateRange;
+  category?: string;
+  city?: string;
+  freelancer_id?: number;
 }

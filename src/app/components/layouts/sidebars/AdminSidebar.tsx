@@ -26,14 +26,14 @@ export function Sidebar({
 
   const toggleExpanded = (href: string) => {
     setExpandedItems((prev) =>
-      prev.includes(href) ? prev.filter((h) => h !== href) : [...prev, href]
+      prev.includes(href) ? prev.filter((h) => h !== href) : [...prev, href],
     );
   };
 
   const isActive = (href: string) => {
     return (
       location === href ||
-      (location.startsWith(href + "/") && href !== "/admin")
+      (location.startsWith(href + "/") && href !== "/dashboard/admin")
     );
   };
 
@@ -44,32 +44,39 @@ export function Sidebar({
     const Icon = item.icon;
 
     const content = (
-      <>
+      <div className="flex items-center justify-start w-full h-full gap-2">
         <Icon
           className={cn(
             "h-5 w-5 shrink-0 transition-colors",
-            active ? "text-gray-50" : "text-gray-400 group-hover:text-gray-300"
+            active ? "text-gray-50" : "text-gray-400 group-hover:text-gray-300",
           )}
         />
         {!collapsed && (
           <>
-            <span className="flex-1 truncate">{item.title}</span>
+            <span className=" truncate">{item.title}</span>
             {item.badge && (
-              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-medium text-white">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-medium text-white">
                 {item.badge}
               </span>
             )}
-            {hasChildren && (
+            {hasChildren ? (
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 shrink-0 text-sidebar-muted transition-transform duration-200",
-                  isExpanded && "rotate-180"
+                  "h-4 w-4 shrink-0 ml-auto text-sidebar-muted transition-transform duration-200",
+                  isExpanded && "rotate-180",
+                )}
+              />
+            ) : (
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 shrink-0 invisible ml-auto text-sidebar-muted transition-transform duration-200",
+                  isExpanded && "rotate-180",
                 )}
               />
             )}
           </>
         )}
-      </>
+      </div>
     );
 
     const linkClasses = cn(
@@ -78,7 +85,7 @@ export function Sidebar({
       active
         ? "bg-blue-600 text-white shadow-sm"
         : "text-gray-400/80 hover:bg-gray-300/20 hover:text-white",
-      collapsed && "justify-center px-2"
+      collapsed && "justify-center px-2",
     );
 
     const navElement = hasChildren ? (
@@ -97,8 +104,10 @@ export function Sidebar({
 
     if (collapsed && !hasChildren) {
       return (
-        <TooltipProvider>
-          <Tooltip key={item.href} delayDuration={0}>
+        <TooltipProvider key={item.href}>
+          {" "}
+          {/* Fixed: Added key */}
+          <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>{navElement}</TooltipTrigger>
             <TooltipContent side="right" className="font-medium">
               {item.title}
@@ -110,6 +119,8 @@ export function Sidebar({
 
     return (
       <div key={item.href}>
+        {" "}
+        {/* Ensure key is here */}
         {navElement}
         {hasChildren && isExpanded && !collapsed && (
           <div className="mt-1 space-y-1">
@@ -134,18 +145,18 @@ export function Sidebar({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-screen flex-col  bg-[#0d1526] shadow-sidebar transition-all duration-300 ease-in-out",
+          "fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-sidebar-border bg-[#0d1526] shadow-sidebar transition-all duration-300 ease-in-out",
           "lg:relative lg:z-auto lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           collapsed ? "lg:w-sidebar-collapsed " : "lg:w-sidebar w-[256px]",
-          ""
+          "",
         )}
       >
         {/* Header */}
         <div
           className={cn(
-            "flex h-16 shrink-0 items-center border-b border-gray-300/10 px-4",
-            collapsed ? "justify-center" : "justify-between"
+            "flex h-16 shrink-0 items-center border-b border-gray-800  px-4",
+            collapsed ? "justify-center" : "justify-between",
           )}
         >
           {!collapsed && (
@@ -155,9 +166,7 @@ export function Sidebar({
                   <span className="text-sm font-bold text-white">A</span>
                 </div>
               )}
-              <span className="text-lg font-semibold text-sidebar-foreground">
-                Admin
-              </span>
+              <span className="text-lg font-semibold text-gray-50">LSIEV</span>
             </div>
           )}
           {collapsed && (
@@ -185,20 +194,20 @@ export function Sidebar({
 
         {/* Collapse toggle (desktop only) */}
         {onCollapse && (
-          <div className="hidden border-t border-gray-300/10 p-3 lg:block">
+          <div className="hidden border-t border-gray-800 p-3 lg:block">
             <Button
               variant="ghost"
               size="sm"
               onClick={onCollapse}
               className={cn(
-                "w-full text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                collapsed && "justify-center"
+                "w-full text-gray-400 hover:bg-sidebar-accent hover:text-gray-50",
+                collapsed && "justify-center",
               )}
             >
               <ChevronLeft
                 className={cn(
                   "h-4 w-4 transition-transform duration-200",
-                  collapsed && "rotate-180"
+                  collapsed && "rotate-180",
                 )}
               />
               {!collapsed && <span className="ml-2">Collapse</span>}

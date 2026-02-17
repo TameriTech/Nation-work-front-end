@@ -14,7 +14,11 @@ import {
   Settings,
   ShoppingCart,
   Users,
+  CheckCircle,
   UsersIcon,
+  CreditCard,
+  HelpCircleIcon,
+  Group,
 } from "lucide-react";
 import "@/app/globals.css";
 
@@ -49,38 +53,63 @@ export default function AdminLayout({
       icon: BarChart3,
       badge: "New",
     },
+
     {
       title: "Users",
       href: "/dashboard/admin/users",
       icon: Users,
-    },
-    {
-      title: "Orders",
-      href: "/dashboard/admin/orders",
-      icon: ShoppingCart,
-      badge: 12,
-    },
-    {
-      title: "Content",
-      href: "/dashboard/admin/content",
-      icon: FileText,
       children: [
         {
-          title: "Posts",
-          href: "/dashboard/admin/content/posts",
+          title: "Users List",
+          href: "/dashboard/admin/users",
           icon: FileText,
         },
         {
-          title: "Pages",
-          href: "/dashboard/admin/content/pages",
-          icon: FileText,
-        },
-        {
-          title: "Media",
-          href: "/dashboard/admin/content/media",
-          icon: FileText,
+          title: "Verifications",
+          href: "/dashboard/admin/users/verifications",
+          icon: CheckCircle,
         },
       ],
+    },
+
+    {
+      title: "Services",
+      href: "/dashboard/admin/services",
+      icon: HelpCircleIcon,
+      children: [
+        {
+          title: "All Services",
+          href: "/dashboard/admin/services",
+          icon: HelpCircleIcon,
+        },
+        {
+          title: "Categories",
+          href: "/dashboard/admin/services/categories",
+          icon: Group,
+        },
+      ],
+    },
+    {
+      title: "Payments",
+      href: "/dashboard/admin/payments",
+      icon: CreditCard,
+      children: [
+        {
+          title: "All Payments",
+          href: "/dashboard/admin/payments",
+          icon: CreditCard,
+        },
+        {
+          title: "Payouts",
+          href: "/dashboard/admin/payments/payouts",
+          icon: ShoppingCart,
+        },
+      ],
+    },
+    {
+      title: "Disputes",
+      href: "/dashboard/admin/disputes",
+      icon: HelpCircleIcon,
     },
     {
       title: "Messages",
@@ -100,33 +129,37 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-950">
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={toggleSidebar}
-        navItems={navItems}
-        logo={logo}
-        collapsed={collapsed}
-        onCollapse={toggleCollapse}
-      />
+    <html>
+      <body>
+        <div className="flex min-h-screen w-full bg-slate-950">
+          <Sidebar
+            isOpen={sidebarOpen}
+            onToggle={toggleSidebar}
+            navItems={navItems}
+            logo={logo}
+            collapsed={collapsed}
+            onCollapse={toggleCollapse}
+          />
 
-      <div
-        className={cn(
-          "flex flex-1 flex-col transition-all duration-300",
-          collapsed ? "lg:pl-0" : "lg:pl-0"
-        )}
-      >
-        <Header
-          onMenuClick={toggleSidebar}
-          user={user}
-          breadcrumbConfig={breadcrumbConfig}
-          notificationCount={3}
-        />
+          <div
+            className={cn(
+              "flex flex-1 flex-col transition-all duration-300",
+              collapsed ? "lg:pl-0" : "lg:pl-0",
+            )}
+          >
+            <Header
+              onMenuClick={toggleSidebar}
+              user={user}
+              breadcrumbConfig={breadcrumbConfig}
+              notificationCount={3}
+            />
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
-        </main>
-      </div>
-    </div>
+            <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
+              <div className="mx-auto max-w-7xl">{children}</div>
+            </main>
+          </div>
+        </div>
+      </body>
+    </html>
   );
 }

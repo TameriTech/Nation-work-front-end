@@ -1,9 +1,9 @@
-// middleware.ts
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+// // middleware.ts
+ import { NextRequest, NextResponse } from "next/server";
+ import jwt from "jsonwebtoken";
 
-export function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+ export function proxy(req: NextRequest) {
+   const { pathname } = req.nextUrl;
 
   const token = req.cookies.get("access_token")?.value;
   if (!token) {
@@ -32,11 +32,11 @@ export function proxy(req: NextRequest) {
       return NextResponse.redirect(new URL("/403", req.url));
     }
 
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL("/auth/login", req.url));
-  }
-}
+     return NextResponse.next();
+   } catch {
+     return NextResponse.redirect(new URL("/auth/login", req.url));
+   }
+ }
 
 export const config = {
   matcher: ["/dashboard/:path*"],
