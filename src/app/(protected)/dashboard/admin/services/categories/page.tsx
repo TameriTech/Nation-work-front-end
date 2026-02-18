@@ -134,8 +134,8 @@ const CategoryModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           {category ? "Modifier la catégorie" : "Nouvelle catégorie"}
         </h3>
@@ -152,11 +152,13 @@ const CategoryModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               placeholder="ex: Plomberie"
             />
             {errors.name && (
-              <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.name}
+              </p>
             )}
           </div>
 
@@ -171,11 +173,13 @@ const CategoryModal = ({
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={3}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               placeholder="Description de la catégorie..."
             />
             {errors.description && (
-              <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.description}
+              </p>
             )}
           </div>
 
@@ -190,7 +194,7 @@ const CategoryModal = ({
                 onChange={(e) =>
                   setFormData({ ...formData, icon: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               >
                 {icons.map((icon) => (
                   <option key={icon} value={icon}>
@@ -203,15 +207,15 @@ const CategoryModal = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Couleur
               </label>
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2">
                 {colors.map((color) => (
                   <button
                     key={color}
                     onClick={() => setFormData({ ...formData, color })}
-                    className={`w-8 h-8 rounded-full border-2 ${
+                    className={`w-8 h-8 rounded-full border-2 transition ${
                       formData.color === color
-                        ? "border-blue-500 ring-2 ring-blue-300"
-                        : "border-transparent"
+                        ? "border-blue-500 ring-2 ring-blue-300 dark:ring-blue-700"
+                        : "border-transparent hover:scale-110"
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -229,7 +233,7 @@ const CategoryModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, is_active: e.target.checked })
               }
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
             />
             <label
               htmlFor="is_active"
@@ -243,14 +247,14 @@ const CategoryModal = ({
         <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center transition"
           >
             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {category ? "Modifier" : "Créer"}
@@ -297,11 +301,6 @@ export default function CategoriesPage() {
       };
       setCategories(mockResponse.items);
       setPagination(mockResponse);
-
-      // Version API
-      // const data = await getCategories(filters);
-      // setCategories(data.items);
-      // setPagination(data);
     } catch (error) {
       console.error("Erreur chargement catégories:", error);
     } finally {
@@ -361,35 +360,32 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-            <FolderTree className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+            <FolderTree className="w-6 h-6 mr-2 text-blue-400" />
             Gestion des catégories
           </h1>
-          <p className="text-gray-600 mt-1 dark:text-gray-400">
+          <p className="text-gray-400 mt-1">
             Gérez les catégories de services de la plateforme
           </p>
         </div>
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
-          <div className="flex space-x-2">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={loadCategories}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
             <button
               onClick={() => setModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
             >
               <Plus className="w-4 h-4 mr-2" />
               Nouvelle catégorie
@@ -397,14 +393,14 @@ export default function CategoriesPage() {
           </div>
 
           {/* Recherche */}
-          <div className="relative w-64">
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher..."
-              className="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -419,7 +415,7 @@ export default function CategoriesPage() {
             {filteredCategories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
+                className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition border border-gray-200 dark:border-slate-700"
               >
                 <div
                   className="h-2"
@@ -444,12 +440,12 @@ export default function CategoriesPage() {
                       </div>
                     </div>
                     {category.is_active ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Actif
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
                         <XCircle className="w-3 h-3 mr-1" />
                         Inactif
                       </span>
@@ -461,8 +457,8 @@ export default function CategoriesPage() {
                   </p>
 
                   <div className="grid grid-cols-3 gap-2 mb-4">
-                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      <Briefcase className="w-4 h-4 mx-auto mb-1 text-blue-600" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-slate-700/50 rounded">
+                      <Briefcase className="w-4 h-4 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Services
                       </p>
@@ -470,8 +466,8 @@ export default function CategoriesPage() {
                         {category.services_count}
                       </p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      <Users className="w-4 h-4 mx-auto mb-1 text-green-600" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-slate-700/50 rounded">
+                      <Users className="w-4 h-4 mx-auto mb-1 text-green-600 dark:text-green-400" />
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Freelancers
                       </p>
@@ -479,8 +475,8 @@ export default function CategoriesPage() {
                         {category.freelancers_count}
                       </p>
                     </div>
-                    <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      <DollarSign className="w-4 h-4 mx-auto mb-1 text-purple-600" />
+                    <div className="text-center p-2 bg-gray-50 dark:bg-slate-700/50 rounded">
+                      <DollarSign className="w-4 h-4 mx-auto mb-1 text-purple-600 dark:text-purple-400" />
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Prix moy.
                       </p>
@@ -490,20 +486,20 @@ export default function CategoriesPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-slate-700">
                     <button
                       onClick={() => {
                         setEditingCategory(category);
                         setModalOpen(true);
                       }}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded dark:text-gray-400 dark:hover:bg-blue-900/20"
+                      className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition"
                       title="Modifier"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleToggleStatus(category)}
-                      className="p-2 text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 rounded dark:text-gray-400 dark:hover:bg-yellow-900/20"
+                      className="p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded transition"
                       title={category.is_active ? "Désactiver" : "Activer"}
                     >
                       {category.is_active ? (
@@ -514,7 +510,7 @@ export default function CategoriesPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(category)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded dark:text-gray-400 dark:hover:bg-red-900/20"
+                      className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Supprimer"
                       disabled={category.services_count > 0}
                     >
@@ -529,51 +525,54 @@ export default function CategoriesPage() {
 
         {/* Pagination */}
         {filteredCategories.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-6 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 dark:border-slate-700">
             <div className="text-sm text-gray-700 dark:text-gray-400">
               Affichage de{" "}
-              <span className="font-medium">
+              <span className="font-medium text-gray-900 dark:text-gray-100">
                 {(pagination.page - 1) * pagination.per_page + 1}
               </span>{" "}
               à{" "}
-              <span className="font-medium">
+              <span className="font-medium text-gray-900 dark:text-gray-100">
                 {Math.min(
                   pagination.page * pagination.per_page,
                   pagination.total,
                 )}
               </span>{" "}
-              sur <span className="font-medium">{pagination.total}</span>{" "}
+              sur{" "}
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {pagination.total}
+              </span>{" "}
               catégories
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={pagination.page === 1}
-                className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
               >
                 <ChevronsLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
-                className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="px-4 py-2 border rounded-lg bg-blue-50 text-blue-600 font-medium dark:bg-blue-900 dark:text-blue-100">
+              <span className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
                 {pagination.page} / {pagination.total_pages}
               </span>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.total_pages}
-                className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handlePageChange(pagination.total_pages)}
                 disabled={pagination.page === pagination.total_pages}
-                className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
               >
                 <ChevronsRight className="w-4 h-4" />
               </button>

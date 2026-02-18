@@ -61,7 +61,7 @@ const StatsCard = ({
   color: string;
   trend?: number;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{title}</p>
@@ -75,7 +75,7 @@ const StatsCard = ({
         )}
       </div>
       <div
-        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white`}
+        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white shadow-lg`}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -83,11 +83,17 @@ const StatsCard = ({
     {trend !== undefined && (
       <div className="mt-4 flex items-center text-sm">
         {trend >= 0 ? (
-          <ArrowUp className="w-4 h-4 text-red-500 mr-1" />
+          <ArrowUp className="w-4 h-4 text-red-500 dark:text-red-400 mr-1" />
         ) : (
-          <ArrowDown className="w-4 h-4 text-green-500 mr-1" />
+          <ArrowDown className="w-4 h-4 text-green-500 dark:text-green-400 mr-1" />
         )}
-        <span className={trend >= 0 ? "text-red-600" : "text-green-600"}>
+        <span
+          className={
+            trend >= 0
+              ? "text-red-600 dark:text-red-400"
+              : "text-green-600 dark:text-green-400"
+          }
+        >
           {Math.abs(trend)}% par rapport au mois dernier
         </span>
       </div>
@@ -115,7 +121,7 @@ const DisputeFilters = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recherche */}
         <div className="col-span-2">
@@ -130,7 +136,7 @@ const DisputeFilters = ({
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="ID litige, service, client, freelancer..."
-              className="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -148,7 +154,7 @@ const DisputeFilters = ({
                 status: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous les statuts</option>
             <option value="open">Ouvert</option>
@@ -172,7 +178,7 @@ const DisputeFilters = ({
                 priority: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Toutes les priorités</option>
             <option value="low">Basse</option>
@@ -198,7 +204,7 @@ const DisputeFilters = ({
                 date_from: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -216,7 +222,7 @@ const DisputeFilters = ({
                 date_to: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -233,7 +239,7 @@ const DisputeFilters = ({
                 opened_by: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous</option>
             <option value="client">Client</option>
@@ -249,13 +255,13 @@ const DisputeFilters = ({
             setLocalSearch("");
             onSearch();
           }}
-          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition"
         >
           Réinitialiser
         </button>
         <button
           onClick={onSearch}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
         >
           <Search className="w-4 h-4 mr-2" />
           Rechercher
@@ -288,25 +294,25 @@ const DisputeTable = ({
       {
         urgent: {
           color:
-            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
           icon: AlertTriangle,
           label: "Urgente",
         },
         high: {
           color:
-            "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-100 dark:border-orange-800",
+            "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800",
           icon: AlertCircle,
           label: "Haute",
         },
         normal: {
           color:
-            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
           icon: Info,
           label: "Normale",
         },
         low: {
           color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
           icon: Clock,
           label: "Basse",
         },
@@ -329,31 +335,31 @@ const DisputeTable = ({
       {
         open: {
           color:
-            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
           icon: AlertCircle,
           label: "Ouvert",
         },
         in_progress: {
           color:
-            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
           icon: Clock,
           label: "En cours",
         },
         resolved: {
           color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
           icon: CheckCircle,
           label: "Résolu",
         },
         dismissed: {
           color:
-            "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
+            "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
           icon: XCircle,
           label: "Rejeté",
         },
         escalated: {
           color:
-            "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+            "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
           icon: Shield,
           label: "Escaladé",
         },
@@ -402,20 +408,20 @@ const DisputeTable = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
         <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-700">
             <tr>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("id")}
               >
                 <div className="flex items-center">
@@ -424,7 +430,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("service")}
               >
                 <div className="flex items-center">
@@ -433,7 +439,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("client")}
               >
                 <div className="flex items-center">
@@ -442,7 +448,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("freelancer")}
               >
                 <div className="flex items-center">
@@ -451,7 +457,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("priority")}
               >
                 <div className="flex items-center">
@@ -460,7 +466,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("status")}
               >
                 <div className="flex items-center">
@@ -469,7 +475,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("created_at")}
               >
                 <div className="flex items-center">
@@ -478,7 +484,7 @@ const DisputeTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("assigned_to")}
               >
                 <div className="flex items-center">
@@ -491,7 +497,7 @@ const DisputeTable = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
             {disputes.length === 0 ? (
               <tr>
                 <td
@@ -505,7 +511,7 @@ const DisputeTable = ({
               disputes.map((dispute) => (
                 <tr
                   key={dispute.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -529,8 +535,8 @@ const DisputeTable = ({
                           className="w-6 h-6 rounded-full mr-2 object-cover"
                         />
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                          <User className="w-3 h-3 text-gray-500" />
+                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
+                          <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
                       <span className="text-sm text-gray-900 dark:text-gray-100">
@@ -547,8 +553,8 @@ const DisputeTable = ({
                           className="w-6 h-6 rounded-full mr-2 object-cover"
                         />
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                          <User className="w-3 h-3 text-gray-500" />
+                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
+                          <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
                       <span className="text-sm text-gray-900 dark:text-gray-100">
@@ -575,8 +581,8 @@ const DisputeTable = ({
                             className="w-6 h-6 rounded-full mr-2 object-cover"
                           />
                         ) : (
-                          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                            <User className="w-3 h-3 text-gray-500" />
+                          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
+                            <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                           </div>
                         )}
                         <span className="text-sm text-gray-900 dark:text-gray-100">
@@ -593,7 +599,7 @@ const DisputeTable = ({
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => onView(dispute)}
-                        className="text-gray-600 hover:text-blue-600 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
                         title="Voir détails"
                       >
                         <Eye className="w-4 h-4" />
@@ -601,7 +607,7 @@ const DisputeTable = ({
                       {!dispute.assigned_to && (
                         <button
                           onClick={() => onAssign(dispute)}
-                          className="text-gray-600 hover:text-green-600 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
+                          className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
                           title="Assigner"
                         >
                           <User className="w-4 h-4" />
@@ -637,41 +643,51 @@ const Pagination = ({
   const end = Math.min(currentPage * perPage, totalItems);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex items-center justify-between">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 dark:border-slate-700">
       <div className="text-sm text-gray-700 dark:text-gray-300">
-        Affichage de <span className="font-medium">{start}</span> à{" "}
-        <span className="font-medium">{end}</span> sur{" "}
-        <span className="font-medium">{totalItems}</span> résultats
+        Affichage de{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {start}
+        </span>{" "}
+        à{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {end}
+        </span>{" "}
+        sur{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {totalItems}
+        </span>{" "}
+        résultats
       </div>
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 border rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-medium">
+        <span className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
           {currentPage} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>
@@ -713,8 +729,8 @@ const AssignModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Assigner le litige {dispute.id}
         </h3>
@@ -726,7 +742,7 @@ const AssignModal = ({
           <select
             value={selectedAdmin}
             onChange={(e) => setSelectedAdmin(Number(e.target.value))}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value={0}>Sélectionner un admin</option>
             {admins.map((admin) => (
@@ -735,7 +751,11 @@ const AssignModal = ({
               </option>
             ))}
           </select>
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -746,7 +766,7 @@ const AssignModal = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             placeholder="Instructions ou commentaires..."
           />
         </div>
@@ -754,13 +774,13 @@ const AssignModal = ({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Assigner
           </button>
@@ -835,15 +855,6 @@ export default function DisputesPage() {
       setDisputes(mockResponse.items);
       setPagination(mockResponse);
       setStats(mockDisputes.stats as DisputeStats);
-
-      // Version API
-      // const [disputesData, statsData] = await Promise.all([
-      //   getDisputes(filters),
-      //   getDisputeStats(),
-      // ]);
-      // setDisputes(disputesData.items);
-      // setPagination(disputesData);
-      // setStats(statsData);
     } catch (error) {
       console.error("Erreur chargement litiges:", error);
     } finally {
@@ -894,18 +905,15 @@ export default function DisputesPage() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
-            <Scale className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+            <Scale className="w-6 h-6 mr-2 text-blue-400" />
             Gestion des litiges
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-400 mt-1">
             Gérez les conflits entre clients et freelancers
           </p>
         </div>
@@ -945,17 +953,17 @@ export default function DisputesPage() {
         )}
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
-          <div className="flex space-x-2">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={loadDisputes}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
           </div>
-          <div className="flex space-x-4 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-red-500 mr-1"></div>
               Ouverts: {stats?.open || 0}

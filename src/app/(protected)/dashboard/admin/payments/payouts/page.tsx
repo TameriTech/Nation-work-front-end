@@ -67,7 +67,7 @@ const StatsCard = ({
   icon: any;
   color: string;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
@@ -75,13 +75,13 @@ const StatsCard = ({
           {value}
         </p>
         {subValue && (
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {subValue}
           </p>
         )}
       </div>
       <div
-        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white`}
+        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white shadow-lg`}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -109,7 +109,7 @@ const PayoutFilters = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recherche */}
         <div className="col-span-2">
@@ -124,7 +124,7 @@ const PayoutFilters = ({
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="ID reversement, nom du freelancer..."
-              className="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -142,7 +142,7 @@ const PayoutFilters = ({
                 status: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous les statuts</option>
             <option value="pending">En attente</option>
@@ -165,7 +165,7 @@ const PayoutFilters = ({
                 method: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Toutes les méthodes</option>
             <option value="bank_transfer">Virement bancaire</option>
@@ -190,7 +190,7 @@ const PayoutFilters = ({
                 date_from: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -208,7 +208,7 @@ const PayoutFilters = ({
                 date_to: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
@@ -220,13 +220,13 @@ const PayoutFilters = ({
             setLocalSearch("");
             onSearch();
           }}
-          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition"
         >
           Réinitialiser
         </button>
         <button
           onClick={onSearch}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
         >
           <Search className="w-4 h-4 mr-2" />
           Rechercher
@@ -259,25 +259,25 @@ const PayoutTable = ({
       {
         paid: {
           color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
           icon: CheckCircle,
           label: "Payé",
         },
         processed: {
           color:
-            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
           icon: Check,
           label: "Traité",
         },
         pending: {
           color:
-            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
           icon: Clock,
           label: "En attente",
         },
         failed: {
           color:
-            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
           icon: AlertCircle,
           label: "Échoué",
         },
@@ -335,20 +335,20 @@ const PayoutTable = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
         <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-700">
             <tr>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("id")}
               >
                 <div className="flex items-center">
@@ -357,7 +357,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("freelancer")}
               >
                 <div className="flex items-center">
@@ -366,7 +366,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("amount")}
               >
                 <div className="flex items-center">
@@ -375,7 +375,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("method")}
               >
                 <div className="flex items-center">
@@ -384,7 +384,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("status")}
               >
                 <div className="flex items-center">
@@ -393,7 +393,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("requested_at")}
               >
                 <div className="flex items-center">
@@ -402,7 +402,7 @@ const PayoutTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("period")}
               >
                 <div className="flex items-center">
@@ -415,7 +415,7 @@ const PayoutTable = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
             {payouts.length === 0 ? (
               <tr>
                 <td
@@ -429,7 +429,7 @@ const PayoutTable = ({
               payouts.map((payout) => (
                 <tr
                   key={payout.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -450,8 +450,8 @@ const PayoutTable = ({
                           className="w-8 h-8 rounded-full mr-3 object-cover"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-                          <User className="w-4 h-4 text-gray-500" />
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-3">
+                          <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
                       <div>
@@ -490,7 +490,7 @@ const PayoutTable = ({
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => onView(payout)}
-                        className="text-gray-600 hover:text-blue-600 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
                         title="Voir détails"
                       >
                         <Eye className="w-4 h-4" />
@@ -498,7 +498,7 @@ const PayoutTable = ({
                       {payout.status === "pending" && (
                         <button
                           onClick={() => onProcess(payout)}
-                          className="text-gray-600 hover:text-green-600 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
+                          className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
                           title="Traiter le reversement"
                         >
                           <Send className="w-4 h-4" />
@@ -507,7 +507,7 @@ const PayoutTable = ({
                       {payout.status === "processed" && (
                         <button
                           onClick={() => onView(payout)}
-                          className="text-gray-600 hover:text-purple-600 p-1 rounded hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                          className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 p-1 rounded hover:bg-purple-50 dark:hover:bg-purple-900/30 transition"
                           title="Voir les détails de traitement"
                         >
                           <FileText className="w-4 h-4" />
@@ -543,41 +543,51 @@ const Pagination = ({
   const end = Math.min(currentPage * perPage, totalItems);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex items-center justify-between">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 dark:border-slate-700">
       <div className="text-sm text-gray-700 dark:text-gray-300">
-        Affichage de <span className="font-medium">{start}</span> à{" "}
-        <span className="font-medium">{end}</span> sur{" "}
-        <span className="font-medium">{totalItems}</span> résultats
+        Affichage de{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {start}
+        </span>{" "}
+        à{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {end}
+        </span>{" "}
+        sur{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {totalItems}
+        </span>{" "}
+        résultats
       </div>
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 border rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-medium">
+        <span className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
           {currentPage} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>
@@ -617,15 +627,20 @@ const ProcessPayoutModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Traiter le reversement
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Vous êtes sur le point de traiter le reversement{" "}
-          <span className="font-medium">{payout.id}</span> pour{" "}
-          <span className="font-medium">{payout.freelancer.name}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {payout.id}
+          </span>{" "}
+          pour{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {payout.freelancer.name}
+          </span>
         </p>
 
         <div className="mb-4">
@@ -636,7 +651,7 @@ const ProcessPayoutModal = ({
             type="text"
             value={`${payout.amount} €`}
             disabled
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -646,9 +661,15 @@ const ProcessPayoutModal = ({
           </label>
           <input
             type="text"
-            value={payout.method}
+            value={
+              payout.method === "bank_transfer"
+                ? "Virement bancaire"
+                : payout.method === "mobile_money"
+                  ? "Mobile Money"
+                  : "PayPal"
+            }
             disabled
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -661,9 +682,13 @@ const ProcessPayoutModal = ({
             value={transactionId}
             onChange={(e) => setTransactionId(e.target.value)}
             placeholder="Ex: TR123456789"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -674,7 +699,7 @@ const ProcessPayoutModal = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             placeholder="Informations complémentaires..."
           />
         </div>
@@ -682,13 +707,13 @@ const ProcessPayoutModal = ({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
           >
             Confirmer le traitement
           </button>
@@ -730,15 +755,15 @@ const PayoutDetailsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Détails du reversement {payout.id}
         </h3>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
           {/* Informations générales */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
             <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
               Informations générales
             </h4>
@@ -784,7 +809,7 @@ const PayoutDetailsModal = ({
           </div>
 
           {/* Informations du freelancer */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
             <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
               Freelancer
             </h4>
@@ -796,8 +821,8 @@ const PayoutDetailsModal = ({
                   className="w-12 h-12 rounded-full mr-4 object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center mr-4">
-                  <User className="w-6 h-6 text-gray-500" />
+                <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-slate-600 flex items-center justify-center mr-4">
+                  <User className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
@@ -812,7 +837,7 @@ const PayoutDetailsModal = ({
           </div>
 
           {/* Dates */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
             <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
               Chronologie
             </h4>
@@ -850,7 +875,7 @@ const PayoutDetailsModal = ({
 
           {/* Transaction ID */}
           {payout.transaction_id && (
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
               <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Transaction
               </h4>
@@ -867,7 +892,7 @@ const PayoutDetailsModal = ({
 
           {/* Notes */}
           {payout.notes && (
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
               <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Notes
               </h4>
@@ -879,7 +904,7 @@ const PayoutDetailsModal = ({
 
           {/* Coordonnées bancaires (si disponibles) */}
           {payout.bank_details && (
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
               <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Coordonnées bancaires
               </h4>
@@ -928,7 +953,7 @@ const PayoutDetailsModal = ({
         <div className="flex justify-end mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Fermer
           </button>
@@ -998,11 +1023,6 @@ export default function PayoutsPage() {
       };
       setPayouts(mockResponse.items);
       setPagination(mockResponse);
-
-      // Version API
-      // const data = await getPayouts(filters);
-      // setPayouts(data.items);
-      // setPagination(data);
     } catch (error) {
       console.error("Erreur chargement reversements:", error);
     } finally {
@@ -1082,18 +1102,15 @@ export default function PayoutsPage() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
-            <Wallet className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+            <Wallet className="w-6 h-6 mr-2 text-blue-400" />
             Gestion des reversements
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-400 mt-1">
             Gérez les paiements aux freelancers
           </p>
         </div>
@@ -1131,24 +1148,24 @@ export default function PayoutsPage() {
         </div>
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
-          <div className="flex space-x-2">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={loadPayouts}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
             <button
               onClick={handleExport}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <Download className="w-4 h-4 mr-2" />
               Exporter CSV
             </button>
           </div>
-          <div className="flex space-x-4 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1"></div>
               En attente: {stats.count.pending}
@@ -1211,6 +1228,23 @@ export default function PayoutsPage() {
         }}
         payout={selectedPayout}
       />
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1e293b;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #475569;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+      `}</style>
     </div>
   );
 }

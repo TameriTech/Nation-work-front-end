@@ -53,37 +53,37 @@ const StatusBadge = ({ status }: { status: string }) => {
   const badges: Record<string, { color: string; icon: any; label: string }> = {
     published: {
       color:
-        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
       icon: Clock,
       label: "Publié",
     },
     assigned: {
       color:
-        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       icon: User,
       label: "Assigné",
     },
     in_progress: {
       color:
-        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
       icon: Loader2,
       label: "En cours",
     },
     completed: {
       color:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       icon: CheckCircle,
       label: "Terminé",
     },
     cancelled: {
       color:
-        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
+        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
       icon: XCircle,
       label: "Annulé",
     },
     disputed: {
       color:
-        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
       icon: Scale,
       label: "Litige",
     },
@@ -111,9 +111,9 @@ const InfoSection = ({
   icon: any;
   children: React.ReactNode;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-      <Icon className="w-5 h-5 mr-2 text-blue-600" />
+      <Icon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
       {title}
     </h3>
     <div className="space-y-4">{children}</div>
@@ -131,7 +131,9 @@ const InfoRow = ({
   icon?: any;
 }) => (
   <div className="flex items-start">
-    {Icon && <Icon className="w-4 h-4 mr-3 text-gray-400 mt-0.5" />}
+    {Icon && (
+      <Icon className="w-4 h-4 mr-3 text-gray-400 dark:text-gray-500 mt-0.5" />
+    )}
     <div className="flex-1">
       <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
       <p className="text-base font-medium text-gray-900 dark:text-white">
@@ -177,9 +179,9 @@ const Timeline = ({ service }: { service: Service }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-        <ClockIcon className="w-5 h-5 mr-2 text-blue-600" />
+        <ClockIcon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
         Chronologie
       </h3>
       <div className="space-y-4">
@@ -191,8 +193,8 @@ const Timeline = ({ service }: { service: Service }) => {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     event.completed
-                      ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-100"
-                      : "bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500"
+                      ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-gray-100 text-gray-400 dark:bg-slate-700 dark:text-gray-500"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -202,7 +204,7 @@ const Timeline = ({ service }: { service: Service }) => {
                     className={`absolute top-8 left-4 w-0.5 h-12 ${
                       events[index + 1].completed
                         ? "bg-green-200 dark:bg-green-800"
-                        : "bg-gray-200 dark:bg-gray-700"
+                        : "bg-gray-200 dark:bg-slate-700"
                     }`}
                   />
                 )}
@@ -231,12 +233,12 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
 
   if (!images || images.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-          <ImageIcon className="w-5 h-5 mr-2 text-blue-600" />
+          <ImageIcon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
           Photos
         </h3>
-        <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-700 rounded-lg">
+        <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-slate-700 rounded-lg">
           <p className="text-gray-500 dark:text-gray-400">Aucune photo</p>
         </div>
       </div>
@@ -244,13 +246,13 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-        <ImageIcon className="w-5 h-5 mr-2 text-blue-600" />
+        <ImageIcon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
         Photos ({images.length})
       </h3>
       <div className="space-y-4">
-        <div className="relative h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+        <div className="relative h-64 bg-gray-100 dark:bg-slate-700 rounded-lg overflow-hidden">
           <img
             src={images[selectedImage]}
             alt={`Service ${selectedImage + 1}`}
@@ -265,8 +267,8 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
                 onClick={() => setSelectedImage(index)}
                 className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
                   selectedImage === index
-                    ? "border-blue-500"
-                    : "border-transparent hover:border-gray-300"
+                    ? "border-blue-500 dark:border-blue-400"
+                    : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
                 }`}
               >
                 <img
@@ -289,7 +291,7 @@ export default function ServiceDetailPage() {
   const params = useParams();
   const serviceId = Number(params.serviceId);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [service, setService] = useState<Service | null>(null);
 
   useEffect(() => {
@@ -301,10 +303,6 @@ export default function ServiceDetailPage() {
           (s) => s.id === serviceId,
         ) as Service;
         setService(foundService || null);
-
-        // Version API
-        // const data = await getServiceById(serviceId);
-        // setService(data);
       } catch (error) {
         console.error("Erreur chargement service:", error);
       } finally {
@@ -368,7 +366,7 @@ export default function ServiceDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
@@ -376,18 +374,18 @@ export default function ServiceDetailPage() {
 
   if (!service) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">
             Service non trouvé
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-400 mb-4">
             Le service avec l'ID {serviceId} n'existe pas
           </p>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Retour
           </button>
@@ -397,28 +395,28 @@ export default function ServiceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* Barre de navigation */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+            className="flex items-center text-gray-400 hover:text-gray-200 transition"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la liste
           </button>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
                 /* Ouvrir chat */
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Voir la conversation
             </button>
-            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white flex items-center">
+            <button className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-slate-800 text-gray-300 hover:text-white flex items-center transition">
               <Edit className="w-4 h-4 mr-2" />
               Modifier
             </button>
@@ -426,7 +424,7 @@ export default function ServiceDetailPage() {
               service.status !== "completed" && (
                 <button
                   onClick={() => handleUpdateStatus("cancelled")}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center transition"
                 >
                   <Ban className="w-4 h-4 mr-2" />
                   Annuler
@@ -434,7 +432,7 @@ export default function ServiceDetailPage() {
               )}
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center transition"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Supprimer
@@ -443,16 +441,16 @@ export default function ServiceDetailPage() {
         </div>
 
         {/* En-tête */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-2">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {service.title}
                 </h1>
                 <StatusBadge status={service.status} />
                 {service.priority === "high" && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
                     <AlertCircle className="w-4 h-4 mr-2" />
                     Prioritaire
                   </span>
@@ -502,7 +500,7 @@ export default function ServiceDetailPage() {
                   {service.required_skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm dark:bg-blue-900 dark:text-blue-100"
+                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
                     >
                       {skill}
                     </span>
@@ -547,7 +545,7 @@ export default function ServiceDetailPage() {
               <InfoSection title="Litige en cours" icon={Scale}>
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                   <div className="flex items-start">
-                    <AlertCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-3 mt-0.5" />
                     <div>
                       <p className="font-medium text-red-800 dark:text-red-200">
                         Litige ouvert par {service.dispute.opened_by}
@@ -584,7 +582,7 @@ export default function ServiceDetailPage() {
                       alt={service.client.name}
                     />
                   ) : (
-                    <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
                       <User className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                     </div>
                   )}
@@ -595,7 +593,7 @@ export default function ServiceDetailPage() {
                   </p>
                   <Link
                     href={`/dashboard/admin/users/${service.client.id}`}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     Voir le profil
                   </Link>
@@ -630,7 +628,7 @@ export default function ServiceDetailPage() {
                           alt={service.freelancer.name}
                         />
                       ) : (
-                        <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
                           <User className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
@@ -647,7 +645,7 @@ export default function ServiceDetailPage() {
                       )}
                       <Link
                         href={`/dashboard/admin/users/${service.freelancer.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-800"
+                        className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                       >
                         Voir le profil
                       </Link>
@@ -698,7 +696,7 @@ export default function ServiceDetailPage() {
                   value={formatCurrency(service.accepted_amount)}
                 />
               )}
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                   Frais plateforme (10%): {formatCurrency(service.budget * 0.1)}
                 </p>

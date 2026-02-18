@@ -43,10 +43,10 @@ import {
 
 // Composants UI
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen bg-slate-950">
     <div className="relative">
       <Loader2 className="w-16 h-16 text-blue-600 animate-spin" />
-      <p className="mt-4 text-gray-600">Chargement du dashboard...</p>
+      <p className="mt-4 text-gray-400">Chargement du dashboard...</p>
     </div>
   </div>
 );
@@ -58,8 +58,8 @@ const ErrorMessage = ({
   message: string;
   onRetry: () => void;
 }) => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-500 p-6 rounded-lg max-w-lg">
+  <div className="flex items-center justify-center min-h-screen bg-slate-950">
+    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-lg max-w-lg">
       <div className="flex items-center mb-4">
         <XCircle className="text-red-500 w-8 h-8 mr-3" />
         <h3 className="text-lg font-semibold text-red-800 dark:text-red-200">
@@ -87,10 +87,10 @@ const StatCard = ({
   icon: Icon,
   color,
 }: any) => (
-  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-5 hover:shadow-xl transition-shadow">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-5 hover:shadow-xl transition-shadow border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between mb-4">
       <div
-        className={`${color} w-12 h-12 rounded-lg flex items-center justify-center text-white`}
+        className={`${color} w-12 h-12 rounded-lg flex items-center justify-center text-white shadow-lg`}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -136,21 +136,24 @@ const ActivityItem = ({ activity }: { activity: RecentActivity }) => {
   const getColor = (type: string) => {
     const colors: Record<string, string> = {
       user_registration:
-        "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300",
+        "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
       service_created:
-        "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300",
+        "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
       payment_received:
-        "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300",
+        "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
       dispute_opened:
-        "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
+        "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
       verification_pending:
-        "bg-yellow-100 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-300",
+        "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
     };
-    return colors[type] || "bg-gray-100 text-gray-600";
+    return (
+      colors[type] ||
+      "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+    );
   };
 
   return (
-    <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg transition">
+    <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg transition">
       <div
         className={`w-10 h-10 rounded-lg flex items-center justify-center ${getColor(activity.type)}`}
       >
@@ -161,13 +164,13 @@ const ActivityItem = ({ activity }: { activity: RecentActivity }) => {
           {activity.description}
         </p>
         {activity.user && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Par {activity.user.name} ({activity.user.role})
           </p>
         )}
       </div>
       <div className="text-right">
-        <p className="text-sm text-gray-500 flex items-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
           <Clock className="w-3 h-3 mr-1" />
           {activity.time_ago}
         </p>
@@ -230,11 +233,11 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <div className="container mx-auto px-4 py-8">
-        {/* En-tête */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex justify-between items-start">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
+        {/* En-tête avec dégradé */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg shadow-lg p-6 mb-6 border border-blue-400/20">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-2">
                 {getGreeting()}, Admin! 👋
@@ -257,7 +260,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center space-x-4">
               {unreadCount > 0 && (
                 <div className="relative">
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
                     {unreadCount}
                   </span>
                   <button className="p-2 hover:bg-blue-500 rounded-full transition">
@@ -315,16 +318,16 @@ export default function AdminDashboardPage() {
 
         {/* Graphiques */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
+          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <h2 className="text-lg font-semibold flex items-center text-gray-800 dark:text-gray-100">
+                <BarChart3 className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Évolution des revenus
               </h2>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value as any)}
-                className="text-sm border rounded-lg px-3 py-2"
+                className="text-sm border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
               >
                 <option value="week">Cette semaine</option>
                 <option value="month">Ce mois</option>
@@ -336,10 +339,12 @@ export default function AdminDashboardPage() {
                 .slice(-5)
                 .map((label: string, i: number) => (
                   <div key={i} className="flex items-center">
-                    <span className="w-20 text-sm text-gray-600">{label}</span>
+                    <span className="w-20 text-sm text-gray-600 dark:text-gray-400">
+                      {label}
+                    </span>
                     <div className="flex-1 mx-3">
                       <div
-                        className="h-8 bg-blue-500 rounded-lg transition-all flex items-center justify-end px-2 text-white text-xs"
+                        className="h-8 bg-blue-500 rounded-lg transition-all flex items-center justify-end px-2 text-white text-xs font-medium"
                         style={{
                           width: `${(chartData.revenue.data[i] / Math.max(...chartData.revenue.data)) * 100}%`,
                         }}
@@ -352,19 +357,21 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 rounded-lg shadow-lg p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center">
-              <PieChart className="w-5 h-5 mr-2 text-purple-600" />
+          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-800 dark:text-gray-100">
+              <PieChart className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
               Répartition des services
             </h2>
             <div className="space-y-3">
               {chartData?.service_status.labels.map(
                 (label: string, i: number) => (
                   <div key={i} className="flex items-center">
-                    <span className="w-24 text-sm text-gray-600">{label}</span>
+                    <span className="w-24 text-sm text-gray-600 dark:text-gray-400">
+                      {label}
+                    </span>
                     <div className="flex-1 mx-3">
                       <div
-                        className="h-8 rounded-lg transition-all flex items-center justify-end px-2 text-white text-xs"
+                        className="h-8 rounded-lg transition-all flex items-center justify-end px-2 text-white text-xs font-medium"
                         style={{
                           width: `${(chartData.service_status.data[i] / stats.services.total) * 100}%`,
                           backgroundColor: chartData.service_status.colors[i],
@@ -383,24 +390,24 @@ export default function AdminDashboardPage() {
         {/* Activités récentes et actions rapides */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Activités récentes */}
-          <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold flex items-center">
+              <h2 className="text-xl font-semibold flex items-center text-gray-800 dark:text-gray-100">
                 <Activity className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                 Activités récentes
               </h2>
               <button
                 onClick={() => router.push("/admin/activities")}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center transition"
               >
                 Voir tout
                 <ArrowRight className="w-4 h-4 ml-1" />
               </button>
             </div>
 
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
               {activities.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                   Aucune activité récente
                 </p>
               ) : (
@@ -412,65 +419,83 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Actions rapides */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Actions rapides</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+              Actions rapides
+            </h2>
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => router.push("/admin/users/verifications")}
-                className="p-4 bg-yellow-50 dark:bg-slate-700 rounded-lg hover:bg-yellow-100 dark:hover:bg-slate-600 transition text-center group"
+                className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition text-center group border border-yellow-200 dark:border-yellow-800"
               >
-                <CheckCircle className="w-6 h-6 mx-auto mb-2 text-yellow-600 group-hover:scale-110 transition" />
-                <div className="text-sm font-medium">Vérifications</div>
+                <CheckCircle className="w-6 h-6 mx-auto mb-2 text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition" />
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Vérifications
+                </div>
               </button>
 
               <button
                 onClick={() => router.push("/admin/disputes")}
-                className="p-4 bg-red-50 rounded-lg hover:bg-red-100 transition text-center group"
+                className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition text-center group border border-red-200 dark:border-red-800"
               >
-                <Scale className="w-6 h-6 mx-auto mb-2 text-red-600 group-hover:scale-110 transition" />
-                <div className="text-sm font-medium">Litiges</div>
+                <Scale className="w-6 h-6 mx-auto mb-2 text-red-600 dark:text-red-400 group-hover:scale-110 transition" />
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Litiges
+                </div>
               </button>
 
               <button
                 onClick={() => router.push("/admin/services/categories/new")}
-                className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition text-center group"
+                className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition text-center group border border-green-200 dark:border-green-800"
               >
-                <FolderPlus className="w-6 h-6 mx-auto mb-2 text-green-600 group-hover:scale-110 transition" />
-                <div className="text-sm font-medium">Catégorie</div>
+                <FolderPlus className="w-6 h-6 mx-auto mb-2 text-green-600 dark:text-green-400 group-hover:scale-110 transition" />
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Catégorie
+                </div>
               </button>
 
               <button
                 onClick={() => router.push("/admin/notifications/send")}
-                className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition text-center group"
+                className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition text-center group border border-purple-200 dark:border-purple-800"
               >
-                <Send className="w-6 h-6 mx-auto mb-2 text-purple-600 group-hover:scale-110 transition" />
-                <div className="text-sm font-medium">Notification</div>
+                <Send className="w-6 h-6 mx-auto mb-2 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition" />
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Notification
+                </div>
               </button>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <h3 className="font-medium mb-2">Statistiques rapides</h3>
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
+              <h3 className="font-medium mb-2 text-gray-700 dark:text-gray-300">
+                Statistiques rapides
+              </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <TrendingUp className="w-4 h-4 mr-1 text-green-600" />
+                  <span className="text-gray-600 dark:text-gray-400 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1 text-green-600 dark:text-green-400" />
                     Taux de conversion
                   </span>
-                  <span className="font-medium">68%</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                    68%
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <Clock className="w-4 h-4 mr-1 text-blue-600" />
+                  <span className="text-gray-600 dark:text-gray-400 flex items-center">
+                    <Clock className="w-4 h-4 mr-1 text-blue-600 dark:text-blue-400" />
                     Temps de réponse
                   </span>
-                  <span className="font-medium">2.5h</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                    2.5h
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <Star className="w-4 h-4 mr-1 text-yellow-600" />
+                  <span className="text-gray-600 dark:text-gray-400 flex items-center">
+                    <Star className="w-4 h-4 mr-1 text-yellow-600 dark:text-yellow-400" />
                     Satisfaction
                   </span>
-                  <span className="font-medium">4.8/5</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                    4.8/5
+                  </span>
                 </div>
               </div>
             </div>
@@ -478,13 +503,13 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           <p className="flex items-center justify-center">
             <Clock className="w-4 h-4 mr-1" />
             Dernière mise à jour: {lastUpdated.toLocaleString("fr-FR")} •
             <button
               onClick={loadDashboardData}
-              className="text-blue-600 hover:text-blue-800 ml-2 flex items-center"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 ml-2 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-1" />
               Rafraîchir
@@ -492,6 +517,24 @@ export default function AdminDashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Styles pour la barre de défilement personnalisée */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1e293b;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #475569;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+      `}</style>
     </div>
   );
 }

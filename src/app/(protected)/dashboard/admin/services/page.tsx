@@ -73,7 +73,7 @@ const ServiceFilters = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recherche */}
         <div className="col-span-2">
@@ -88,7 +88,7 @@ const ServiceFilters = ({
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Titre du service, client, freelancer..."
-              className="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -106,7 +106,7 @@ const ServiceFilters = ({
                 status: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous les statuts</option>
             <option value="published">Publié</option>
@@ -131,7 +131,7 @@ const ServiceFilters = ({
                 category: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Toutes les catégories</option>
             <option value="Plomberie">Plomberie</option>
@@ -151,13 +151,13 @@ const ServiceFilters = ({
             setLocalSearch("");
             onSearch();
           }}
-          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition"
         >
           Réinitialiser
         </button>
         <button
           onClick={onSearch}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
         >
           <Search className="w-4 h-4 mr-2" />
           Rechercher
@@ -172,37 +172,37 @@ const StatusBadge = ({ status }: { status: string }) => {
   const badges: Record<string, { color: string; icon: any; label: string }> = {
     published: {
       color:
-        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
       icon: Clock,
       label: "Publié",
     },
     assigned: {
       color:
-        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       icon: User,
       label: "Assigné",
     },
     in_progress: {
       color:
-        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
       icon: Loader2,
       label: "En cours",
     },
     completed: {
       color:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       icon: CheckCircle,
       label: "Terminé",
     },
     cancelled: {
       color:
-        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
+        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
       icon: XCircle,
       label: "Annulé",
     },
     disputed: {
       color:
-        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
       icon: Scale,
       label: "Litige",
     },
@@ -261,20 +261,20 @@ const ServiceTable = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
         <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-700">
             <tr>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("title")}
               >
                 <div className="flex items-center">
@@ -283,7 +283,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("client.name")}
               >
                 <div className="flex items-center">
@@ -292,7 +292,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("freelancer.name")}
               >
                 <div className="flex items-center">
@@ -301,7 +301,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("category")}
               >
                 <div className="flex items-center">
@@ -310,7 +310,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("status")}
               >
                 <div className="flex items-center">
@@ -319,7 +319,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("date")}
               >
                 <div className="flex items-center">
@@ -328,7 +328,7 @@ const ServiceTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("budget")}
               >
                 <div className="flex items-center">
@@ -336,12 +336,12 @@ const ServiceTable = ({
                   <SortIcon field="budget" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
             {services.length === 0 ? (
               <tr>
                 <td
@@ -355,7 +355,7 @@ const ServiceTable = ({
               services.map((service) => (
                 <tr
                   key={service.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                 >
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -365,7 +365,7 @@ const ServiceTable = ({
                       ID: {service.id}
                     </div>
                     {service.priority === "high" && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 mt-1">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 mt-1">
                         <AlertCircle className="w-3 h-3 mr-1" />
                         Prioritaire
                       </span>
@@ -381,7 +381,7 @@ const ServiceTable = ({
                             alt={service.client.name}
                           />
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
                             <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                           </div>
                         )}
@@ -404,7 +404,7 @@ const ServiceTable = ({
                               alt={service.freelancer.name}
                             />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
                               <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             </div>
                           )}
@@ -428,7 +428,7 @@ const ServiceTable = ({
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
                       <Tag className="w-3 h-3 mr-1" />
                       {service.category}
                     </span>
@@ -458,7 +458,7 @@ const ServiceTable = ({
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => onView(service)}
-                        className="text-gray-600 hover:text-blue-600 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
                         title="Voir détails"
                       >
                         <Eye className="w-4 h-4" />
@@ -467,7 +467,7 @@ const ServiceTable = ({
                         onClick={() => {
                           /* Ouvrir modal d'édition */
                         }}
-                        className="text-gray-600 hover:text-green-600 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
                         title="Modifier"
                       >
                         <Edit className="w-4 h-4" />
@@ -476,7 +476,7 @@ const ServiceTable = ({
                         service.status !== "completed" && (
                           <button
                             onClick={() => onCancel(service)}
-                            className="text-gray-600 hover:text-orange-600 p-1 rounded hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                            className="text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 p-1 rounded hover:bg-orange-50 dark:hover:bg-orange-900/30 transition"
                             title="Annuler"
                           >
                             <Ban className="w-4 h-4" />
@@ -490,7 +490,7 @@ const ServiceTable = ({
                             e.target.value as ServiceStatus,
                           )
                         }
-                        className="text-xs border rounded p-1 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="text-xs border border-gray-300 dark:border-slate-600 rounded p-1 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                       >
                         <option value="published">Publié</option>
                         <option value="assigned">Assigné</option>
@@ -529,41 +529,51 @@ const Pagination = ({
   const end = Math.min(currentPage * perPage, totalItems);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex items-center justify-between">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 dark:border-slate-700">
       <div className="text-sm text-gray-700 dark:text-gray-400">
-        Affichage de <span className="font-medium">{start}</span> à{" "}
-        <span className="font-medium">{end}</span> sur{" "}
-        <span className="font-medium">{totalItems}</span> résultats
+        Affichage de{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {start}
+        </span>{" "}
+        à{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {end}
+        </span>{" "}
+        sur{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {totalItems}
+        </span>{" "}
+        résultats
       </div>
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 border rounded-lg bg-blue-50 text-blue-600 font-medium dark:bg-blue-900 dark:text-blue-100">
+        <span className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
           {currentPage} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>
@@ -603,14 +613,16 @@ const CancelModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Annuler le service
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Vous êtes sur le point d'annuler le service{" "}
-          <span className="font-medium">{service?.title}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {service?.title}
+          </span>
         </p>
 
         <div className="mb-4">
@@ -621,10 +633,14 @@ const CancelModal = ({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             placeholder="Expliquez la raison de l'annulation..."
           />
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -633,7 +649,7 @@ const CancelModal = ({
               type="checkbox"
               checked={notify}
               onChange={(e) => setNotify(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
             />
             <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
               Notifier les utilisateurs concernés
@@ -644,13 +660,13 @@ const CancelModal = ({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
           >
             Confirmer l'annulation
           </button>
@@ -706,14 +722,7 @@ export default function ServicesPage() {
       setPagination(mockResponse);
 
       // Charger les stats
-      //setStats(mockServices.stats);
-
-      // Version API
-      // const data = await getServices(filters);
-      // setServices(data.items);
-      // setPagination(data);
-      // const statsData = await getServiceStats();
-      // setStats(statsData);
+      setStats(mockServices.stats);
     } catch (error) {
       console.error("Erreur chargement services:", error);
     } finally {
@@ -815,18 +824,15 @@ export default function ServicesPage() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-            <Briefcase className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+            <Briefcase className="w-6 h-6 mr-2 text-blue-400" />
             Gestion des services
           </h1>
-          <p className="text-gray-600 mt-1 dark:text-gray-400">
+          <p className="text-gray-400 mt-1">
             Gérez tous les services et missions de la plateforme
           </p>
         </div>
@@ -834,7 +840,7 @@ export default function ServicesPage() {
         {/* Statistiques */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -844,10 +850,10 @@ export default function ServicesPage() {
                     {stats.total}
                   </p>
                 </div>
-                <Briefcase className="w-8 h-8 text-blue-500 opacity-50" />
+                <Briefcase className="w-8 h-8 text-blue-500 opacity-50 dark:opacity-30" />
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -857,10 +863,10 @@ export default function ServicesPage() {
                     {stats.by_status?.in_progress || 0}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-500 opacity-50" />
+                <Clock className="w-8 h-8 text-yellow-500 opacity-50 dark:opacity-30" />
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -870,10 +876,10 @@ export default function ServicesPage() {
                     {formatCurrency(stats.total_revenue || 0)}
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-500 opacity-50" />
+                <DollarSign className="w-8 h-8 text-green-500 opacity-50 dark:opacity-30" />
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -883,32 +889,35 @@ export default function ServicesPage() {
                     {stats.completion_rate || 0}%
                   </p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-purple-500 opacity-50" />
+                <CheckCircle className="w-8 h-8 text-purple-500 opacity-50 dark:opacity-30" />
               </div>
             </div>
           </div>
         )}
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
           <div className="flex space-x-2">
             <button
               onClick={loadServices}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
             <button
               onClick={handleExport}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <Download className="w-4 h-4 mr-2" />
               Exporter CSV
             </button>
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            Total: <span className="font-medium">{pagination.total}</span>{" "}
+            Total:{" "}
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              {pagination.total}
+            </span>{" "}
             services
           </div>
         </div>

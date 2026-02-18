@@ -69,7 +69,7 @@ const StatsCard = ({
   color: string;
   formatter?: (val: number) => string;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{title}</p>
@@ -85,16 +85,18 @@ const StatsCard = ({
             )}
             <span
               className={`text-sm ${
-                change >= 0 ? "text-green-600" : "text-red-600"
+                change >= 0
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
               }`}
             >
-              {Math.abs(change)}% par rapport à la période précédente
+              {Math.abs(change)}%
             </span>
           </div>
         )}
       </div>
       <div
-        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white`}
+        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white shadow-lg`}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -118,7 +120,7 @@ const PeriodSelector = ({
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 inline-flex">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-1 inline-flex border border-gray-200 dark:border-slate-700">
       {periods.map((p) => (
         <button
           key={p.value}
@@ -126,7 +128,7 @@ const PeriodSelector = ({
           className={`px-4 py-2 text-sm font-medium rounded-md transition ${
             period === p.value
               ? "bg-blue-600 text-white"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-slate-700"
           }`}
         >
           {p.label}
@@ -147,10 +149,10 @@ const RevenueChart = ({
   const maxRevenue = Math.max(...data.map((d) => d.revenue));
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center">
-          <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+          <TrendingUp className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
           Évolution des revenus
         </h3>
         <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -172,7 +174,7 @@ const RevenueChart = ({
                   className="absolute left-0 top-0 h-full bg-blue-500 rounded-lg opacity-80 transition-all"
                   style={{ width: `${(item.revenue / maxRevenue) * 100}%` }}
                 >
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-white font-medium">
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-white font-medium truncate max-w-[150px]">
                     {new Intl.NumberFormat("fr-FR", {
                       style: "currency",
                       currency: "EUR",
@@ -191,7 +193,7 @@ const RevenueChart = ({
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end space-x-4 text-sm">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-end space-x-4 text-sm">
         <div className="flex items-center">
           <div className="w-3 h-3 bg-blue-500 rounded mr-1"></div>
           <span className="text-gray-600 dark:text-gray-400">Revenus</span>
@@ -218,9 +220,9 @@ const PieChartComponent = ({
   const total = data.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-        <Icon className="w-5 h-5 mr-2 text-blue-600" />
+        <Icon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
         {title}
       </h3>
 
@@ -241,7 +243,7 @@ const PieChartComponent = ({
                 {item.count} ({item.percentage}%)
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
               <div
                 className="h-2 rounded-full transition-all"
                 style={{
@@ -276,9 +278,9 @@ const TopFreelancersTable = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-        <Award className="w-5 h-5 mr-2 text-yellow-500" />
+        <Award className="w-5 h-5 mr-2 text-yellow-500 dark:text-yellow-400" />
         Top Freelancers
       </h3>
 
@@ -286,10 +288,10 @@ const TopFreelancersTable = ({
         {freelancers.map((freelancer, index) => (
           <div
             key={freelancer.id}
-            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition"
           >
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400 font-bold mr-3">
+              <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400 font-bold mr-3">
                 #{index + 1}
               </div>
               {freelancer.avatar ? (
@@ -299,8 +301,8 @@ const TopFreelancersTable = ({
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center mr-3">
-                  <Users className="w-5 h-5 text-gray-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-slate-600 flex items-center justify-center mr-3">
+                  <Users className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
@@ -331,9 +333,9 @@ const TopFreelancersTable = ({
 // Composant de carte de performance
 const PerformanceCard = ({ metrics }: { metrics: PerformanceMetrics[] }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-        <Activity className="w-5 h-5 mr-2 text-green-600" />
+        <Activity className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
         Indicateurs de performance
       </h3>
 
@@ -346,7 +348,7 @@ const PerformanceCard = ({ metrics }: { metrics: PerformanceMetrics[] }) => {
           return (
             <div
               key={index}
-              className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              className="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg"
             >
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                 {metric.metric}
@@ -355,7 +357,9 @@ const PerformanceCard = ({ metrics }: { metrics: PerformanceMetrics[] }) => {
                 <p className="text-xl font-bold text-gray-800 dark:text-gray-100">
                   {metric.value}
                   {metric.unit && (
-                    <span className="text-sm ml-1">{metric.unit}</span>
+                    <span className="text-sm ml-1 text-gray-500 dark:text-gray-400">
+                      {metric.unit}
+                    </span>
                   )}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -363,7 +367,7 @@ const PerformanceCard = ({ metrics }: { metrics: PerformanceMetrics[] }) => {
                   {metric.unit}
                 </p>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2">
+              <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2 mb-2">
                 <div
                   className={`h-2 rounded-full ${
                     progress >= 100
@@ -383,7 +387,9 @@ const PerformanceCard = ({ metrics }: { metrics: PerformanceMetrics[] }) => {
                 </span>
                 <span
                   className={`flex items-center ${
-                    change >= 0 ? "text-green-600" : "text-red-600"
+                    change >= 0
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
                   }`}
                 >
                   {change >= 0 ? (
@@ -409,9 +415,9 @@ const GeographicDistribution = ({
   data: GeographicDistribution[];
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-        <MapPin className="w-5 h-5 mr-2 text-red-500" />
+        <MapPin className="w-5 h-5 mr-2 text-red-500 dark:text-red-400" />
         Distribution géographique
       </h3>
 
@@ -426,7 +432,7 @@ const GeographicDistribution = ({
                 {item.count} ({item.percentage}%)
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-red-500 transition-all"
                 style={{ width: `${item.percentage}%` }}
@@ -448,8 +454,8 @@ const DateRangePicker = ({
   onDateRangeChange: (range: { startDate: string; endDate: string }) => void;
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex items-center space-x-4">
-      <Calendar className="w-5 h-5 text-gray-400" />
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 flex items-center space-x-4 border border-gray-200 dark:border-slate-700">
+      <Calendar className="w-5 h-5 text-gray-400 dark:text-gray-500" />
       <div className="flex items-center space-x-2">
         <input
           type="date"
@@ -457,16 +463,16 @@ const DateRangePicker = ({
           onChange={(e) =>
             onDateRangeChange({ ...dateRange, startDate: e.target.value })
           }
-          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
         />
-        <span className="text-gray-500">-</span>
+        <span className="text-gray-500 dark:text-gray-400">-</span>
         <input
           type="date"
           value={dateRange.endDate}
           onChange={(e) =>
             onDateRangeChange({ ...dateRange, endDate: e.target.value })
           }
-          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
         />
       </div>
     </div>
@@ -519,28 +525,6 @@ export default function ReportsPage() {
         setActivityData(mockReports.activityData);
         setGeographicData(mockReports.geographicDistribution);
         setPerformanceMetrics(mockReports.performanceMetrics);
-
-        // Version API
-        // const filters = { dateRange };
-        // const [statsData, revenue, categoryData, statusData, freelancers, activity, geo, metrics] =
-        //   await Promise.all([
-        //     getReportStats(filters),
-        //     getRevenueData(period, filters),
-        //     getServicesByCategory(filters),
-        //     getServicesByStatus(filters),
-        //     getTopFreelancers(10, filters),
-        //     getActivityData(period === "year" ? "month" : "day", filters),
-        //     getGeographicDistribution(filters),
-        //     getPerformanceMetrics(filters),
-        //   ]);
-        // setStats(statsData);
-        // setRevenueData(revenue);
-        // setServicesByCategory(categoryData);
-        // setServicesByStatus(statusData);
-        // setTopFreelancers(freelancers);
-        // setActivityData(activity);
-        // setGeographicData(geo);
-        // setPerformanceMetrics(metrics);
       } catch (error) {
         console.error("Erreur chargement rapports:", error);
       } finally {
@@ -578,35 +562,25 @@ export default function ReportsPage() {
     return new Intl.NumberFormat("fr-FR").format(num);
   };
 
-  const formatPercent = (num: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "percent",
-      minimumFractionDigits: 1,
-    }).format(num / 100);
-  };
-
   if (loading && !stats) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
-              <BarChart3 className="w-6 h-6 mr-2 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+              <BarChart3 className="w-6 h-6 mr-2 text-blue-400" />
               Tableau de bord des rapports
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-gray-400 mt-1">
               Analysez les performances de votre plateforme
             </p>
           </div>
@@ -614,32 +588,32 @@ export default function ReportsPage() {
           <div className="flex space-x-2">
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-300 border border-slate-700 rounded-lg hover:bg-slate-800 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
             <div className="relative group">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition">
                 <Download className="w-4 h-4 mr-2" />
                 Exporter
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg hidden group-hover:block z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-lg hidden group-hover:block z-10 border border-slate-700">
                 <button
                   onClick={() => handleExport("pdf")}
-                  className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700 first:rounded-t-lg"
                 >
                   PDF
                 </button>
                 <button
                   onClick={() => handleExport("csv")}
-                  className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700"
                 >
                   CSV
                 </button>
                 <button
                   onClick={() => handleExport("excel")}
-                  className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700 last:rounded-b-lg"
                 >
                   Excel
                 </button>
@@ -699,7 +673,7 @@ export default function ReportsPage() {
         {/* Deuxième ligne de statistiques */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                 Taux de complétion
               </p>
@@ -707,7 +681,7 @@ export default function ReportsPage() {
                 {stats.completion_rate}%
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                 Taux de réponse
               </p>
@@ -715,7 +689,7 @@ export default function ReportsPage() {
                 {stats.response_rate}%
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                 Taux de litiges
               </p>
@@ -723,7 +697,7 @@ export default function ReportsPage() {
                 {stats.dispute_rate}%
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                 Freelancers
               </p>
@@ -783,15 +757,15 @@ export default function ReportsPage() {
 
         {/* Tableau d'activité */}
         {activityData.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-              <Activity className="w-5 h-5 mr-2 text-blue-600" />
+              <Activity className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
               Activité récente
             </h3>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                <thead className="bg-gray-50 dark:bg-slate-700">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Date
@@ -807,9 +781,12 @@ export default function ReportsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                   {activityData.slice(0, 7).map((item, index) => (
-                    <tr key={index}>
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {item.date}
                       </td>

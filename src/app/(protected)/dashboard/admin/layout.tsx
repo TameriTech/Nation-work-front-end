@@ -155,7 +155,9 @@ export default function AdminLayout({
             />
 
             <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
-              <div className="mx-auto max-w-7xl">{children}</div>
+              <div className="mx-auto max-w-5xl overflow-x-scroll">
+                {children}
+              </div>
             </main>
           </div>
         </div>

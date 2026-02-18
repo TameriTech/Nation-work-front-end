@@ -44,6 +44,7 @@ import {
   getTransactions,
   getPaymentSummary,
   exportTransactions,
+  generateInvoice,
 } from "@/app/services/payments.service";
 import type {
   Payment,
@@ -69,10 +70,10 @@ const StatsCard = ({
   color: string;
   trend?: number;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between mb-4">
       <div
-        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white`}
+        className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center text-white shadow-lg`}
       >
         <Icon className="w-6 h-6" />
       </div>
@@ -100,7 +101,7 @@ const StatsCard = ({
       {value}
     </p>
     {subValue && (
-      <p className="text-sm text-gray-500 dark:text-gray-500">{subValue}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{subValue}</p>
     )}
   </div>
 );
@@ -125,7 +126,7 @@ const PaymentFilters = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recherche */}
         <div className="col-span-2">
@@ -140,7 +141,7 @@ const PaymentFilters = ({
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="ID transaction, service, client..."
-              className="pl-10 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -158,7 +159,7 @@ const PaymentFilters = ({
                 status: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous les statuts</option>
             <option value="pending">En attente</option>
@@ -182,7 +183,7 @@ const PaymentFilters = ({
                 method: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Toutes les méthodes</option>
             <option value="card">Carte bancaire</option>
@@ -208,7 +209,7 @@ const PaymentFilters = ({
                 date_from: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -226,7 +227,7 @@ const PaymentFilters = ({
                 date_to: e.target.value || undefined,
               })
             }
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -248,7 +249,7 @@ const PaymentFilters = ({
                 })
               }
               placeholder="0"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
           <div className="flex-1">
@@ -267,7 +268,7 @@ const PaymentFilters = ({
                 })
               }
               placeholder="1000"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -280,13 +281,13 @@ const PaymentFilters = ({
             setLocalSearch("");
             onSearch();
           }}
-          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition"
         >
           Réinitialiser
         </button>
         <button
           onClick={onSearch}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
         >
           <Search className="w-4 h-4 mr-2" />
           Rechercher
@@ -319,31 +320,31 @@ const PaymentTable = ({
       {
         paid: {
           color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
           icon: CheckCircle,
           label: "Payé",
         },
         pending: {
           color:
-            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
           icon: Clock,
           label: "En attente",
         },
         escrow: {
           color:
-            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
           icon: Shield,
           label: "Séquestre",
         },
         refunded: {
           color:
-            "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+            "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
           icon: XCircle,
           label: "Remboursé",
         },
         failed: {
           color:
-            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
           icon: AlertCircle,
           label: "Échoué",
         },
@@ -403,20 +404,20 @@ const PaymentTable = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
         <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-700">
             <tr>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("id")}
               >
                 <div className="flex items-center">
@@ -425,7 +426,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("service_title")}
               >
                 <div className="flex items-center">
@@ -434,7 +435,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("client")}
               >
                 <div className="flex items-center">
@@ -443,7 +444,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("freelancer")}
               >
                 <div className="flex items-center">
@@ -452,7 +453,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("amount")}
               >
                 <div className="flex items-center">
@@ -461,7 +462,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("status")}
               >
                 <div className="flex items-center">
@@ -470,7 +471,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("payment_method")}
               >
                 <div className="flex items-center">
@@ -479,7 +480,7 @@ const PaymentTable = ({
                 </div>
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
                 onClick={() => onSort("created_at")}
               >
                 <div className="flex items-center">
@@ -492,7 +493,7 @@ const PaymentTable = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
             {payments.length === 0 ? (
               <tr>
                 <td
@@ -506,7 +507,7 @@ const PaymentTable = ({
               payments.map((payment) => (
                 <tr
                   key={payment.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -569,14 +570,14 @@ const PaymentTable = ({
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => onView(payment)}
-                        className="text-gray-600 hover:text-blue-600 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
                         title="Voir détails"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onExport(payment)}
-                        className="text-gray-600 hover:text-green-600 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
+                        className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
                         title="Télécharger facture"
                       >
                         <Download className="w-4 h-4" />
@@ -611,41 +612,51 @@ const Pagination = ({
   const end = Math.min(currentPage * perPage, totalItems);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex items-center justify-between">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-200 dark:border-slate-700">
       <div className="text-sm text-gray-700 dark:text-gray-300">
-        Affichage de <span className="font-medium">{start}</span> à{" "}
-        <span className="font-medium">{end}</span> sur{" "}
-        <span className="font-medium">{totalItems}</span> résultats
+        Affichage de{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {start}
+        </span>{" "}
+        à{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {end}
+        </span>{" "}
+        sur{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {totalItems}
+        </span>{" "}
+        résultats
       </div>
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 border rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-medium">
+        <span className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
           {currentPage} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>
@@ -693,15 +704,6 @@ export default function PaymentsPage() {
       setPayments(mockResponse.items);
       setPagination(mockResponse);
       setSummary(mockPayments.summary as PaymentSummary);
-
-      // Version API
-      // const [transactionsData, summaryData] = await Promise.all([
-      //   getTransactions(filters),
-      //   getPaymentSummary(),
-      // ]);
-      // setPayments(transactionsData.items);
-      // setPagination(transactionsData);
-      // setSummary(summaryData);
     } catch (error) {
       console.error("Erreur chargement paiements:", error);
     } finally {
@@ -735,7 +737,7 @@ export default function PaymentsPage() {
   };
 
   const handleViewPayment = (payment: Payment) => {
-    router.push(`/admin/payments/${payment.id}`);
+    router.push(`/dashboard/admin/payments/${payment.id}`);
   };
 
   const handleExport = async (payment?: Payment) => {
@@ -774,18 +776,15 @@ export default function PaymentsPage() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-auto bg-gray-50 dark:bg-gray-900"
-      style={{ maxWidth: "calc(100vw - 300px)" }}
-    >
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
-            <DollarSign className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
+            <DollarSign className="w-6 h-6 mr-2 text-blue-400" />
             Gestion des paiements
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-400 mt-1">
             Suivez et gérez toutes les transactions financières
           </p>
         </div>
@@ -828,26 +827,26 @@ export default function PaymentsPage() {
         )}
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center">
-          <div className="flex space-x-2">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={loadPayments}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </button>
             <button
               onClick={() => handleExport()}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <Download className="w-4 h-4 mr-2" />
               Exporter CSV
             </button>
           </div>
-          <div className="flex space-x-4 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span>Total: {formatCurrency(summary?.total_revenue || 0)}</span>
-            <span>|</span>
+            <span className="hidden sm:inline">|</span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
               Payés: {summary?.by_status.paid || 0}

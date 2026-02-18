@@ -735,3 +735,102 @@ export interface ReportFilters {
   city?: string;
   freelancer_id?: number;
 }
+
+
+
+
+export interface Conversation {
+  id: number;
+  service_id: number;
+  client_id: number;
+  freelancer_id: number;
+  is_active: boolean;
+  last_message_at?: string;
+  created_at: string;
+  updated_at?: string;
+  
+  // Relations
+  service?: {
+    id: number;
+    title: string;
+    status: string;
+  };
+  client?: {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    avatar?: string;
+  };
+  freelancer?: {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    avatar?: string;
+  };
+  admin?: {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    avatar?: string;
+  };
+  last_message?: Message;
+  message_count?: number;
+  unread_count?: number;
+}
+
+export interface Message {
+  id: number;
+  conversation_id: number;
+  sender_id: number;
+  recipient_id: number;
+  content?: string;
+  media_url?: string;
+  media_type?: string;
+  is_read: boolean;
+  read_at?: string;
+  is_delivered: boolean;
+  delivered_at?: string;
+  created_at: string;
+  
+  // Relations
+  sender?: {
+    id: number;
+    name: string;
+    username: string;
+    avatar?: string;
+    role: string;
+  };
+  recipient?: {
+    id: number;
+    name: string;
+    username: string;
+    avatar?: string;
+    role: string;
+  };
+}
+
+export interface ConversationFilters {
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
+  search?: string;
+  is_active?: boolean;
+  participant_type?: 'client' | 'freelancer' | 'admin';
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface ConversationStats {
+  total: number;
+  active: number;
+  archived: number;
+  unread: number;
+  total_messages: number;
+  avg_messages_per_conversation: number;
+  participants: number;
+  engagement_rate: number;
+}

@@ -51,9 +51,9 @@ const InfoCard = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-      <Icon className="w-5 h-5 mr-2 text-blue-600" />
+      <Icon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
       {title}
     </h3>
     <div className="space-y-3">{children}</div>
@@ -65,31 +65,31 @@ const StatusBadge = ({ status }: { status: string }) => {
   const badges: Record<string, { color: string; icon: any; label: string }> = {
     paid: {
       color:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       icon: CheckCircle,
       label: "Payé",
     },
     pending: {
       color:
-        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
       icon: Clock,
       label: "En attente",
     },
     escrow: {
       color:
-        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
       icon: Shield,
       label: "Séquestre",
     },
     refunded: {
       color:
-        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       icon: XCircle,
       label: "Remboursé",
     },
     failed: {
       color:
-        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
       icon: AlertCircle,
       label: "Échoué",
     },
@@ -148,14 +148,16 @@ const RefundModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Rembourser la transaction
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Vous êtes sur le point de rembourser la transaction{" "}
-          <span className="font-medium">{payment.id}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {payment.id}
+          </span>
         </p>
 
         <div className="mb-4">
@@ -167,9 +169,9 @@ const RefundModal = ({
                 setFullRefund(e.target.checked);
                 if (e.target.checked) setAmount(payment.amount);
               }}
-              className="mr-2"
+              className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
               Remboursement total
             </span>
           </label>
@@ -186,7 +188,7 @@ const RefundModal = ({
                 max={payment.amount}
                 min={0}
                 step={0.01}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               />
             </div>
           )}
@@ -200,22 +202,26 @@ const RefundModal = ({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             placeholder="Expliquez la raison du remboursement..."
           />
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
           >
             Confirmer le remboursement
           </button>
@@ -245,10 +251,6 @@ export default function PaymentDetailPage() {
           (p) => p.id === transactionId,
         ) as Payment;
         setPayment(foundPayment || null);
-
-        // Version API
-        // const data = await getTransactionById(transactionId);
-        // setPayment(data);
       } catch (error) {
         console.error("Erreur chargement transaction:", error);
       } finally {
@@ -332,7 +334,7 @@ export default function PaymentDetailPage() {
       bank_transfer: Landmark,
     };
     const Icon = icons[method] || CreditCard;
-    return <Icon className="w-5 h-5 text-gray-500" />;
+    return <Icon className="w-5 h-5 text-gray-500 dark:text-gray-400" />;
   };
 
   const getMethodLabel = (method: string) => {
@@ -347,7 +349,7 @@ export default function PaymentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
@@ -355,18 +357,18 @@ export default function PaymentDetailPage() {
 
   if (!payment) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">
             Transaction non trouvée
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-400 mb-4">
             La transaction avec l'ID {transactionId} n'existe pas
           </p>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Retour
           </button>
@@ -376,22 +378,22 @@ export default function PaymentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-950">
+      <div className="container mx-auto">
         {/* Barre de navigation */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            className="flex items-center text-gray-400 hover:text-gray-200 transition"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la liste
           </button>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {payment.status === "pending" && (
               <button
                 onClick={handleMarkAsPaid}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center transition"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Marquer comme payé
@@ -400,7 +402,7 @@ export default function PaymentDetailPage() {
             {(payment.status === "paid" || payment.status === "escrow") && (
               <button
                 onClick={() => setRefundModal(true)}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center"
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center transition"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Rembourser
@@ -408,7 +410,7 @@ export default function PaymentDetailPage() {
             )}
             <button
               onClick={handleDownloadInvoice}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center text-gray-700 dark:text-gray-300"
+              className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-slate-800 flex items-center text-gray-300 hover:text-white transition"
             >
               <Download className="w-4 h-4 mr-2" />
               Facture
@@ -417,8 +419,8 @@ export default function PaymentDetailPage() {
         </div>
 
         {/* En-tête */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-start justify-between">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center space-x-3 mb-2">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -446,7 +448,7 @@ export default function PaymentDetailPage() {
           {/* Informations de la transaction */}
           <InfoCard icon={FileText} title="Détails de la transaction">
             <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">
                   ID Transaction
                 </span>
@@ -457,7 +459,7 @@ export default function PaymentDetailPage() {
                   {payment.transaction_id && (
                     <button
                       onClick={() => copyToClipboard(payment.transaction_id!)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
                     >
                       {copied ? (
                         <Check className="w-4 h-4" />
@@ -468,7 +470,7 @@ export default function PaymentDetailPage() {
                   )}
                 </div>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">
                   Méthode de paiement
                 </span>
@@ -479,7 +481,7 @@ export default function PaymentDetailPage() {
                   </span>
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">
                   Date de paiement
                 </span>
@@ -488,7 +490,7 @@ export default function PaymentDetailPage() {
                 </span>
               </div>
               {payment.escrow_release_date && (
-                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                   <span className="text-gray-600 dark:text-gray-400">
                     Libération séquestre
                   </span>
@@ -503,16 +505,16 @@ export default function PaymentDetailPage() {
           {/* Informations du client */}
           <InfoCard icon={User} title="Client">
             <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">Nom</span>
                 <Link
                   href={`/admin/users/${payment.client.id}`}
-                  className="font-medium text-blue-600 hover:text-blue-800"
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
                 >
                   {payment.client.name}
                 </Link>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">
                   ID Client
                 </span>
@@ -527,16 +529,16 @@ export default function PaymentDetailPage() {
           <InfoCard icon={Briefcase} title="Freelancer">
             {payment.freelancer ? (
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                   <span className="text-gray-600 dark:text-gray-400">Nom</span>
                   <Link
                     href={`/admin/users/${payment.freelancer.id}`}
-                    className="font-medium text-blue-600 hover:text-blue-800"
+                    className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
                   >
                     {payment.freelancer.name}
                   </Link>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                   <span className="text-gray-600 dark:text-gray-400">
                     ID Freelancer
                   </span>
@@ -544,7 +546,7 @@ export default function PaymentDetailPage() {
                     #{payment.freelancer.id}
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                   <span className="text-gray-600 dark:text-gray-400">
                     Montant à reverser
                   </span>
@@ -565,16 +567,16 @@ export default function PaymentDetailPage() {
           {/* Informations du service */}
           <InfoCard icon={Briefcase} title="Service associé">
             <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">Titre</span>
                 <Link
                   href={`/admin/services/${payment.service_id}`}
-                  className="font-medium text-blue-600 hover:text-blue-800 text-right"
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-right transition"
                 >
                   {payment.service_title}
                 </Link>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-700">
                 <span className="text-gray-600 dark:text-gray-400">
                   ID Service
                 </span>
@@ -589,7 +591,7 @@ export default function PaymentDetailPage() {
         {/* Notes et historique */}
         <div className="grid grid-cols-1 gap-6">
           {payment.notes && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
                 Notes
               </h3>
@@ -600,9 +602,9 @@ export default function PaymentDetailPage() {
           )}
 
           {payment.refund_reason && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center">
-                <XCircle className="w-5 h-5 mr-2 text-purple-600" />
+                <XCircle className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
                 Remboursement
               </h3>
               <div className="space-y-2">

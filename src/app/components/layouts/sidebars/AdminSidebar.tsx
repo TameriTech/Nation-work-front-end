@@ -166,7 +166,9 @@ export function Sidebar({
                   <span className="text-sm font-bold text-white">A</span>
                 </div>
               )}
-              <span className="text-lg font-semibold text-gray-50">LSIEV</span>
+              <span className="text-lg font-semibold text-gray-50">
+                Nation Work
+              </span>
             </div>
           )}
           {collapsed && (

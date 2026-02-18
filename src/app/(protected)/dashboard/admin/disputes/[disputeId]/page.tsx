@@ -64,25 +64,25 @@ const PriorityBadge = ({ priority }: { priority: string }) => {
   const badges: Record<string, { color: string; icon: any; label: string }> = {
     urgent: {
       color:
-        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-800",
+        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
       icon: AlertTriangle,
       label: "Urgente",
     },
     high: {
       color:
-        "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-100 dark:border-orange-800",
+        "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800",
       icon: AlertCircle,
       label: "Haute",
     },
     normal: {
       color:
-        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
       icon: Info,
       label: "Normale",
     },
     low: {
       color:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       icon: Clock,
       label: "Basse",
     },
@@ -105,31 +105,31 @@ const StatusBadge = ({ status }: { status: string }) => {
   const badges: Record<string, { color: string; icon: any; label: string }> = {
     open: {
       color:
-        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-800",
+        "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
       icon: AlertCircle,
       label: "Ouvert",
     },
     in_progress: {
       color:
-        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800",
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
       icon: Clock,
       label: "En cours",
     },
     resolved: {
       color:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       icon: CheckCircle,
       label: "Résolu",
     },
     dismissed: {
       color:
-        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
+        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
       icon: XCircle,
       label: "Rejeté",
     },
     escalated: {
       color:
-        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-800",
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       icon: Shield,
       label: "Escaladé",
     },
@@ -157,9 +157,9 @@ const InfoCard = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-      <Icon className="w-5 h-5 mr-2 text-blue-600" />
+      <Icon className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
       {title}
     </h3>
     <div className="space-y-3">{children}</div>
@@ -196,8 +196,8 @@ const MessageCard = ({
           isOwn
             ? "bg-blue-600 text-white"
             : message.is_private
-              ? "bg-purple-100 dark:bg-purple-900 text-gray-900 dark:text-gray-100"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              ? "bg-purple-100 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 border border-purple-200 dark:border-purple-800"
+              : "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100"
         }`}
       >
         {!isOwn && (
@@ -266,10 +266,10 @@ const EvidenceCard = ({
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-200 dark:border-slate-600">
       <div className="flex items-start justify-between">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-300 mr-3">
+          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400 mr-3">
             {getIcon(evidence.type)}
           </div>
           <div>
@@ -284,7 +284,7 @@ const EvidenceCard = ({
                 {evidence.description}
               </p>
             )}
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
               Ajouté par {evidence.uploaded_by.name} •{" "}
               {formatDate(evidence.uploaded_at)}
             </p>
@@ -292,7 +292,7 @@ const EvidenceCard = ({
         </div>
         <button
           onClick={() => onView(evidence.url)}
-          className="p-2 text-gray-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
         >
           <Eye className="w-4 h-4" />
         </button>
@@ -340,8 +340,8 @@ const ResolveModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Résoudre le litige {dispute.id}
         </h3>
@@ -355,10 +355,14 @@ const ResolveModal = ({
               value={resolution}
               onChange={(e) => setResolution(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               placeholder="Décrivez la résolution du litige..."
             />
-            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+            {error && (
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {error}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -369,7 +373,7 @@ const ResolveModal = ({
               <select
                 value={refundPercentage}
                 onChange={(e) => setRefundPercentage(Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               >
                 <option value={0}>0% - Aucun remboursement</option>
                 <option value={25}>25% - Remboursement partiel</option>
@@ -389,7 +393,7 @@ const ResolveModal = ({
                 onChange={(e) => setCompensation(Number(e.target.value))}
                 min={0}
                 step={10}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 placeholder="0"
               />
             </div>
@@ -401,11 +405,11 @@ const ResolveModal = ({
               id="notifyUsers"
               checked={notifyUsers}
               onChange={(e) => setNotifyUsers(e.target.checked)}
-              className="mr-2"
+              className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
             />
             <label
               htmlFor="notifyUsers"
-              className="text-sm text-gray-700 dark:text-gray-300"
+              className="ml-2 text-sm text-gray-700 dark:text-gray-300"
             >
               Notifier les parties concernées
             </label>
@@ -415,13 +419,13 @@ const ResolveModal = ({
         <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
           >
             Résoudre le litige
           </button>
@@ -461,8 +465,8 @@ const RejectModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
           Rejeter le litige {dispute.id}
         </h3>
@@ -475,10 +479,14 @@ const RejectModal = ({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             placeholder="Expliquez pourquoi ce litige est rejeté..."
           />
-          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center mb-6">
@@ -487,11 +495,11 @@ const RejectModal = ({
             id="notifyUsers"
             checked={notifyUsers}
             onChange={(e) => setNotifyUsers(e.target.checked)}
-            className="mr-2"
+            className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
           />
           <label
             htmlFor="notifyUsers"
-            className="text-sm text-gray-700 dark:text-gray-300"
+            className="ml-2 text-sm text-gray-700 dark:text-gray-300"
           >
             Notifier les parties concernées
           </label>
@@ -500,13 +508,13 @@ const RejectModal = ({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
           >
             Rejeter le litige
           </button>
@@ -529,11 +537,11 @@ const DocumentViewer = ({
   if (!isOpen || !url) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-75 dark:bg-opacity-90 flex items-center justify-center z-50">
       <div className="relative max-w-4xl max-h-[90vh]">
         <button
           onClick={onClose}
-          className="absolute -top-10 right-0 text-white hover:text-gray-300"
+          className="absolute -top-10 right-0 text-white hover:text-gray-300 transition"
         >
           <XCircle className="w-8 h-8" />
         </button>
@@ -573,10 +581,6 @@ export default function DisputeDetailPage() {
           (d) => d.id === disputeId,
         ) as Dispute;
         setDispute(foundDispute || null);
-
-        // Version API
-        // const data = await getDisputeById(disputeId);
-        // setDispute(data);
       } catch (error) {
         console.error("Erreur chargement litige:", error);
       } finally {
@@ -650,7 +654,7 @@ export default function DisputeDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
@@ -658,18 +662,18 @@ export default function DisputeDetailPage() {
 
   if (!dispute) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          <h2 className="text-2xl font-bold text-gray-100 mb-2">
             Litige non trouvé
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-400 mb-4">
             Le litige avec l'ID {disputeId} n'existe pas
           </p>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Retour
           </button>
@@ -679,37 +683,37 @@ export default function DisputeDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* Barre de navigation */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            className="flex items-center text-gray-400 hover:text-gray-200 transition"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la liste
           </button>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {dispute.status === "open" || dispute.status === "in_progress" ? (
               <>
                 <button
                   onClick={() => setResolveModal(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center transition"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Résoudre
                 </button>
                 <button
                   onClick={() => setRejectModal(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center transition"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   Rejeter
                 </button>
                 <button
                   onClick={handleEscalate}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center transition"
                 >
                   <Shield className="w-4 h-4 mr-2" />
                   Escalader
@@ -720,10 +724,10 @@ export default function DisputeDetailPage() {
         </div>
 
         {/* En-tête */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-start justify-between">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
             <div>
-              <div className="flex items-center space-x-3 mb-2">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                   Litige {dispute.id}
                 </h1>
@@ -751,8 +755,8 @@ export default function DisputeDetailPage() {
                       className="w-8 h-8 rounded-full mr-2 object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                      <User className="w-4 h-4 text-gray-500" />
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
+                      <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     </div>
                   )}
                   <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -784,7 +788,7 @@ export default function DisputeDetailPage() {
                 </p>
                 <Link
                   href={`/admin/services/${dispute.service.id}`}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition"
                 >
                   {dispute.service.title}
                 </Link>
@@ -810,14 +814,14 @@ export default function DisputeDetailPage() {
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-                  <User className="w-5 h-5 text-gray-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-3">
+                  <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
                 <Link
                   href={`/admin/users/${dispute.client.id}`}
-                  className="font-medium text-blue-600 hover:text-blue-800"
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
                 >
                   {dispute.client.name}
                 </Link>
@@ -840,14 +844,14 @@ export default function DisputeDetailPage() {
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-                  <User className="w-5 h-5 text-gray-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-3">
+                  <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
                 <Link
                   href={`/admin/users/${dispute.freelancer.id}`}
-                  className="font-medium text-blue-600 hover:text-blue-800"
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
                 >
                   {dispute.freelancer.name}
                 </Link>
@@ -862,15 +866,15 @@ export default function DisputeDetailPage() {
         </div>
 
         {/* Onglets */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6">
-            <nav className="flex space-x-8">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700">
+          <div className="border-b border-gray-200 dark:border-slate-700 px-6">
+            <nav className="flex flex-wrap gap-2">
               <button
                 onClick={() => setActiveTab("messages")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
                   activeTab === "messages"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
               >
                 <MessageSquare className="w-4 h-4 inline mr-2" />
@@ -878,10 +882,10 @@ export default function DisputeDetailPage() {
               </button>
               <button
                 onClick={() => setActiveTab("evidence")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
                   activeTab === "evidence"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
               >
                 <ImageIcon className="w-4 h-4 inline mr-2" />
@@ -889,10 +893,10 @@ export default function DisputeDetailPage() {
               </button>
               <button
                 onClick={() => setActiveTab("timeline")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
                   activeTab === "timeline"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
               >
                 <Clock className="w-4 h-4 inline mr-2" />
@@ -905,7 +909,7 @@ export default function DisputeDetailPage() {
             {activeTab === "messages" && (
               <div>
                 {/* Liste des messages */}
-                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                   {dispute.messages && dispute.messages.length > 0 ? (
                     dispute.messages.map((message) => (
                       <MessageCard
@@ -922,14 +926,14 @@ export default function DisputeDetailPage() {
                 </div>
 
                 {/* Formulaire d'envoi de message */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-slate-700 pt-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <input
                       type="checkbox"
                       id="privateMessage"
                       checked={isPrivate}
                       onChange={(e) => setIsPrivate(e.target.checked)}
-                      className="mr-1"
+                      className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
                     />
                     <label
                       htmlFor="privateMessage"
@@ -948,12 +952,12 @@ export default function DisputeDetailPage() {
                         e.key === "Enter" && handleSendMessage()
                       }
                       placeholder="Écrivez votre message..."
-                      className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                     />
                     <button
                       onClick={handleSendMessage}
                       disabled={!newMessage.trim()}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       Envoyer
@@ -964,7 +968,7 @@ export default function DisputeDetailPage() {
             )}
 
             {activeTab === "evidence" && (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                 {dispute.evidence && dispute.evidence.length > 0 ? (
                   dispute.evidence.map((item) => (
                     <EvidenceCard
@@ -982,7 +986,7 @@ export default function DisputeDetailPage() {
             )}
 
             {activeTab === "timeline" && (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                 {dispute.timeline && dispute.timeline.length > 0 ? (
                   dispute.timeline.map((event) => (
                     <div key={event.id} className="flex items-start space-x-3">
@@ -994,7 +998,7 @@ export default function DisputeDetailPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           {event.description}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                           {new Date(event.timestamp).toLocaleString("fr-FR")} •{" "}
                           {event.user.name}
                         </p>
@@ -1032,6 +1036,23 @@ export default function DisputeDetailPage() {
         onClose={() => setSelectedDocument(null)}
         url={selectedDocument}
       />
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1e293b;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #475569;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+      `}</style>
     </div>
   );
 }
