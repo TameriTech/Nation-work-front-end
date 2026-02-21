@@ -4,6 +4,8 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { ProfileDropdown } from "../../ui/profile-dropdown";
+import { ThemeToggle } from "../../theme-toggle";
 
 interface HeaderProps {
   title?: string;
@@ -41,6 +43,14 @@ export default function Header({
                 ? "text-orange-500"
                 : "hover:text-orange-500"
             }
+          ></Link>
+          <Link
+            href="/dashboard/freelancer/profile"
+            className={
+              pathname === "/dashboard/freelancer"
+                ? "text-orange-500"
+                : "hover:text-orange-500"
+            }
           >
             Votre profile
           </Link>
@@ -64,6 +74,16 @@ export default function Header({
           >
             Agenda
           </Link>
+          <Link
+            href="/dashboard/freelancer/messaging"
+            className={
+              pathname === "/dashboard/freelancer/messaging"
+                ? "text-orange-500"
+                : "hover:text-orange-500"
+            }
+          >
+            Messaging
+          </Link>
         </nav>
 
         {/* Right section */}
@@ -75,29 +95,26 @@ export default function Header({
           <button className="hidden md:flex p-2 rounded-full border border-[#69BBFF] text-blue-900">
             <Icon icon="bi:bell" className="w-5 h-5" />
           </button>
+          <ThemeToggle />
           {/** //TODO : Change the user with dropdown */}
           {/** //TODO : Implement logout in the dropdown */}
           {/** //TODO : Add user settings in the dropdown */}
           {/* User (desktop only) */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-gray-400 gap-2 flex items-center justify-center">
-              {userAvatar ? (
-                <img
-                  src={userAvatar}
-                  alt={userName}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <span className="font-semibold">
-                  {userName.charAt(0).toUpperCase()}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{userName}</span>
-              <span className="text-xs text-gray-500">{userRole}</span>
-            </div>
-          </div>
+          <ProfileDropdown
+            user={{
+              id: 1,
+              username: "Jane Doe",
+              email: "jane.doe@example.com",
+              role: "admin",
+              status: "active",
+              is_verified: true,
+              created_at: "2023-01-01T00:00:00Z",
+              avatar: "https://i.pravatar.cc/150?img=5",
+            }}
+            onProfileClick={() => console.log("Profile clicked")}
+            onSettingsClick={() => console.log("Settings clicked")}
+            onLogoutClick={() => console.log("Logout clicked")}
+          />
 
           {/* Burger (mobile only) */}
           <button

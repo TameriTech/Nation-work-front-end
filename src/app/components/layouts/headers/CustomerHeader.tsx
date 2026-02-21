@@ -3,6 +3,8 @@
 import { logout } from "@/app/services/auth.service";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "../../theme-toggle";
+import { ProfileDropdown } from "../../ui/profile-dropdown";
 
 interface HeaderProps {
   title?: string;
@@ -74,26 +76,26 @@ export function Header({
           <Icon icon="bi:bell" />
         </button>
 
-        {/* User */}
+        <ThemeToggle />
         {/** //TODO : Change the user with dropdown */}
         {/** //TODO : Implement logout in the dropdown */}
         {/** //TODO : Add user settings in the dropdown */}
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-full bg-white border-blue-900 text-blue-900 flex items-center justify-center">
-            {userAvatar ? (
-              <img src={userAvatar} className="h-full w-full rounded-full" />
-            ) : (
-              userName[0]
-            )}
-          </div>
-
-          <div className="hidden md:flex flex-col">
-            <span className="text-sm font-medium text-gray-800">
-              {userName}
-            </span>
-            <span className="text-xs text-gray-500">{userRole}</span>
-          </div>
-        </div>
+        {/* User (desktop only) */}
+        <ProfileDropdown
+          user={{
+            id: 1,
+            username: "Jane Doe",
+            email: "jane.doe@example.com",
+            role: "admin",
+            status: "active",
+            is_verified: true,
+            created_at: "2023-01-01T00:00:00Z",
+            avatar: "https://i.pravatar.cc/150?img=5",
+          }}
+          onProfileClick={() => console.log("Profile clicked")}
+          onSettingsClick={() => console.log("Settings clicked")}
+          onLogoutClick={() => console.log("Logout clicked")}
+        />
       </div>
     </header>
   );

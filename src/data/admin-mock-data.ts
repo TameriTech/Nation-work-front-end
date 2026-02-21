@@ -130,384 +130,393 @@ export const dashboard = {
   } as ChartData
 };
 
-  export const users = {
-    "list": [
-      {
-        "id": 1001,
-        "email": "jean.dupont@email.com",
-        "username": "Jean Dupont",
-        "role": "client",
-        "status": "active",
-        "is_verified": true,
-        "phone": "+33 6 12 34 56 78",
-        "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
-        "created_at": "2026-01-15T10:30:00Z",
-        "last_login": "2026-02-15T14:20:00Z",
-        "stats": {
-          "services_posted": 5,
-          "total_spent": 750.00,
-          "average_rating": 4.8
-        }
-      },
-      {
-        "id": 1002,
-        "email": "marie.martin@email.com",
-        "username": "Marie Martin",
-        "role": "freelancer",
-        "status": "active",
-        "is_verified": true,
-        "verified_badge": true,
-        "phone": "+33 6 23 45 67 89",
-        "avatar": "https://randomuser.me/api/portraits/women/3.jpg",
-        "created_at": "2026-01-10T09:15:00Z",
-        "last_login": "2026-02-15T18:30:00Z",
-        "stats": {
-          "services_completed": 12,
-          "total_earned": 1850.00,
-          "average_rating": 4.9,
-          "response_rate": 98,
-          "completion_rate": 100
-        }
-      },
-      {
-        "id": 1003,
-        "email": "pierre.leroy@email.com",
-        "username": "Pierre Leroy",
-        "role": "freelancer",
-        "status": "suspended",
-        "is_verified": false,
-        "suspension_reason": "Non-paiement des frais",
-        "suspended_until": "2026-03-01",
-        "phone": "+33 6 34 56 78 90",
-        "avatar": "https://randomuser.me/api/portraits/men/4.jpg",
-        "created_at": "2025-12-05T14:20:00Z",
-        "last_login": "2026-02-10T11:45:00Z",
-        "stats": {
-          "services_completed": 8,
-          "total_earned": 1250.00,
-          "average_rating": 4.2
-        }
-      },
-      {
-        "id": 1004,
-        "email": "sophie.bernard@email.com",
-        "username": "Sophie Bernard",
-        "role": "freelancer",
-        "status": "pending_verification",
-        "is_verified": false,
-        "phone": "+33 6 45 67 89 01",
-        "avatar": "https://randomuser.me/api/portraits/women/5.jpg",
-        "created_at": "2026-02-14T16:45:00Z",
-        "last_login": "2026-02-14T16:45:00Z",
-        "pending_documents": ["cni", "diplome"]
-      },
-      {
-        "id": 1005,
-        "email": "thomas.petit@email.com",
-        "username": "Thomas Petit",
-        "role": "client",
-        "status": "inactive",
-        "is_verified": true,
-        "phone": "+33 6 56 78 90 12",
-        "avatar": "https://randomuser.me/api/portraits/men/6.jpg",
-        "created_at": "2026-01-20T11:30:00Z",
-        "last_login": "2026-02-01T09:20:00Z"
-      },
-      {
-        "id": 1006,
-        "email": "emilie.dubois@email.com",
-        "username": "Emilie Dubois",
-        "role": "freelancer",
-        "status": "active",
-        "is_verified": true,
-        "verified_badge": true,
-        "top_rated": true,
-        "phone": "+33 6 67 89 01 23",
-        "avatar": "https://randomuser.me/api/portraits/women/7.jpg",
-        "created_at": "2025-11-15T08:00:00Z",
-        "last_login": "2026-02-15T20:15:00Z",
-        "stats": {
-          "services_completed": 45,
-          "total_earned": 6750.00,
-          "average_rating": 4.95,
-          "response_rate": 100,
-          "completion_rate": 100
-        }
-      },
-      {
-        "id": 1007,
-        "email": "nicolas.robert@email.com",
-        "username": "Nicolas Robert",
-        "role": "admin",
-        "status": "active",
-        "is_verified": true,
-        "admin_role": "super_admin",
-        "phone": "+33 6 78 90 12 34",
-        "avatar": "https://randomuser.me/api/portraits/men/8.jpg",
-        "created_at": "2025-10-01T09:00:00Z",
-        "last_login": "2026-02-16T08:30:00Z"
+export const users = {
+  "list": [
+    {
+      "id": 1001,
+      "email": "jean.dupont@email.com",
+      "username": "Jean Dupont",
+      "role": "client",
+      "status": "active",
+      "is_verified": true,
+      "phone": "+33 6 12 34 56 78",
+      "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
+      "created_at": "2026-01-15T10:30:00Z",
+      "last_login": "2026-02-15T14:20:00Z",
+      "stats": {
+        "services_posted": 5,
+        "total_spent": 750.00,
+        "average_rating": 4.8
       }
-    ],
-    "pending_verifications": [
-      {
-        "id": 2001,
-        "user_id": 1004,
-        "user_name": "Sophie Bernard",
-        "document_type": "cni",
-        "document_number": "CNI123456789",
-        "front_image": "/mock/documents/cni_front.jpg",
-        "back_image": "/mock/documents/cni_back.jpg",
-        "submitted_at": "2026-02-14T16:50:00Z",
-        "status": "pending"
-      },
-      {
-        "id": 2002,
-        "user_id": 1004,
-        "user_name": "Sophie Bernard",
-        "document_type": "diplome",
-        "document_number": "DIP2025-123",
-        "front_image": "/mock/documents/diplome.jpg",
-        "submitted_at": "2026-02-14T16:52:00Z",
-        "status": "pending"
-      },
-      {
-        "id": 2003,
-        "user_id": 1008,
-        "user_name": "Lucas Moreau",
-        "document_type": "passport",
-        "document_number": "PASS987654321",
-        "front_image": "/mock/documents/passport.jpg",
-        "submitted_at": "2026-02-15T10:15:00Z",
-        "status": "pending"
+    },
+    {
+      "id": 1002,
+      "email": "marie.martin@email.com",
+      "username": "Marie Martin",
+      "role": "freelancer",
+      "status": "active",
+      "is_verified": true,
+      "verified_badge": true,
+      "phone": "+33 6 23 45 67 89",
+      "avatar": "https://randomuser.me/api/portraits/women/3.jpg",
+      "created_at": "2026-01-10T09:15:00Z",
+      "last_login": "2026-02-15T18:30:00Z",
+      "stats": {
+        "services_completed": 12,
+        "total_earned": 1850.00,
+        "average_rating": 4.9,
+        "response_rate": 98,
+        "completion_rate": 100
       }
-    ]
-  };
+    },
+    {
+      "id": 1003,
+      "email": "pierre.leroy@email.com",
+      "username": "Pierre Leroy",
+      "role": "freelancer",
+      "status": "suspended",
+      "is_verified": false,
+      "suspension_reason": "Non-paiement des frais",
+      "suspended_until": "2026-03-01",
+      "phone": "+33 6 34 56 78 90",
+      "avatar": "https://randomuser.me/api/portraits/men/4.jpg",
+      "created_at": "2025-12-05T14:20:00Z",
+      "last_login": "2026-02-10T11:45:00Z",
+      "stats": {
+        "services_completed": 8,
+        "total_earned": 1250.00,
+        "average_rating": 4.2
+      }
+    },
+    {
+      "id": 1004,
+      "email": "sophie.bernard@email.com",
+      "username": "Sophie Bernard",
+      "role": "freelancer",
+      "status": "pending_verification",
+      "is_verified": false,
+      "phone": "+33 6 45 67 89 01",
+      "avatar": "https://randomuser.me/api/portraits/women/5.jpg",
+      "created_at": "2026-02-14T16:45:00Z",
+      "last_login": "2026-02-14T16:45:00Z",
+      "pending_documents": ["cni", "diplome"]
+    },
+    {
+      "id": 1005,
+      "email": "thomas.petit@email.com",
+      "username": "Thomas Petit",
+      "role": "client",
+      "status": "inactive",
+      "is_verified": true,
+      "phone": "+33 6 56 78 90 12",
+      "avatar": "https://randomuser.me/api/portraits/men/6.jpg",
+      "created_at": "2026-01-20T11:30:00Z",
+      "last_login": "2026-02-01T09:20:00Z"
+    },
+    {
+      "id": 1006,
+      "email": "emilie.dubois@email.com",
+      "username": "Emilie Dubois",
+      "role": "freelancer",
+      "status": "active",
+      "is_verified": true,
+      "verified_badge": true,
+      "top_rated": true,
+      "phone": "+33 6 67 89 01 23",
+      "avatar": "https://randomuser.me/api/portraits/women/7.jpg",
+      "created_at": "2025-11-15T08:00:00Z",
+      "last_login": "2026-02-15T20:15:00Z",
+      "stats": {
+        "services_completed": 45,
+        "total_earned": 6750.00,
+        "average_rating": 4.95,
+        "response_rate": 100,
+        "completion_rate": 100
+      }
+    },
+    {
+      "id": 1007,
+      "email": "nicolas.robert@email.com",
+      "username": "Nicolas Robert",
+      "role": "admin",
+      "status": "active",
+      "is_verified": true,
+      "admin_role": "super_admin",
+      "phone": "+33 6 78 90 12 34",
+      "avatar": "https://randomuser.me/api/portraits/men/8.jpg",
+      "created_at": "2025-10-01T09:00:00Z",
+      "last_login": "2026-02-16T08:30:00Z"
+    }
+  ],
+  "pending_verifications": [
+    {
+      "id": 2001,
+      "user_id": 1004,
+      "user_name": "Sophie Bernard",
+      "document_type": "cni",
+      "document_number": "CNI123456789",
+      "front_image": "/mock/documents/cni_front.jpg",
+      "back_image": "/mock/documents/cni_back.jpg",
+      "submitted_at": "2026-02-14T16:50:00Z",
+      "status": "pending"
+    },
+    {
+      "id": 2002,
+      "user_id": 1004,
+      "user_name": "Sophie Bernard",
+      "document_type": "diplome",
+      "document_number": "DIP2025-123",
+      "front_image": "/mock/documents/diplome.jpg",
+      "submitted_at": "2026-02-14T16:52:00Z",
+      "status": "pending"
+    },
+    {
+      "id": 2003,
+      "user_id": 1008,
+      "user_name": "Lucas Moreau",
+      "document_type": "passport",
+      "document_number": "PASS987654321",
+      "front_image": "/mock/documents/passport.jpg",
+      "submitted_at": "2026-02-15T10:15:00Z",
+      "status": "pending"
+    }
+  ]
+};
 
-  export const services = {
-    "list": [
-      {
-        "id": 10001,
-        "title": "Réparation fuite d'eau",
-        "short_description": "Fuite sous l'évier de la cuisine",
-        "category": "Plomberie",
-        "status": "published",
-        "client": {
-          "id": 1001,
-          "name": "Jean Dupont",
-          "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
-        },
-        "freelancer": null,
-        "date": "2026-02-20T14:00:00Z",
-        "address": "15 rue de Paris, 75001 Paris",
-        "budget": 150.00,
-        "candidatures_count": 3,
-        "created_at": "2026-02-16T08:00:00Z",
-        "priority": "normal"
+export const services = {
+  "list": [
+    {
+      "id": 10001,
+      "title": "Réparation fuite d'eau",
+      "short_description": "Fuite sous l'évier de la cuisine",
+      "category": "Plomberie",
+      "status": "published",
+      "client": {
+        "id": 1001,
+        "name": "Jean Dupont",
+        "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
       },
-      {
-        "id": 10002,
-        "title": "Cours de piano pour débutant",
-        "short_description": "Cours pour enfant de 8 ans",
-        "category": "Musique",
-        "status": "assigned",
-        "client": {
-          "id": 1005,
-          "name": "Thomas Petit",
-          "avatar": "https://randomuser.me/api/portraits/men/6.jpg"
-        },
-        "freelancer": {
-          "id": 1006,
-          "name": "Emilie Dubois",
-          "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
-        },
-        "date": "2026-02-18T16:30:00Z",
-        "address": "8 rue des Lilas, 69002 Lyon",
-        "budget": 50.00,
-        "candidatures_count": 5,
-        "created_at": "2026-02-14T10:30:00Z"
+      "freelancer": null,
+      "date": "2026-02-20T14:00:00Z",
+      "address": "15 rue de Paris, 75001 Paris",
+      "budget": 150.00,
+      "candidatures_count": 3,
+      "created_at": "2026-02-16T08:00:00Z",
+      "priority": "normal"
+    },
+    {
+      "id": 10002,
+      "title": "Cours de piano pour débutant",
+      "short_description": "Cours pour enfant de 8 ans",
+      "category": "Musique",
+      "status": "assigned",
+      "client": {
+        "id": 1005,
+        "name": "Thomas Petit",
+        "avatar": "https://randomuser.me/api/portraits/men/6.jpg"
       },
-      {
-        "id": 10003,
-        "title": "Nettoyage appartement 70m²",
-        "short_description": "Ménage complet, 3 pièces",
-        "category": "Ménage",
-        "status": "in_progress",
-        "client": {
-          "id": 1009,
-          "name": "Claire Fontaine",
-          "avatar": null
-        },
-        "freelancer": {
-          "id": 1002,
-          "name": "Marie Martin",
-          "avatar": "https://randomuser.me/api/portraits/women/3.jpg"
-        },
-        "date": "2026-02-16T09:00:00Z",
-        "address": "25 rue de la République, 13001 Marseille",
-        "budget": 120.00,
-        "candidatures_count": 2,
-        "created_at": "2026-02-10T14:15:00Z"
+      "freelancer": {
+        "id": 1006,
+        "name": "Emilie Dubois",
+        "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
       },
-      {
-        "id": 10004,
-        "title": "Réparation ordinateur",
-        "short_description": "PC qui ne démarre plus",
-        "category": "Informatique",
-        "status": "completed",
-        "client": {
-          "id": 1010,
-          "name": "Michel Blanc",
-          "avatar": null
-        },
-        "freelancer": {
-          "id": 1006,
-          "name": "Emilie Dubois",
-          "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
-        },
-        "date": "2026-02-15T10:00:00Z",
-        "completed_at": "2026-02-15T12:30:00Z",
-        "address": "42 avenue Victor Hugo, 75016 Paris",
-        "budget": 80.00,
-        "candidatures_count": 4,
-        "created_at": "2026-02-12T09:45:00Z",
-        "rating": {
-          "score": 5,
-          "comment": "Excellent travail, rapide et efficace"
-        }
+      "date": "2026-02-18T16:30:00Z",
+      "address": "8 rue des Lilas, 69002 Lyon",
+      "budget": 50.00,
+      "candidatures_count": 5,
+      "created_at": "2026-02-14T10:30:00Z"
+    },
+    {
+      "id": 10003,
+      "title": "Nettoyage appartement 70m²",
+      "short_description": "Ménage complet, 3 pièces",
+      "category": "Ménage",
+      "status": "in_progress",
+      "client": {
+        "id": 1009,
+        "name": "Claire Fontaine",
+        "avatar": null
       },
-      {
-        "id": 10005,
-        "title": "Jardinage - Taille de haies",
-        "short_description": "Taille de 50m de haies",
-        "category": "Jardinage",
-        "status": "cancelled",
-        "client": {
-          "id": 1001,
-          "name": "Jean Dupont",
-          "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
-        },
-        "freelancer": {
-          "id": 1003,
-          "name": "Pierre Leroy",
-          "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
-        },
-        "date": "2026-02-10T08:00:00Z",
-        "cancelled_at": "2026-02-09T16:20:00Z",
-        "cancellation_reason": "Indisponibilité du freelancer",
-        "address": "5 chemin des Bois, 69100 Villeurbanne",
-        "budget": 200.00,
-        "candidatures_count": 2,
-        "created_at": "2026-02-05T11:30:00Z"
+      "freelancer": {
+        "id": 1002,
+        "name": "Marie Martin",
+        "avatar": "https://randomuser.me/api/portraits/women/3.jpg"
       },
-      {
-        "id": 10006,
-        "title": "Déménagement studio",
-        "short_description": "Aide pour déménagement, pas de meubles lourds",
-        "category": "Déménagement",
-        "status": "disputed",
-        "client": {
-          "id": 1011,
-          "name": "Sophie Martin",
-          "avatar": null
-        },
-        "freelancer": {
-          "id": 1003,
-          "name": "Pierre Leroy",
-          "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
-        },
-        "date": "2026-02-14T13:00:00Z",
-        "address": "12 rue du Bac, 75007 Paris",
-        "budget": 180.00,
-        "candidatures_count": 3,
-        "created_at": "2026-02-08T15:20:00Z",
-        "dispute": {
-          "id": "DIS001",
-          "reason": "Travail non conforme",
-          "opened_by": "client",
-          "opened_at": "2026-02-15T10:30:00Z"
-        }
+      "date": "2026-02-16T09:00:00Z",
+      "address": "25 rue de la République, 13001 Marseille",
+      "budget": 120.00,
+      "candidatures_count": 2,
+      "created_at": "2026-02-10T14:15:00Z"
+    },
+    {
+      "id": 10004,
+      "title": "Réparation ordinateur",
+      "short_description": "PC qui ne démarre plus",
+      "category": "Informatique",
+      "status": "completed",
+      "client": {
+        "id": 1010,
+        "name": "Michel Blanc",
+        "avatar": null
+      },
+      "freelancer": {
+        "id": 1006,
+        "name": "Emilie Dubois",
+        "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
+      },
+      "date": "2026-02-15T10:00:00Z",
+      "completed_at": "2026-02-15T12:30:00Z",
+      "address": "42 avenue Victor Hugo, 75016 Paris",
+      "budget": 80.00,
+      "candidatures_count": 4,
+      "created_at": "2026-02-12T09:45:00Z",
+      "rating": {
+        "score": 5,
+        "comment": "Excellent travail, rapide et efficace"
       }
-    ],
-    "categories": [
-      {
-        "id": 1,
-        "name": "Plomberie",
-        "description": "Travaux de plomberie et dépannage",
-        "icon": "🔧",
-        "color": "#3b82f6",
-        "is_active": true,
-        "services_count": 45,
-        "freelancers_count": 23,
-        "average_price": 150.00
+    },
+    {
+      "id": 10005,
+      "title": "Jardinage - Taille de haies",
+      "short_description": "Taille de 50m de haies",
+      "category": "Jardinage",
+      "status": "cancelled",
+      "client": {
+        "id": 1001,
+        "name": "Jean Dupont",
+        "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
       },
-      {
-        "id": 2,
-        "name": "Électricité",
-        "description": "Installations et réparations électriques",
-        "icon": "⚡",
-        "color": "#f59e0b",
-        "is_active": true,
-        "services_count": 32,
-        "freelancers_count": 18,
-        "average_price": 180.00
+      "freelancer": {
+        "id": 1003,
+        "name": "Pierre Leroy",
+        "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
       },
-      {
-        "id": 3,
-        "name": "Ménage",
-        "description": "Nettoyage de bureaux et habitations",
-        "icon": "🧹",
-        "color": "#10b981",
-        "is_active": true,
-        "services_count": 78,
-        "freelancers_count": 45,
-        "average_price": 80.00
+      "date": "2026-02-10T08:00:00Z",
+      "cancelled_at": "2026-02-09T16:20:00Z",
+      "cancellation_reason": "Indisponibilité du freelancer",
+      "address": "5 chemin des Bois, 69100 Villeurbanne",
+      "budget": 200.00,
+      "candidatures_count": 2,
+      "created_at": "2026-02-05T11:30:00Z"
+    },
+    {
+      "id": 10006,
+      "title": "Déménagement studio",
+      "short_description": "Aide pour déménagement, pas de meubles lourds",
+      "category": "Déménagement",
+      "status": "disputed",
+      "client": {
+        "id": 1011,
+        "name": "Sophie Martin",
+        "avatar": null
       },
-      {
-        "id": 4,
-        "name": "Jardinage",
-        "description": "Entretien de jardins et espaces verts",
-        "icon": "🌿",
-        "color": "#84cc16",
-        "is_active": true,
-        "services_count": 23,
-        "freelancers_count": 12,
-        "average_price": 120.00
+      "freelancer": {
+        "id": 1003,
+        "name": "Pierre Leroy",
+        "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
       },
-      {
-        "id": 5,
-        "name": "Informatique",
-        "description": "Dépannage et assistance informatique",
-        "icon": "💻",
-        "color": "#8b5cf6",
-        "is_active": true,
-        "services_count": 56,
-        "freelancers_count": 34,
-        "average_price": 70.00
-      },
-      {
-        "id": 6,
-        "name": "Cours particuliers",
-        "description": "Soutien scolaire et cours à domicile",
-        "icon": "📚",
-        "color": "#ec4899",
-        "is_active": true,
-        "services_count": 67,
-        "freelancers_count": 41,
-        "average_price": 45.00
-      },
-      {
-        "id": 7,
-        "name": "Déménagement",
-        "description": "Aide au déménagement",
-        "icon": "📦",
-        "color": "#f97316",
-        "is_active": false,
-        "services_count": 12,
-        "freelancers_count": 8,
-        "average_price": 150.00
+      "date": "2026-02-14T13:00:00Z",
+      "address": "12 rue du Bac, 75007 Paris",
+      "budget": 180.00,
+      "candidatures_count": 3,
+      "created_at": "2026-02-08T15:20:00Z",
+      "dispute": {
+        "id": "DIS001",
+        "reason": "Travail non conforme",
+        "opened_by": "client",
+        "opened_at": "2026-02-15T10:30:00Z"
       }
-    ]
-  };
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Plomberie",
+      "description": "Travaux de plomberie et dépannage",
+      "icon": "🔧",
+      "color": "#3b82f6",
+      "is_active": true,
+      "services_count": 45,
+      "freelancers_count": 23,
+      "average_price": 150.00
+    },
+    {
+      "id": 2,
+      "name": "Électricité",
+      "description": "Installations et réparations électriques",
+      "icon": "⚡",
+      "color": "#f59e0b",
+      "is_active": true,
+      "services_count": 32,
+      "freelancers_count": 18,
+      "average_price": 180.00
+    },
+    {
+      "id": 3,
+      "name": "Ménage",
+      "description": "Nettoyage de bureaux et habitations",
+      "icon": "🧹",
+      "color": "#10b981",
+      "is_active": true,
+      "services_count": 78,
+      "freelancers_count": 45,
+      "average_price": 80.00
+    },
+    {
+      "id": 4,
+      "name": "Jardinage",
+      "description": "Entretien de jardins et espaces verts",
+      "icon": "🌿",
+      "color": "#84cc16",
+      "is_active": true,
+      "services_count": 23,
+      "freelancers_count": 12,
+      "average_price": 120.00
+    },
+    {
+      "id": 5,
+      "name": "Informatique",
+      "description": "Dépannage et assistance informatique",
+      "icon": "💻",
+      "color": "#8b5cf6",
+      "is_active": true,
+      "services_count": 56,
+      "freelancers_count": 34,
+      "average_price": 70.00
+    },
+    {
+      "id": 6,
+      "name": "Cours particuliers",
+      "description": "Soutien scolaire et cours à domicile",
+      "icon": "📚",
+      "color": "#ec4899",
+      "is_active": true,
+      "services_count": 67,
+      "freelancers_count": 41,
+      "average_price": 45.00
+    },
+    {
+      "id": 7,
+      "name": "Déménagement",
+      "description": "Aide au déménagement",
+      "icon": "📦",
+      "color": "#f97316",
+      "is_active": false,
+      "services_count": 12,
+      "freelancers_count": 8,
+      "average_price": 150.00
+    }
+  ],
+  "stats": {
+    "total": 100,
+    "by_status": 20,
+    "by_category": 200,
+    "average_budget": 5000,
+    "completion_rate": 60,
+    "total_revenue": 25000,
+    "platform_fees": 5000,
+  }
+};
 
 
 
@@ -1067,10 +1076,10 @@ export const payments = {
   ],
 };
 
-  export const disputes = {
+export const disputes = {
   list: [
     {
-      id: "DIS001",
+      id: 1,
       service: {
         id: 10006,
         title: "Déménagement studio",
@@ -1199,7 +1208,7 @@ export const payments = {
       ],
     },
     {
-      id: "DIS002",
+      id: 2,
       service: {
         id: 10007,
         title: "Réparation lave-linge",
@@ -1285,7 +1294,7 @@ export const payments = {
       ],
     },
     {
-      id: "DIS003",
+      id: 3,
       service: {
         id: 10008,
         title: "Cours d'anglais",
@@ -1376,7 +1385,7 @@ export const payments = {
       ],
     },
     {
-      id: "DIS004",
+      id: 4,
       service: {
         id: 10009,
         title: "Montage meuble IKEA",
@@ -1463,7 +1472,7 @@ export const payments = {
       ],
     },
     {
-      id: "DIS005",
+      id: 5,
       service: {
         id: 10010,
         title: "Coiffure à domicile",
@@ -1555,245 +1564,245 @@ export const payments = {
   } as DisputeStats,
 };
 
-  export const settings = {
-    "general": {
-      "site_name": "FreelanceConnect",
-      "site_url": "https://www.freelanceconnect.com",
-      "contact_email": "contact@freelanceconnect.com",
-      "support_email": "support@freelanceconnect.com",
-      "default_language": "fr",
-      "timezone": "Europe/Paris",
-      "maintenance_mode": false
-    },
-    "fees": {
-      "platform_fee_percentage": 10,
-      "minimum_fee": 2.00,
-      "maximum_fee": 50.00,
-      "withdrawal_fee": 1.00,
-      "escrow_fee_percentage": 0.5
-    },
-    "timings": {
-      "client_validation_hours": 48,
-      "dispute_opening_days": 7,
-      "payout_processing_days": 3,
-      "auto_accept_candidature_hours": 24,
-      "session_timeout_minutes": 120
-    },
-    "thresholds": {
-      "min_profile_completion": 70,
-      "min_freelancer_rating": 4.0,
-      "max_disputes_before_suspension": 3,
-      "auto_suspend_after_inactivity_days": 90
-    }
-  };
+export const settings = {
+  "general": {
+    "site_name": "FreelanceConnect",
+    "site_url": "https://www.freelanceconnect.com",
+    "contact_email": "contact@freelanceconnect.com",
+    "support_email": "support@freelanceconnect.com",
+    "default_language": "fr",
+    "timezone": "Europe/Paris",
+    "maintenance_mode": false
+  },
+  "fees": {
+    "platform_fee_percentage": 10,
+    "minimum_fee": 2.00,
+    "maximum_fee": 50.00,
+    "withdrawal_fee": 1.00,
+    "escrow_fee_percentage": 0.5
+  },
+  "timings": {
+    "client_validation_hours": 48,
+    "dispute_opening_days": 7,
+    "payout_processing_days": 3,
+    "auto_accept_candidature_hours": 24,
+    "session_timeout_minutes": 120
+  },
+  "thresholds": {
+    "min_profile_completion": 70,
+    "min_freelancer_rating": 4.0,
+    "max_disputes_before_suspension": 3,
+    "auto_suspend_after_inactivity_days": 90
+  }
+};
 
-  export const admins = [
-    {
+export const admins = [
+  {
+    "id": 1,
+    "name": "Jean Martin",
+    "email": "jean.martin@admin.com",
+    "role": "super_admin",
+    "permissions": ["all"],
+    "avatar": "https://randomuser.me/api/portraits/men/1.jpg",
+    "last_login": "2026-02-16T08:30:00Z",
+    "created_at": "2025-10-01T00:00:00Z",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Paul Dubois",
+    "email": "paul.dubois@admin.com",
+    "role": "moderator",
+    "permissions": ["users:read", "users:write", "services:read", "services:write", "disputes:read"],
+    "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
+    "last_login": "2026-02-15T14:20:00Z",
+    "created_at": "2025-11-15T00:00:00Z",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "Anne Bernard",
+    "email": "anne.bernard@admin.com",
+    "role": "support",
+    "permissions": ["users:read", "services:read", "disputes:read", "disputes:write", "tickets:all"],
+    "avatar": "https://randomuser.me/api/portraits/women/3.jpg",
+    "last_login": "2026-02-15T18:45:00Z",
+    "created_at": "2025-12-10T00:00:00Z",
+    "status": "active"
+  }
+];
+
+export const activity_logs = [
+  {
+    "id": "LOG001",
+    "admin": {
       "id": 1,
-      "name": "Jean Martin",
-      "email": "jean.martin@admin.com",
-      "role": "super_admin",
-      "permissions": ["all"],
-      "avatar": "https://randomuser.me/api/portraits/men/1.jpg",
-      "last_login": "2026-02-16T08:30:00Z",
-      "created_at": "2025-10-01T00:00:00Z",
-      "status": "active"
+      "name": "Jean Martin"
     },
-    {
-      "id": 2,
-      "name": "Paul Dubois",
-      "email": "paul.dubois@admin.com",
-      "role": "moderator",
-      "permissions": ["users:read", "users:write", "services:read", "services:write", "disputes:read"],
-      "avatar": "https://randomuser.me/api/portraits/men/2.jpg",
-      "last_login": "2026-02-15T14:20:00Z",
-      "created_at": "2025-11-15T00:00:00Z",
-      "status": "active"
-    },
-    {
+    "action": "user_suspend",
+    "target_type": "user",
+    "target_id": 1003,
+    "target_name": "Pierre Leroy",
+    "details": "Suspension pour non-paiement des frais",
+    "ip_address": "192.168.1.100",
+    "timestamp": "2026-02-15T10:30:00Z"
+  },
+  {
+    "id": "LOG002",
+    "admin": {
       "id": 3,
-      "name": "Anne Bernard",
-      "email": "anne.bernard@admin.com",
-      "role": "support",
-      "permissions": ["users:read", "services:read", "disputes:read", "disputes:write", "tickets:all"],
-      "avatar": "https://randomuser.me/api/portraits/women/3.jpg",
-      "last_login": "2026-02-15T18:45:00Z",
-      "created_at": "2025-12-10T00:00:00Z",
-      "status": "active"
-    }
-  ];
+      "name": "Anne Bernard"
+    },
+    "action": "verification_approve",
+    "target_type": "verification",
+    "target_id": 2001,
+    "target_name": "Sophie Bernard",
+    "details": "Vérification d'identité approuvée",
+    "ip_address": "192.168.1.102",
+    "timestamp": "2026-02-15T09:15:00Z"
+  },
+  {
+    "id": "LOG003",
+    "admin": {
+      "id": 2,
+      "name": "Paul Dubois"
+    },
+    "action": "dispute_resolve",
+    "target_type": "dispute",
+    "target_id": "DIS003",
+    "target_name": "Litige #DIS003",
+    "details": "Résolution: remboursement partiel 50%",
+    "ip_address": "192.168.1.101",
+    "timestamp": "2026-02-12T15:30:00Z"
+  },
+  {
+    "id": "LOG004",
+    "admin": {
+      "id": 1,
+      "name": "Jean Martin"
+    },
+    "action": "settings_update",
+    "target_type": "settings",
+    "details": "Modification des frais plateforme: 8% → 10%",
+    "ip_address": "192.168.1.100",
+    "timestamp": "2026-02-10T11:45:00Z"
+  },
+  {
+    "id": "LOG005",
+    "admin": {
+      "id": 2,
+      "name": "Paul Dubois"
+    },
+    "action": "category_create",
+    "target_type": "category",
+    "target_id": 8,
+    "target_name": "Coaching sportif",
+    "details": "Nouvelle catégorie créée",
+    "ip_address": "192.168.1.101",
+    "timestamp": "2026-02-08T14:20:00Z"
+  }
+];
 
-  export const activity_logs = [
+export const notifications = {
+  "unread_count": 3,
+  "list": [
     {
-      "id": "LOG001",
-      "admin": {
-        "id": 1,
-        "name": "Jean Martin"
-      },
-      "action": "user_suspend",
-      "target_type": "user",
-      "target_id": 1003,
-      "target_name": "Pierre Leroy",
-      "details": "Suspension pour non-paiement des frais",
-      "ip_address": "192.168.1.100",
-      "timestamp": "2026-02-15T10:30:00Z"
+      "id": "NOTIF001",
+      "type": "urgent",
+      "title": "Nouveau litige prioritaire",
+      "message": "Un litige haute priorité a été ouvert pour la mission #10006",
+      "action_url": "/admin/disputes/DIS001",
+      "created_at": "2026-02-15T10:35:00Z",
+      "is_read": false
     },
     {
-      "id": "LOG002",
-      "admin": {
-        "id": 3,
-        "name": "Anne Bernard"
-      },
-      "action": "verification_approve",
-      "target_type": "verification",
-      "target_id": 2001,
-      "target_name": "Sophie Bernard",
-      "details": "Vérification d'identité approuvée",
-      "ip_address": "192.168.1.102",
-      "timestamp": "2026-02-15T09:15:00Z"
+      "id": "NOTIF002",
+      "type": "info",
+      "title": "Vérifications en attente",
+      "message": "3 documents sont en attente de vérification",
+      "action_url": "/admin/users/verifications",
+      "created_at": "2026-02-15T09:00:00Z",
+      "is_read": false
     },
     {
-      "id": "LOG003",
-      "admin": {
-        "id": 2,
-        "name": "Paul Dubois"
-      },
-      "action": "dispute_resolve",
-      "target_type": "dispute",
-      "target_id": "DIS003",
-      "target_name": "Litige #DIS003",
-      "details": "Résolution: remboursement partiel 50%",
-      "ip_address": "192.168.1.101",
-      "timestamp": "2026-02-12T15:30:00Z"
+      "id": "NOTIF003",
+      "type": "warning",
+      "title": "Paiements en retard",
+      "message": "2 paiements sont en attente depuis plus de 5 jours",
+      "action_url": "/admin/payments?status=pending",
+      "created_at": "2026-02-14T08:00:00Z",
+      "is_read": false
     },
     {
-      "id": "LOG004",
-      "admin": {
-        "id": 1,
-        "name": "Jean Martin"
-      },
-      "action": "settings_update",
-      "target_type": "settings",
-      "details": "Modification des frais plateforme: 8% → 10%",
-      "ip_address": "192.168.1.100",
-      "timestamp": "2026-02-10T11:45:00Z"
-    },
-    {
-      "id": "LOG005",
-      "admin": {
-        "id": 2,
-        "name": "Paul Dubois"
-      },
-      "action": "category_create",
-      "target_type": "category",
-      "target_id": 8,
-      "target_name": "Coaching sportif",
-      "details": "Nouvelle catégorie créée",
-      "ip_address": "192.168.1.101",
-      "timestamp": "2026-02-08T14:20:00Z"
-    }
-  ];
-
-  export const notifications = {
-    "unread_count": 3,
-    "list": [
-      {
-        "id": "NOTIF001",
-        "type": "urgent",
-        "title": "Nouveau litige prioritaire",
-        "message": "Un litige haute priorité a été ouvert pour la mission #10006",
-        "action_url": "/admin/disputes/DIS001",
-        "created_at": "2026-02-15T10:35:00Z",
-        "is_read": false
-      },
-      {
-        "id": "NOTIF002",
-        "type": "info",
-        "title": "Vérifications en attente",
-        "message": "3 documents sont en attente de vérification",
-        "action_url": "/admin/users/verifications",
-        "created_at": "2026-02-15T09:00:00Z",
-        "is_read": false
-      },
-      {
-        "id": "NOTIF003",
-        "type": "warning",
-        "title": "Paiements en retard",
-        "message": "2 paiements sont en attente depuis plus de 5 jours",
-        "action_url": "/admin/payments?status=pending",
-        "created_at": "2026-02-14T08:00:00Z",
-        "is_read": false
-      },
-      {
-        "id": "NOTIF004",
-        "type": "success",
-        "title": "Mission terminée",
-        "message": "La mission #10004 a été complétée avec succès",
-        "action_url": "/admin/services/10004",
-        "created_at": "2026-02-13T16:30:00Z",
-        "is_read": true
-      }
-    ]
-  };
-
-  export const support_tickets = [
-    {
-      "id": "T001",
-      "user": {
-        "id": 1001,
-        "name": "Jean Dupont",
-        "role": "client"
-      },
-      "subject": "Problème de paiement",
-      "message": "J'ai payé mais le freelancer n'a pas été notifié",
-      "priority": "high",
-      "status": "open",
-      "created_at": "2026-02-15T14:30:00Z",
-      "assigned_to": null
-    },
-    {
-      "id": "T002",
-      "user": {
-        "id": 1006,
-        "name": "Emilie Dubois",
-        "role": "freelancer"
-      },
-      "subject": "Bug dans l'upload de photos",
-      "message": "Impossible d'ajouter des photos au portfolio",
-      "priority": "normal",
-      "status": "in_progress",
-      "created_at": "2026-02-14T11:20:00Z",
-      "assigned_to": "Paul Dubois",
-      "assigned_at": "2026-02-14T14:00:00Z",
-      "messages": [
-        {
-          "from": "Emilie Dubois",
-          "message": "L'erreur persiste après plusieurs essais",
-          "timestamp": "2026-02-14T16:30:00Z"
-        },
-        {
-          "from": "Paul Dubois",
-          "message": "Nous investiguons le problème",
-          "timestamp": "2026-02-15T09:15:00Z"
-        }
-      ]
-    },
-    {
-      "id": "T003",
-      "user": {
-        "id": 1002,
-        "name": "Marie Martin",
-        "role": "freelancer"
-      },
-      "subject": "Question sur les frais",
-      "message": "Comment sont calculés les frais de plateforme ?",
-      "priority": "low",
-      "status": "closed",
-      "created_at": "2026-02-13T09:45:00Z",
-      "closed_at": "2026-02-13T11:30:00Z",
-      "resolution": "Documentation envoyée par email"
+      "id": "NOTIF004",
+      "type": "success",
+      "title": "Mission terminée",
+      "message": "La mission #10004 a été complétée avec succès",
+      "action_url": "/admin/services/10004",
+      "created_at": "2026-02-13T16:30:00Z",
+      "is_read": true
     }
   ]
+};
+
+export const support_tickets = [
+  {
+    "id": "T001",
+    "user": {
+      "id": 1001,
+      "name": "Jean Dupont",
+      "role": "client"
+    },
+    "subject": "Problème de paiement",
+    "message": "J'ai payé mais le freelancer n'a pas été notifié",
+    "priority": "high",
+    "status": "open",
+    "created_at": "2026-02-15T14:30:00Z",
+    "assigned_to": null
+  },
+  {
+    "id": "T002",
+    "user": {
+      "id": 1006,
+      "name": "Emilie Dubois",
+      "role": "freelancer"
+    },
+    "subject": "Bug dans l'upload de photos",
+    "message": "Impossible d'ajouter des photos au portfolio",
+    "priority": "normal",
+    "status": "in_progress",
+    "created_at": "2026-02-14T11:20:00Z",
+    "assigned_to": "Paul Dubois",
+    "assigned_at": "2026-02-14T14:00:00Z",
+    "messages": [
+      {
+        "from": "Emilie Dubois",
+        "message": "L'erreur persiste après plusieurs essais",
+        "timestamp": "2026-02-14T16:30:00Z"
+      },
+      {
+        "from": "Paul Dubois",
+        "message": "Nous investiguons le problème",
+        "timestamp": "2026-02-15T09:15:00Z"
+      }
+    ]
+  },
+  {
+    "id": "T003",
+    "user": {
+      "id": 1002,
+      "name": "Marie Martin",
+      "role": "freelancer"
+    },
+    "subject": "Question sur les frais",
+    "message": "Comment sont calculés les frais de plateforme ?",
+    "priority": "low",
+    "status": "closed",
+    "created_at": "2026-02-13T09:45:00Z",
+    "closed_at": "2026-02-13T11:30:00Z",
+    "resolution": "Documentation envoyée par email"
+  }
+]
 
 export const reports = {
   stats: {
@@ -1955,8 +1964,6 @@ export const reports = {
     },
   ] as PerformanceMetrics[],
 };
-
-
 
 export const messages = {
   conversations: [

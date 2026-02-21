@@ -163,12 +163,21 @@ const ConversationFilters = ({
           </label>
           <select
             value={filters.participant_type || ""}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value;
+
+              const participant =
+                value === "client" ||
+                value === "freelancer" ||
+                value === "admin"
+                  ? value
+                  : undefined;
+
               onFilterChange({
                 ...filters,
-                participant_type: e.target.value || undefined,
-              })
-            }
+                participant_type: participant,
+              });
+            }}
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous</option>
@@ -686,8 +695,8 @@ export default function ConversationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen dark:bg-slate-950">
+      <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-100 flex items-center">

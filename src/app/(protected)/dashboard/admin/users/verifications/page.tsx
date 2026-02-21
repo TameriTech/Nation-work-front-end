@@ -347,14 +347,14 @@ export default function VerificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">

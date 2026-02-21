@@ -36,7 +36,7 @@ import {
   updateCategory,
   deleteCategory,
   toggleCategoryStatus,
-} from "@/app/services/service.service";
+} from "@/app/services/category.service";
 import type {
   Category,
   CategoryFilters,
@@ -290,17 +290,27 @@ export default function CategoriesPage() {
     try {
       setLoading(true);
       // Utiliser les mock data
-      const mockResponse = {
-        items: mockServices.categories as Category[],
-        total: mockServices.categories.length,
-        page: filters.page || 1,
-        per_page: filters.per_page || 10,
-        total_pages: Math.ceil(
-          mockServices.categories.length / (filters.per_page || 10),
-        ),
-      };
-      setCategories(mockResponse.items);
-      setPagination(mockResponse);
+      const response: PaginatedResponse<Category> =
+        await getCategories(filters);
+
+      if (response.items.length > 0) {
+        setCategories(response.items);
+        setPagination(response);
+        console.log("Api response: ", response);
+      } else {
+        const mockResponse = {
+          items: mockServices.categories as Category[],
+          total: mockServices.categories.length,
+          page: filters.page || 1,
+          per_page: filters.per_page || 10,
+          total_pages: Math.ceil(
+            mockServices.categories.length / (filters.per_page || 10),
+          ),
+        };
+
+        setCategories(mockResponse.items);
+        setPagination(mockResponse);
+      }
     } catch (error) {
       console.error("Erreur chargement catégories:", error);
     } finally {
@@ -323,8 +333,19 @@ export default function CategoriesPage() {
     if (editingCategory) {
       await updateCategory(editingCategory.id, data);
     } else {
-      await createCategory(data);
+      if (!data.name || !data.description || !data.icon || !data.color) {
+        throw new Error("Missing required fields for category creation");
+      }
+
+      await createCategory({
+        name: data.name,
+        description: data.description,
+        icon: data.icon,
+        color: data.color,
+        parent_id: data.parent_id,
+      });
     }
+
     loadCategories();
   };
 
@@ -360,7 +381,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">

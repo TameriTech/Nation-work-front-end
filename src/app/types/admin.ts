@@ -415,11 +415,12 @@ export interface PayoutFilters {
   per_page?: number;
   sort_by?: string;
   sort_order?: "asc" | "desc";
+  search?: string;
 }
 
 // Types pour les litiges
 export interface Dispute {
-  id: string;
+  id: number;
   service: {
     id: number;
     title: string;
@@ -548,6 +549,7 @@ export interface RejectData {
 }
 
 export interface AssignData {
+
   assigned_to: number;
   notes?: string;
 }
@@ -689,9 +691,11 @@ export interface ServicesByCategory {
   count: number;
   percentage: number;
   color: string;
+  status: string;
 }
 
 export interface ServicesByStatus {
+  category: string;
   status: string;
   count: number;
   percentage: number;

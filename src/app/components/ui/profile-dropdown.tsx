@@ -21,7 +21,7 @@ export function ProfileDropdown({
   onSettingsClick,
   onLogoutClick,
 }: ProfileDropdownProps) {
-  const initials = user.name
+  const initials = user.username
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -33,17 +33,17 @@ export function ProfileDropdown({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-2 px-2 py-1.5 h-auto hover:bg-accent focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex items-center bg-white dark:bg-slate-950 text-gray-500 dark:text-gray-200  gap-2 px-2 py-1.5 h-auto hover:bg-accent focus-visible:ring-1 focus-visible:ring-ring"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarImage src={user.avatar} alt={user.username} />
             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="hidden md:flex flex-col items-start text-left">
             <span className="text-sm font-medium leading-none">
-              {user.name}
+              {user.username}
             </span>
             <span className="text-xs text-slate-400 leading-none mt-0.5">
               {user.role}
@@ -54,12 +54,12 @@ export function ProfileDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-56 bg-popover border-border shadow-lg"
+        className="w-56 bg-popover border-border shadow-lg bg-white dark:bg-slate-950 dark:border-slate-800 text-gray-500 dark:text-gray-200"
         sideOffset={8}
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user.username}</p>
             <p className="text-xs leading-none text-slate-400">{user.email}</p>
           </div>
         </DropdownMenuLabel>

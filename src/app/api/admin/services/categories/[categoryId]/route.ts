@@ -18,7 +18,7 @@ export async function PUT(
       );
     }
 
-    const data = await apiClient(`/admin/services/categories/${categoryId}`, {
+    const data = await apiClient(`/categories/${categoryId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +51,7 @@ export async function DELETE(
       );
     }
 
-    const data = await apiClient(`/admin/services/categories/${categoryId}`, {
+    const data = await apiClient(`/categories/${categoryId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

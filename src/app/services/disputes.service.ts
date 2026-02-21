@@ -1,4 +1,4 @@
-import { ApiResponse, PaginatedResponse, Dispute, DisputeStats, DisputeAction } from '../types/admin';
+import { ApiResponse, PaginatedResponse, Dispute, DisputeStats, DisputeAction, RejectData } from '../types/admin';
 
 /**
  * Récupère la liste des litiges
@@ -44,7 +44,7 @@ export async function getDisputes(filters?: {
 /**
  * Récupère un litige par son ID
  */
-export async function getDisputeById(disputeId: string): Promise<Dispute> {
+export async function getDisputeById(disputeId: number): Promise<Dispute> {
   try {
     const res = await fetch(`/api/admin/disputes/${disputeId}`, {
       method: 'GET',
@@ -91,8 +91,9 @@ export async function getDisputeStats(): Promise<DisputeStats> {
  * Assigner un litige à un admin
  */
 export async function assignDispute(
-  disputeId: string,
-  adminId: number
+  disputeId: number,
+  adminId: number,
+  notes?: string,
 ): Promise<{ message: string; dispute: Dispute }> {
   try {
     const res = await fetch(`/api/admin/disputes/${disputeId}/assign`, {
@@ -100,7 +101,9 @@ export async function assignDispute(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ assigned_to: adminId }),
+      body: JSON.stringify(
+        { assigned_to: adminId, note:notes ?? null }
+      ),
     });
 
     const responseData = await res.json();
@@ -122,7 +125,7 @@ export async function assignDispute(
  * Ajouter un message à un litige
  */
 export async function addDisputeMessage(
-  disputeId: string,
+  disputeId: number,
   data: {
     message: string;
     is_private?: boolean;
@@ -156,7 +159,7 @@ export async function addDisputeMessage(
  * Résoudre un litige
  */
 export async function resolveDispute(
-  disputeId: string,
+  disputeId: number,
   data: {
     resolution: string;
     refund_percentage?: number;
@@ -192,8 +195,8 @@ export async function resolveDispute(
  * Rejeter un litige
  */
 export async function rejectDispute(
-  disputeId: string,
-  reason: string
+  disputeId: number,
+  data: RejectData
 ): Promise<{ message: string; dispute: Dispute }> {
   try {
     const res = await fetch(`/api/admin/disputes/${disputeId}/reject`, {
@@ -201,7 +204,7 @@ export async function rejectDispute(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ data }),
     });
 
     const responseData = await res.json();
@@ -223,7 +226,7 @@ export async function rejectDispute(
  * Escalader un litige
  */
 export async function escalateDispute(
-  disputeId: string,
+  disputeId: number,
   reason: string
 ): Promise<{ message: string; dispute: Dispute }> {
   try {
@@ -253,7 +256,7 @@ export async function escalateDispute(
 /**
  * Récupère l'historique d'un litige
  */
-export async function getDisputeHistory(disputeId: string): Promise<any[]> {
+export async function getDisputeHistory(disputeId: number): Promise<any[]> {
   try {
     const res = await fetch(`/api/admin/disputes/${disputeId}/history`, {
       method: 'GET',

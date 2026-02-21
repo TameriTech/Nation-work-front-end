@@ -61,7 +61,7 @@ export default function AdminLayout({
       children: [
         {
           title: "Users List",
-          href: "/dashboard/admin/users",
+          href: "/dashboard/admin/users/all_users",
           icon: FileText,
         },
         {
@@ -79,7 +79,7 @@ export default function AdminLayout({
       children: [
         {
           title: "All Services",
-          href: "/dashboard/admin/services",
+          href: "/dashboard/admin/services/all_services",
           icon: HelpCircleIcon,
         },
         {
@@ -96,7 +96,7 @@ export default function AdminLayout({
       children: [
         {
           title: "All Payments",
-          href: "/dashboard/admin/payments",
+          href: "/dashboard/admin/payments/all_payments",
           icon: CreditCard,
         },
         {
@@ -120,6 +120,23 @@ export default function AdminLayout({
       title: "Settings",
       href: "/dashboard/admin/settings",
       icon: Settings,
+      children: [
+        {
+          title: "Settings",
+          href: "/dashboard/admin/settings/main_settings",
+          icon: Settings,
+        },
+        {
+          title: "Activities Log",
+          href: "/dashboard/admin/settings/logs",
+          icon: FileText,
+        },
+        {
+          title: "Admin Users",
+          href: "/dashboard/admin/settings/admins",
+          icon: UsersIcon,
+        },
+      ],
     },
     {
       title: "Help",
@@ -129,39 +146,33 @@ export default function AdminLayout({
   ];
 
   return (
-    <html>
-      <body>
-        <div className="flex min-h-screen w-full bg-slate-950">
-          <Sidebar
-            isOpen={sidebarOpen}
-            onToggle={toggleSidebar}
-            navItems={navItems}
-            logo={logo}
-            collapsed={collapsed}
-            onCollapse={toggleCollapse}
-          />
+    <div className="flex min-h-screen w-full bg-slate-100 dark:bg-slate-950">
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={toggleSidebar}
+        navItems={navItems}
+        logo={logo}
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+      />
 
-          <div
-            className={cn(
-              "flex flex-1 flex-col transition-all duration-300",
-              collapsed ? "lg:pl-0" : "lg:pl-0",
-            )}
-          >
-            <Header
-              onMenuClick={toggleSidebar}
-              user={user}
-              breadcrumbConfig={breadcrumbConfig}
-              notificationCount={3}
-            />
+      <div
+        className={cn(
+          "flex flex-1 flex-col transition-all duration-300",
+          collapsed ? "lg:pl-0" : "lg:pl-0",
+        )}
+      >
+        <Header
+          onMenuClick={toggleSidebar}
+          user={user}
+          breadcrumbConfig={breadcrumbConfig}
+          notificationCount={3}
+        />
 
-            <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
-              <div className="mx-auto max-w-5xl overflow-x-scroll">
-                {children}
-              </div>
-            </main>
-          </div>
-        </div>
-      </body>
-    </html>
+        <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
+          <div className="mx-auto max-w-5xl overflow-x-scroll">{children}</div>
+        </main>
+      </div>
+    </div>
   );
 }

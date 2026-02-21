@@ -7,16 +7,16 @@ export async function GET() {
     const token = (await cookies()).get('access_token')?.value;
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
+     return NextResponse.json(
+       { error: 'Non authentifié' },
+       { status: 401 }
+     );
     }
 
-    const data = await apiClient('/admin/services/categories', {
+    const data = await apiClient('/categories/', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+       Authorization: `Bearer ${token}`,
       },
     });
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const data = await apiClient('/admin/services/categories', {
+    const data = await apiClient('/categories', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

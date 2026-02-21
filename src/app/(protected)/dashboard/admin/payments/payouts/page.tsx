@@ -1102,7 +1102,7 @@ export default function PayoutsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">

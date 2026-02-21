@@ -558,7 +558,7 @@ const DocumentViewer = ({
 export default function DisputeDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const disputeId = params.disputeId as string;
+  const disputeId = Number(params.disputeId);
 
   const [loading, setLoading] = useState(true);
   const [dispute, setDispute] = useState<Dispute | null>(null);
@@ -576,11 +576,14 @@ export default function DisputeDetailPage() {
     const loadDispute = async () => {
       try {
         setLoading(true);
+        if (Number.isNaN(disputeId)) {
+          throw new Error("Invalid dispute ID");
+        }
         // Utiliser les mock data
         const foundDispute = mockDisputes.list.find(
           (d) => d.id === disputeId,
         ) as Dispute;
-        setDispute(foundDispute || null);
+        setDispute(foundDispute);
       } catch (error) {
         console.error("Erreur chargement litige:", error);
       } finally {
@@ -654,7 +657,7 @@ export default function DisputeDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
@@ -662,14 +665,14 @@ export default function DisputeDetailPage() {
 
   if (!dispute) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-100 mb-2">
             Litige non trouvé
           </h2>
           <p className="text-gray-400 mb-4">
-            Le litige avec l'ID {disputeId} n'existe pas
+            Le litige avec l'ID {disputeId as number} n'existe pas
           </p>
           <button
             onClick={() => router.back()}

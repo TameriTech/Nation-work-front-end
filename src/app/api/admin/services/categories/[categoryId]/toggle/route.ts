@@ -18,7 +18,7 @@ export async function PATCH(
       );
     }
 
-    const data = await apiClient(`/admin/services/categories/${categoryId}/toggle`, {
+    const data = await apiClient(`/categories/${categoryId}/toggle`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,

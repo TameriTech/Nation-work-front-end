@@ -233,7 +233,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
         {/* En-tête avec dégradé */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg shadow-lg p-6 mb-6 border border-blue-400/20">

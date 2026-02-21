@@ -894,10 +894,7 @@ export default function DisputesPage() {
   const handleAssign = async (adminId: number, notes?: string) => {
     if (!assignModal.dispute) return;
     try {
-      await assignDispute(assignModal.dispute.id, {
-        assigned_to: adminId,
-        notes,
-      });
+      await assignDispute(assignModal.dispute.id, adminId, notes);
       loadDisputes();
     } catch (error) {
       console.error("Erreur assignation:", error);
@@ -905,7 +902,7 @@ export default function DisputesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
         {/* En-tête */}
         <div className="mb-6">

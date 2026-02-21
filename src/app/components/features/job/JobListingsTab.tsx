@@ -11,7 +11,7 @@ export function JobListings() {
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id],
     );
   };
 
@@ -31,7 +31,7 @@ export function JobListings() {
           </TabsTrigger>
           <TabsTrigger
             value="carte"
-            className="data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
+            className="hidden data-[state=active]:text-orange-500 text-gray-800 data-[state=active]:border-b-2 px-4 data-[state=active]:bg-transparent data-[state=active]:border-orange-500 border-0 rounded-none pb-3"
           >
             {"Carte d'emploi"}
           </TabsTrigger>
@@ -48,7 +48,7 @@ export function JobListings() {
             toggleFavorite={toggleFavorite}
           />
         </TabsContent>
-        <TabsContent value="carte" className="mt-6">
+        <TabsContent value="carte" className="mt-6 hidden">
           <div className="">comming soon</div>
         </TabsContent>
         <TabsContent value="favorites" className="mt-6">
