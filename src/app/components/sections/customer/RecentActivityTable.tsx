@@ -24,7 +24,6 @@ import {
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ServiceFormWizard from "@/app/components/features/service-form/ServiceFormWizard";
 
 interface Activity {
   id: string;
@@ -132,12 +131,12 @@ export const RecentActivityTable = ({
                             activity.status === "en_cours"
                               ? "bg-amber-500"
                               : activity.status === "publie"
-                              ? "bg-blue-500"
-                              : activity.status === "termine"
-                              ? "bg-emerald-500"
-                              : activity.status === "annule"
-                              ? "bg-destructive"
-                              : "bg-slate-400"
+                                ? "bg-blue-500"
+                                : activity.status === "termine"
+                                  ? "bg-emerald-500"
+                                  : activity.status === "annule"
+                                    ? "bg-destructive"
+                                    : "bg-slate-400"
                           }`}
                         />
                         {status.label}
@@ -200,9 +199,6 @@ export const RecentActivityTable = ({
           </Table>
         </CardContent>
       </Card>
-      {isOpen && (
-        <ServiceFormWizard mode="create" onCancel={() => setIsOpen(false)} />
-      )}
     </div>
   );
 };

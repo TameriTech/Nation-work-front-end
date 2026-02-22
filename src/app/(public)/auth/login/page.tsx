@@ -7,8 +7,11 @@ import { useAuthStore } from "@/app/stores/auth.store";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("Admin123!");
+  // admin: admin@example.com / Admin123!
+  // client: cto@techstartup.io / Startup123!
+  // freelancer: web.dev@freelance.fr / Dev12345!
+  const [email, setEmail] = useState("cto@techstartup.io");
+  const [password, setPassword] = useState("Startup123!");
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},

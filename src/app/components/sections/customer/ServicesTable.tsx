@@ -22,15 +22,15 @@ import {
   TableRow,
 } from "@/app/components/ui/table";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ServiceFormWizard from "@/app/components/features/service-form/ServiceFormWizard";
 import { Service } from "@/app/types/services";
-import { destroyService } from "@/app/services/service.service";
+import {
+  destroyService,
+  getClientServices,
+} from "@/app/services/service.service";
 import { toast } from "../../ui/sonner";
-
-interface CandidatureTableProps {
-  services: Service[] | [];
-}
+import { log } from "console";
 
 const statusConfig = {
   draft: {
@@ -63,30 +63,60 @@ const statusConfig = {
   },
 } as const;
 
-const deleteServices = async (serviceId: number) => {
-  await destroyService(serviceId);
-  console.log(`Delete service with ID: ${serviceId}`);
-};
-
-const copyServiceLinkToClipboard = (link: string) => {
-  navigator.clipboard.writeText(link).then(() => {
-    toast.success("Service link copied to clipboard!");
-    console.log("Service link copied to clipboard:", link);
-  });
-};
-
-const viewServiceDetails = (serviceId: number) => {
-  // navigate to service details page
-  window.location.href = `/dashboard/customer/services/${serviceId}`;
-};
-
-export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
+export const ServicesTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editServiceId, setEditServiceId] = useState<number | undefined>(
     undefined,
   );
+
+  const [services, setServices] = useState<Service[]>([]);
+
+  const fetchData = async () => {
+    const data = await getClientServices();
+    setServices(data.services as unknown as Service[]);
+    console.log(data);
+  };
+
+  useEffect(() => {
+    document.title = "Tableau de bord - Services";
+    // load services data here
+    fetchData();
+  }, []);
+
+  const deleteServices = async (serviceId: number) => {
+    if (!confirm("Are you sure you want to delete this service?")) {
+      return;
+    }
+
+    if (!serviceId) {
+      toast.error("Service ID is missing.");
+      console.log("Attempted to delete service but serviceId is undefined");
+      return;
+    }
+    try {
+      await destroyService(serviceId);
+
+      toast.success("Service deleted successfully!");
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to delete service.");
+      console.error("Error deleting service:", error);
+    }
+  };
+
+  const copyServiceLinkToClipboard = (link: string) => {
+    navigator.clipboard.writeText(link).then(() => {
+      toast.success("Service link copied to clipboard!");
+      console.log("Service link copied to clipboard:", link);
+    });
+  };
+
+  const viewServiceDetails = (serviceId: number) => {
+    // navigate to service details page
+    window.location.href = `/dashboard/customer/services/${serviceId}`;
+  };
 
   const openFormWizard = (mode: "create" | "edit", serviceId?: number) => {
     setFormMode(mode);
@@ -148,9 +178,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
               </TableHead>
               <TableHead>Your offer</TableHead>
               <TableHead>Status of the offer</TableHead>
-              <TableHead>Required Skills</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Average note</TableHead>
               <TableHead>Candidates</TableHead>
               <TableHead>Provider</TableHead>
               <TableHead className="w-24"></TableHead>
@@ -192,36 +220,11 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="font-medium flex flex-wrap gap-2">
-                      {service.required_skills?.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="mr-1 bg-blue-900/10 text-nowrap text-blue-900 px-2 py-1 rounded-full text-xs"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </TableCell>
-
                     {/** use stars */}
 
                     <TableCell className="font-medium">
                       {service.proposed_amount}
                     </TableCell>
-                    <TableCell className="flex gap-1">
-                      {Array.from({ length: 5 }, (_, index) => (
-                        <Icon
-                          icon={"bi:star"}
-                          key={index}
-                          className={
-                            index < service.client.rating
-                              ? "text-yellow-500"
-                              : "text-gray-500"
-                          }
-                        />
-                      ))}
-                    </TableCell>
-
                     <TableCell className="font-medium">
                       <div className="flex -space-x-5 overflow-hidden">
                         {[1, 2, 3].map((i) => (
@@ -329,6 +332,7 @@ export const ServicesTable = ({ services = [] }: CandidatureTableProps) => {
           mode={formMode}
           serviceId={editServiceId}
           onCancel={() => setIsOpen(false)}
+          fetchServices={fetchData}
         />
       )}
     </Card>

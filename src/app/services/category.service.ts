@@ -13,6 +13,34 @@ export async function getCategories(filters: CategoryFilters ): Promise<Paginate
         }
       });
     }
+    const res = await fetch(`/api/categories?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Erreur lors du chargement des catégories');
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Erreur getCategories:', error);
+    throw error;
+  }
+}
+
+export async function getAllCategories(filters: CategoryFilters ): Promise<PaginatedResponse<Category>> {
+  try {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
     const res = await fetch(`/api/admin/services/categories?${params.toString()}`, {
       method: 'GET',
       cache: 'no-store',
@@ -39,6 +67,7 @@ export async function createCategory(data: {
   description: string;
   icon: string;
   color: string;
+  is_active: boolean;
   parent_id?: number;
 }): Promise<Category> {
   try {

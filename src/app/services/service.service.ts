@@ -1,170 +1,125 @@
-import {
-  //Service,
-  CreateServicePayload,
-  UpdateServicePayload,
+// ===== FILE: app/services/service.service.ts =====
+
+import { 
+  Service, 
+  ServicePayload, 
+  PaginatedResponse,
+  ServiceFilters,
+  ServiceStats,
+  WishlistItem,
+  ServiceStatus
 } from "@/app/types/services";
 
-export async function createService(
-  payload: CreateServicePayload
-): Promise<Service> {
-  const res = await fetch("/api/services/publish", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) throw new Error("Failed to create service");
-  return res.json();
+// Types d'erreurs personnalisés
+export class ApiError extends Error {
+  status: number;
+  data?: any;
+  
+  constructor(message: string, status: number, data?: any) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+  }
 }
 
-//export async function getServices(): Promise<Service[]> {
-//  const res = await fetch("/api/services", {
-//    method: "GET",
-//    cache: "no-store",
-//  });
-//
-//  if (!res.ok) throw new Error("Failed to fetch services");
-//  return res.json();
-//}
-
-export async function getService(serviceId: number): Promise<Service> {
-  const res = await fetch(`/api/services/${serviceId}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch service");
-  return res.json();
+export class ValidationError extends Error {
+  fields: Record<string, string>;
+  
+  constructor(message: string, fields: Record<string, string> = {}) {
+    super(message);
+    this.name = "ValidationError";
+    this.fields = fields;
+  }
 }
 
-export async function getClientServices(): Promise<Service[]> {
-  const res = await fetch("/api/services/client/list", {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch client services");
-  return res.json();
-}
-
-export async function searchServices(
-  query: string
-): Promise<Service[]> {
-  const res = await fetch(
-    `/api/services/search?query=${encodeURIComponent(query)}`,
-    { method: "GET", cache: "no-store" }
-  );
-
-  if (!res.ok) throw new Error("Failed to search services");
-  return res.json();
-}
-
-export async function updateService(
-  serviceId: number,
-  payload: UpdateServicePayload
-): Promise<Service> {
-  const res = await fetch(`/api/services/${serviceId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) throw new Error("Failed to update service");
-  return res.json();
-}
-
-export async function destroyService(
-  serviceId: number
-): Promise<void> {
-  const res = await fetch(`/api/services/${serviceId}`, {
-    method: "DELETE",
-  });
-
-  if (!res.ok) throw new Error("Failed to delete service");
-}
-
-export async function getServicesByFreelancer(
-  freelancerId: number
-): Promise<Service[]> {
-  const res = await fetch(
-    `/api/services/freelancer/${freelancerId}`,
-    { method: "GET", cache: "no-store" }
-  );
-
-  if (!res.ok) throw new Error("Failed to fetch freelancer services");
-  return res.json();
-}
-
-export async function assignFreelancerToService(
-  serviceId: number,
-  freelancerId: number
-): Promise<Service> {
-  const res = await fetch(
-    `/api/services/${serviceId}/assign`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ freelancer_id: freelancerId }),
+// Fonction utilitaire pour gérer les réponses
+async function handleResponse<T>(response: Response): Promise<T> {
+  // Tentative de parsing du JSON, même en cas d'erreur
+  let data: any = null;
+  const contentType = response.headers.get("content-type");
+  
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      // Ignorer les erreurs de parsing JSON
     }
-  );
+  }
 
-  if (!res.ok) throw new Error("Failed to assign freelancer");
-  return res.json();
-}
+  // Si la réponse est ok, retourner les données
+  if (response.ok) {
+    return data as T;
+  }
 
-export async function markServiceAsCompleted(
-  serviceId: number
-): Promise<Service> {
-  const res = await fetch(
-    `/api/services/${serviceId}/complete`,
-    { method: "POST" }
-  );
+  // Gestion des erreurs HTTP
+  const errorMessage = 
+    data?.message || 
+    data?.error || 
+    data?.detail || 
+    `Erreur ${response.status}: ${response.statusText}`;
 
-  if (!res.ok) throw new Error("Failed to mark service as completed");
-  return res.json();
-}
+  // Erreurs de validation (400)
+  if (response.status === 400 && data?.fields) {
+    throw new ValidationError(errorMessage, data.fields);
+  }
 
-export async function uploadServiceImages(
-  serviceId: number,
-  images: string[]
-): Promise<Service> {
-  const res = await fetch(
-    `/api/services/${serviceId}/images`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ images }),
+  // Erreurs d'authentification (401)
+  if (response.status === 401) {
+    // Rediriger vers la page de connexion si token expiré
+    if (typeof window !== "undefined") {
+      window.location.href = "/login?session_expired=true";
     }
-  );
+    throw new ApiError("Session expirée, veuillez vous reconnecter", response.status, data);
+  }
 
-  if (!res.ok) throw new Error("Failed to upload service images");
-  return res.json();
+  // Erreurs de permission (403)
+  if (response.status === 403) {
+    throw new ApiError("Vous n'avez pas les droits pour effectuer cette action", response.status, data);
+  }
+
+  // Erreurs "non trouvé" (404)
+  if (response.status === 404) {
+    throw new ApiError("Ressource non trouvée", response.status, data);
+  }
+
+  // Erreurs serveur (500)
+  if (response.status >= 500) {
+    throw new ApiError("Erreur serveur, veuillez réessayer plus tard", response.status, data);
+  }
+
+  // Autres erreurs
+  throw new ApiError(errorMessage, response.status, data);
 }
 
-export async function removeServiceImage(
-  serviceId: number,
-  imageId: number
-): Promise<Service> {
-  const res = await fetch(
-    `/api/services/${serviceId}/images/${imageId}`,
-    { method: "DELETE" }
-  );
-
-  if (!res.ok) throw new Error("Failed to remove service image");
-  return res.json();
-}
-
-
-
-
-// New code
-
-import { ApiResponse, PaginatedResponse, Service, ServiceFilters } from '../types/admin';
+// ==================== CLIENT ROUTES ====================
 
 /**
- * Récupère la liste des services/missions avec filtres
+ * Publier un nouveau service (client)
  */
-export async function getServices(filters?: ServiceFilters): Promise<PaginatedResponse<Service>> {
+export async function publishService(payload: ServicePayload): Promise<Service> {
+  try {
+    const res = await fetch("/api/services/publish", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    return await handleResponse<Service>(res);
+  } catch (error) {
+    console.error("Erreur publishService:", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer les services du client connecté
+ */
+export async function getClientServices(
+  filters?: ServiceFilters
+): Promise<PaginatedResponse<Service>> {
   try {
     const params = new URLSearchParams();
     if (filters) {
@@ -174,134 +129,77 @@ export async function getServices(filters?: ServiceFilters): Promise<PaginatedRe
         }
       });
     }
-
-    const res = await fetch(`/api/admin/services?${params.toString()}`, {
-      method: 'GET',
-      cache: 'no-store',
+    
+    const res = await fetch(`/api/services/client/list?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des services');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<PaginatedResponse<Service>>(res);
   } catch (error) {
-    console.error('Erreur getServices:', error);
+    console.error("Erreur getClientServices:", error);
     throw error;
   }
 }
 
 /**
- * Récupère un service par son ID
+ * Récupérer les détails d'un service avec ses candidats (client)
  */
-export async function getServiceById(serviceId: number): Promise<Service> {
+export async function getClientServiceDetails(serviceId: number): Promise<{
+  service: Service;
+  candidates: any[];
+  images: string[];
+}> {
   try {
-    const res = await fetch(`/api/admin/services/${serviceId}`, {
-      method: 'GET',
-      cache: 'no-store',
+    const res = await fetch(`/api/services/client/${serviceId}`, {
+      method: "GET",
+      cache: "no-store",
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Service non trouvé');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<{
+      service: Service;
+      candidates: any[];
+      images: string[];
+    }>(res);
   } catch (error) {
-    console.error(`Erreur getServiceById ${serviceId}:`, error);
+    console.error(`Erreur getClientServiceDetails ${serviceId}:`, error);
     throw error;
   }
 }
 
 /**
- * Modifier le statut d'un service
+ * Mettre à jour un service (client)
  */
-export async function updateServiceStatus(
+export async function updateService(
   serviceId: number,
-  status: 'published' | 'assigned' | 'in_progress' | 'completed' | 'cancelled' | 'disputed',
-  reason?: string
-): Promise<{ message: string; service: Service }> {
+  payload: Partial<ServicePayload>
+): Promise<Service> {
   try {
-    const res = await fetch(`/api/admin/services/${serviceId}/status`, {
-      method: 'PATCH',
+    const res = await fetch(`/api/services/${serviceId}`, {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status, reason }),
+      body: JSON.stringify(payload),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors du changement de statut',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<Service>(res);
   } catch (error) {
-    console.error(`Erreur updateServiceStatus ${serviceId}:`, error);
+    console.error(`Erreur updateService ${serviceId}:`, error);
     throw error;
   }
 }
 
 /**
- * Annuler un service (avec raison)
- */
-export async function cancelService(
-  serviceId: number,
-  reason: string,
-  notify_users: boolean = true
-): Promise<{ message: string }> {
-  try {
-    const res = await fetch(`/api/admin/services/${serviceId}/cancel`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ reason, notify_users }),
-    });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de l\'annulation',
-        field: responseData.field,
-      };
-    }
-
-    return responseData;
-  } catch (error) {
-    console.error(`Erreur cancelService ${serviceId}:`, error);
-    throw error;
-  }
-}
-
-/**
- * Supprimer un service
+ * Supprimer un service (client)
  */
 export async function deleteService(serviceId: number): Promise<{ message: string }> {
   try {
-    const res = await fetch(`/api/admin/services/${serviceId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const res = await fetch(`/api/services/${serviceId}`, {
+      method: "DELETE",
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la suppression',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string }>(res);
   } catch (error) {
     console.error(`Erreur deleteService ${serviceId}:`, error);
     throw error;
@@ -309,30 +207,241 @@ export async function deleteService(serviceId: number): Promise<{ message: strin
 }
 
 /**
- * Récupère les statistiques des services
+ * Assigner un freelance à un service (client)
  */
-export async function getServicesStats(): Promise<{
-  total: number;
-  by_status: Record<string, number>;
-  by_category: Record<string, number>;
-  average_budget: number;
-  completion_rate: number;
-}> {
+export async function assignFreelancer(
+  serviceId: number,
+  freelancerId: number
+): Promise<{ message: string; service: Service }> {
   try {
-    const res = await fetch('/api/admin/services/stats', {
-      method: 'GET',
-      cache: 'no-store',
+    const res = await fetch(`/api/services/${serviceId}/assign`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ freelancerId }),
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des statistiques');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<{ message: string; service: Service }>(res);
   } catch (error) {
-    console.error('Erreur getServicesStats:', error);
+    console.error(`Erreur assignFreelancer ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== FREELANCER ROUTES ====================
+
+/**
+ * Rechercher des services avec filtres (freelancer)
+ */
+export async function searchServices(
+  filters?: ServiceFilters
+): Promise<PaginatedResponse<Service>> {
+  try {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    const res = await fetch(`/api/services/search?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<PaginatedResponse<Service>>(res);
+  } catch (error) {
+    console.error("Erreur searchServices:", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer les détails d'un service (freelancer)
+ */
+export async function getServiceDetails(serviceId: number): Promise<Service> {
+  try {
+    const res = await fetch(`/api/services/${serviceId}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<Service>(res);
+  } catch (error) {
+    console.error(`Erreur getServiceDetails ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer les services du freelance (assignés ou postulés)
+ */
+export async function getFreelancerServices(
+  filters?: ServiceFilters
+): Promise<PaginatedResponse<Service>> {
+  try {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    const res = await fetch(`/api/services/freelancer/list?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<PaginatedResponse<Service>>(res);
+  } catch (error) {
+    console.error("Erreur getFreelancerServices:", error);
+    throw error;
+  }
+}
+
+// ==================== WISHLIST ROUTES ====================
+
+/**
+ * Ajouter un service aux favoris
+ */
+export async function addToWishlist(serviceId: number): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/services/wishlist/${serviceId}`, {
+      method: "POST",
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error(`Erreur addToWishlist ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Retirer un service des favoris
+ */
+export async function removeFromWishlist(serviceId: number): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/services/wishlist/${serviceId}`, {
+      method: "DELETE",
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error(`Erreur removeFromWishlist ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer la wishlist de l'utilisateur
+ */
+export async function getWishlist(
+  page: number = 1,
+  per_page: number = 20
+): Promise<{ items: WishlistItem[]; total: number; page: number; per_page: number }> {
+  try {
+    const res = await fetch(`/api/services/wishlist/list?page=${page}&per_page=${per_page}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<{ items: WishlistItem[]; total: number; page: number; per_page: number }>(res);
+  } catch (error) {
+    console.error("Erreur getWishlist:", error);
+    throw error;
+  }
+}
+
+// ==================== ADMIN ROUTES ====================
+
+/**
+ * Récupérer tous les services (admin)
+ */
+export async function getAdminServices(
+  filters?: ServiceFilters
+): Promise<PaginatedResponse<Service>> {
+  try {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    const res = await fetch(`/api/admin/services?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<PaginatedResponse<Service>>(res);
+  } catch (error) {
+    console.error("Erreur getAdminServices:", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer les détails d'un service (admin)
+ */
+export async function getAdminServiceDetails(serviceId: number): Promise<Service> {
+  try {
+    const res = await fetch(`/api/admin/services/${serviceId}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<Service>(res);
+  } catch (error) {
+    console.error(`Erreur getAdminServiceDetails ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer les statistiques des services (admin)
+ */
+export async function getServicesStats(): Promise<ServiceStats> {
+  try {
+    const res = await fetch("/api/admin/services/stats", {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    return await handleResponse<ServiceStats>(res);
+  } catch (error) {
+    console.error("Erreur getServicesStats:", error);
+    throw error;
+  }
+}
+
+/**
+ * Mettre à jour le statut d'un service (admin)
+ */
+export async function updateServiceStatus(
+  serviceId: number,
+  status: ServiceStatus,
+  reason?: string
+): Promise<{ message: string; service: Service }> {
+  try {
+    const res = await fetch(`/api/admin/services/${serviceId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status, reason }),
+    });
+
+    return await handleResponse<{ message: string; service: Service }>(res);
+  } catch (error) {
+    console.error(`Erreur updateServiceStatus ${serviceId}:`, error);
     throw error;
   }
 }

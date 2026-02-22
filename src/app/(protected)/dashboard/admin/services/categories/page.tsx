@@ -36,6 +36,7 @@ import {
   updateCategory,
   deleteCategory,
   toggleCategoryStatus,
+  getAllCategories,
 } from "@/app/services/category.service";
 import type {
   Category,
@@ -43,6 +44,7 @@ import type {
   PaginatedResponse,
 } from "@/app/types/admin";
 import { services as mockServices } from "@/data/admin-mock-data";
+import { icons, colors } from "@/data/constants";
 
 // Modal de création/édition
 const CategoryModal = ({
@@ -107,32 +109,6 @@ const CategoryModal = ({
     }
   };
 
-  const colors = [
-    "#3b82f6", // bleu
-    "#10b981", // vert
-    "#f59e0b", // orange
-    "#ef4444", // rouge
-    "#8b5cf6", // violet
-    "#ec4899", // rose
-    "#06b6d4", // cyan
-    "#84cc16", // lime
-  ];
-
-  const icons = [
-    "📁",
-    "🔧",
-    "⚡",
-    "🧹",
-    "🌿",
-    "💻",
-    "📚",
-    "📦",
-    "🎨",
-    "🎵",
-    "🏠",
-    "🚗",
-  ];
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full p-6 border border-gray-200 dark:border-slate-700">
@@ -184,7 +160,7 @@ const CategoryModal = ({
           </div>
 
           {/* Icône et Couleur */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Icône
@@ -203,7 +179,7 @@ const CategoryModal = ({
                 ))}
               </select>
             </div>
-            <div>
+            <div className="max-h-24 overflow-y-auto">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Couleur
               </label>
@@ -291,7 +267,7 @@ export default function CategoriesPage() {
       setLoading(true);
       // Utiliser les mock data
       const response: PaginatedResponse<Category> =
-        await getCategories(filters);
+        await getAllCategories(filters);
 
       console.log("API response for categories:", response);
 
@@ -299,20 +275,7 @@ export default function CategoriesPage() {
         setCategories(response.items);
         setPagination(response);
         console.log("Api response: ", response);
-      } // else {
-      // const mockResponse = {
-      //   items: mockServices.categories as Category[],
-      //   total: mockServices.categories.length,
-      //   page: filters.page || 1,
-      //   per_page: filters.per_page || 10,
-      //   total_pages: Math.ceil(
-      //     mockServices.categories.length / (filters.per_page || 10),
-      //   ),
-      // };//
-
-      // setCategories(mockResponse.items);
-      // setPagination(mockResponse);
-      //}
+      }
     } catch (error) {
       console.error("Erreur chargement catégories:", error);
     } finally {
@@ -335,7 +298,13 @@ export default function CategoriesPage() {
     if (editingCategory) {
       await updateCategory(editingCategory.id, data);
     } else {
-      if (!data.name || !data.description || !data.icon || !data.color) {
+      if (
+        !data.name ||
+        !data.description ||
+        !data.icon ||
+        !data.color ||
+        data.is_active === undefined
+      ) {
         throw new Error("Missing required fields for category creation");
       }
 
@@ -344,6 +313,7 @@ export default function CategoriesPage() {
         description: data.description,
         icon: data.icon,
         color: data.color,
+        is_active: data.is_active,
         parent_id: data.parent_id,
       });
     }
