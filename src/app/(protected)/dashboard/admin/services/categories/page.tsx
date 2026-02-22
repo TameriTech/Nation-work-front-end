@@ -293,24 +293,26 @@ export default function CategoriesPage() {
       const response: PaginatedResponse<Category> =
         await getCategories(filters);
 
-      if (response.items.length > 0) {
+      console.log("API response for categories:", response);
+
+      if (response.items?.length > 0) {
         setCategories(response.items);
         setPagination(response);
         console.log("Api response: ", response);
-      } else {
-        const mockResponse = {
-          items: mockServices.categories as Category[],
-          total: mockServices.categories.length,
-          page: filters.page || 1,
-          per_page: filters.per_page || 10,
-          total_pages: Math.ceil(
-            mockServices.categories.length / (filters.per_page || 10),
-          ),
-        };
+      } // else {
+      // const mockResponse = {
+      //   items: mockServices.categories as Category[],
+      //   total: mockServices.categories.length,
+      //   page: filters.page || 1,
+      //   per_page: filters.per_page || 10,
+      //   total_pages: Math.ceil(
+      //     mockServices.categories.length / (filters.per_page || 10),
+      //   ),
+      // };//
 
-        setCategories(mockResponse.items);
-        setPagination(mockResponse);
-      }
+      // setCategories(mockResponse.items);
+      // setPagination(mockResponse);
+      //}
     } catch (error) {
       console.error("Erreur chargement catégories:", error);
     } finally {

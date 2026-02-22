@@ -13,7 +13,7 @@ export async function GET() {
      );
     }
 
-    const data = await apiClient('/categories/', {
+    const data = await apiClient('/categories/admin', {
       method: 'GET',
       headers: {
        Authorization: `Bearer ${token}`,

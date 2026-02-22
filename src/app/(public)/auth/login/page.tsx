@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("password123");
+  const [password, setPassword] = useState("Admin123!");
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
@@ -63,7 +63,10 @@ const LoginPage = () => {
       // Redirection selon le rôle
       if (safeRedirect) {
         router.replace(safeRedirect);
-      } else if (data.user.role && data.user.role === "admin") {
+      } else if (
+        data.user.role &&
+        ["super_admin", "admin", "moderator"].includes(data.user.role)
+      ) {
         router.replace("/dashboard/admin");
       } else if (data.user.role && data.user.role === "client") {
         router.replace("/dashboard/customer");
