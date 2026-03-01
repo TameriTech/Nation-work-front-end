@@ -1,37 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { apiClient } from '@/app/lib/api-client';
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { serviceId: string } }
 ) {
   try {
-    const token = (await cookies()).get('access_token')?.value;
     const { serviceId } = await params;
     const body = await req.json();
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
-    }
-
-    const data = await apiClient(`/admin/services/${serviceId}/status`, {
+    const data = await backendFetch(`/admin/services/${serviceId}/status`, {
       method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(body),
     });
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Erreur serveur' },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

@@ -1,5 +1,6 @@
-import { apiClient } from "@/app/lib/api-client";
 import { NextResponse } from "next/server";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function POST(req: Request) {
   try {
@@ -15,11 +16,10 @@ export async function POST(req: Request) {
       username: body.username,
     };
 
-    const data = await apiClient<{ user: any; access_token: string }>(
+    const data = await backendFetch<{ user: any; access_token: string }>(
       "/auth/register",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fromFrontend),
       }
     );
@@ -37,20 +37,15 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    console.error("Failed to register user:", error);
     if (error.status === 422) {
       return NextResponse.json(
         {
           message: error.message,
-          errors: error.errors,
+          errors: error.field,
         },
         { status: 422 }
       );
     }
-
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

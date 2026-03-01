@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function DELETE(
   _: Request,
@@ -8,15 +8,13 @@ export async function DELETE(
     params,
   }: { params: { id: string; imageId: string } }
 ) {
-    const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient(
-    `/services/${params.id}/images/${params.imageId}`,
-    { method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return NextResponse.json(data);
+  try {
+    const { id, imageId } = await params;
+    const data = await backendFetch(`/services/${id}/images/${imageId}`, { 
+      method: "DELETE" 
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

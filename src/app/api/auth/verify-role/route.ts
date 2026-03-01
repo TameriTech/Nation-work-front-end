@@ -1,13 +1,12 @@
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET() {
-    const token = (await cookies()).get('access_token')?.value || null;
-    const data = await apiClient("/auth/verify-role", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+  try {
+    const data = await backendFetch("/auth/verify-role");
     return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

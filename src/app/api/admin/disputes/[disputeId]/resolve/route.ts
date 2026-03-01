@@ -1,37 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { apiClient } from '@/app/lib/api-client';
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { disputeId: string } }
 ) {
   try {
-    const token = (await cookies()).get('access_token')?.value;
     const { disputeId } = await params;
     const body = await req.json();
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
-    }
-
-    const data = await apiClient(`/admin/disputes/${disputeId}/resolve`, {
+    const data = await backendFetch(`/admin/disputes/${disputeId}/resolve`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(body),
     });
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Erreur serveur', field: error.field },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

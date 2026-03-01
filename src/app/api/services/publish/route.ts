@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
-//const token = (await cookies()).get('access_token')?.value || null;
-// Dans votre route API
 export async function POST(request: Request) {
   try {
-    const token = (await cookies()).get('access_token')?.value || null;
-    const formData = await request.json(); // ← formData est déjà un objet
+    const formData = await request.json();
     
-    // Modèle attendu par le backend
     const modelFields = [
       "title", "service_type", "category_id", "short_description", 
       "full_description", "date_pratique", "start_time", "duration",
@@ -18,31 +14,20 @@ export async function POST(request: Request) {
       "required_skills"
     ];
     
-    // Filtrer les données
-    const cleanData:any = {};
+    const cleanData: any = {};
     modelFields.forEach(field => {
       if (formData.hasOwnProperty(field)) {
         cleanData[field] = formData[field];
       }
     });
     
-    console.log("Sending to backend:", cleanData); // ← Ne pas stringifier ici
-    
-    // Envoyer au backend - L'APIClient va stringifier
-    const response = await apiClient("/services/publish", {
+    const response = await backendFetch("/services/publish", {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(cleanData) // ← Envoyer l'objet, PAS stringifié !
+      body: JSON.stringify(cleanData)
     });
     
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Full error object:", JSON.stringify(error, null, 2));
-    return NextResponse.json(
-      { error: "Failed to publish service" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

@@ -1,29 +1,25 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET() {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient("/categories/", { 
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return NextResponse.json(data);
+  try {
+    const data = await backendFetch("/categories/");
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
 export async function POST(req: Request) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const body = await req.json();
-
-  const data = await apiClient("/categories", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  return NextResponse.json(data, { status: 201 });
+  try {
+    const body = await req.json();
+    const data = await backendFetch("/categories", { 
+      method: "POST", 
+      body: JSON.stringify(body) 
+    });
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function PUT(
   _: Request,
   { params }: { params: { messageId: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient(
-    `/chat/messages/${params.messageId}/read`,
-    {
+  try {
+    const { messageId } = await params;
+    const data = await backendFetch(`/chat/messages/${messageId}/read`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return NextResponse.json(data);
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

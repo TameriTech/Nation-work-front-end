@@ -1,24 +1,17 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetchFormData } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const formData = await req.formData();
-
-  const data = await apiClient(
-    `/chat/conversations/${params.id}/upload`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    }
-  );
-
-  return NextResponse.json(data);
+  try {
+    const { id } = await params;
+    const formData = await req.formData();
+    const data = await backendFetchFormData(`/chat/conversations/${id}/upload`, formData);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

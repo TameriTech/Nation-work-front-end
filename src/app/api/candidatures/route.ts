@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function POST(req: Request) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const body = await req.json();
-
-  const data = await apiClient("/candidatures", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  return NextResponse.json(data, { status: 201 });
+  try {
+    const body = await req.json();
+    const data = await backendFetch("/candidatures", { 
+      method: "POST", 
+      body: JSON.stringify(body) 
+    });
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

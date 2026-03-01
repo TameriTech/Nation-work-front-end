@@ -1,32 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { apiClient } from '@/app/lib/api-client';
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = (await cookies()).get('access_token')?.value;
     const { searchParams } = new URL(req.url);
     const include_read = searchParams.get('include_read') === 'true';
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
-    }
-
-    const data = await apiClient(`/admin/notifications?include_read=${include_read}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    const data = await backendFetch(`/admin/notifications?include_read=${include_read}`);
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Erreur serveur' },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

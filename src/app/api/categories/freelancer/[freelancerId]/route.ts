@@ -1,42 +1,33 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET(
   _: Request,
   { params }: { params: { freelancerId: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient(
-    `/category/freelancers/${params.freelancerId}/categories`,
-    { 
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return NextResponse.json(data);
+  try {
+    const { freelancerId } = await params;
+    const data = await backendFetch(`/category/freelancers/${freelancerId}/categories`);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
 export async function POST(
   req: Request,
   { params }: { params: { freelancerId: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const body = await req.json();
-
-  const data = await apiClient(
-    `/category/freelancers/${params.freelancerId}/categories`,
-    {
+  try {
+    const { freelancerId } = await params;
+    const body = await req.json();
+    const data = await backendFetch(`/category/freelancers/${freelancerId}/categories`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(body),
-    }
-  );
-
-  return NextResponse.json(data);
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

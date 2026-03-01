@@ -1,35 +1,29 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET(
   _: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient(
-    `/chat/conversations/${params.id}`,
-    { 
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return NextResponse.json(data);
+  try {
+    const { id } = await params;
+    const data = await backendFetch(`/chat/conversations/${id}`);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
+
 export async function DELETE(
   _: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  await apiClient(`/chat/conversations/${params.id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return NextResponse.json(null, { status: 204 });
+  try {
+    const { id } = await params;
+    await backendFetch(`/chat/conversations/${id}`, { method: "DELETE" });
+    return NextResponse.json(null, { status: 204 });
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

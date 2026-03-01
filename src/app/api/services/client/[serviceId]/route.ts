@@ -1,29 +1,22 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET(
   _: Request,
   { params }: { params: { serviceId: string } }
 ) {
-  // Await the params Promise first
-  const { serviceId } = await params;
-  
-  // Then use the serviceId
-  if (!serviceId || isNaN(Number(serviceId))) {
-    return NextResponse.json({ error: "Invalid service ID" }, { status: 400 });
+  try {
+    const { serviceId } = await params;
+    
+    if (!serviceId || isNaN(Number(serviceId))) {
+      return NextResponse.json({ error: "Invalid service ID" }, { status: 400 });
+    }
+    
+    const serviceIdNumber = Number(serviceId);
+    const data = await backendFetch(`/services/client/${serviceIdNumber}`);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
   }
-  
-  // Rest of your DELETE logic...
-  const serviceIdNumber = Number(serviceId);
-  
-  const token = (await cookies()).get('access_token')?.value || null;
-  const data = await apiClient(`/services/client/${serviceIdNumber}`, {
-    method: "GET",
-    headers: {
-        Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return NextResponse.json(data);
 }

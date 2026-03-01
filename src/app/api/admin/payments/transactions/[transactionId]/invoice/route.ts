@@ -1,28 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { apiClient } from '@/app/lib/api-client';
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { transactionId: string } }
 ) {
   try {
-    const token = (await cookies()).get('access_token')?.value;
     const { transactionId } = await params;
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
-    }
-
-    const response = await apiClient(`/admin/payments/transactions/${transactionId}/invoice`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await backendFetch(`/admin/payments/transactions/${transactionId}/invoice`);
 
     // Si l'API externe retourne un PDF
     if (response instanceof Blob) {
@@ -35,10 +22,7 @@ export async function GET(
     }
 
     return NextResponse.json(response);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Erreur serveur' },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

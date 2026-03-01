@@ -1,24 +1,22 @@
 import { NextResponse } from "next/server";
-import { apiClient } from "@/app/lib/api-client";
-import { cookies } from "next/headers";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
 
 export async function PUT(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = (await cookies()).get('access_token')?.value || null;
-  const body = await req.json();
+  try {
+    const { id } = await params;
+    const body = await req.json();
 
-  const data = await apiClient(
-    `/candidatures/${params.id}/status`,
-    {
+    const data = await backendFetch(`/candidatures/${id}/status`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(body),
-    }
-  );
+    });
 
-  return NextResponse.json(data);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
