@@ -1,103 +1,265 @@
-import { Candidature } from "@/app/types/candidatures";
+// services/candidatures.service.ts
 
+import { Candidature, CreateCandidatureDto, UpdateCandidatureStatusDto } from "@/app/types/candidatures";
+import { handleResponse } from "@/app/lib/error-handler";
+
+// ==================== RÉCUPÉRATION ====================
+
+/**
+ * Récupère les candidatures d'un freelancer
+ */
 export async function getCandidaturesByFreelancer(
   freelancerId: number
 ): Promise<Candidature[]> {
-  const res = await fetch(
-    `/api/candidatures/freelancer/${freelancerId}`,
-    {
-      method: "GET",
-      cache: "no-store",
-    }
-  );
+  try {
+    const res = await fetch(
+      `/api/candidatures/freelancer/${freelancerId}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch freelancer candidatures");
+    return await handleResponse<Candidature[]>(res);
+  } catch (error) {
+    console.error(`Erreur getCandidaturesByFreelancer ${freelancerId}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
+/**
+ * Récupère les candidatures pour un service spécifique
+ */
 export async function getServiceCandidatures(
   serviceId: number
 ): Promise<Candidature[]> {
-  const res = await fetch(
-    `/api/candidatures/service/${serviceId}`,
-    {
-      method: "GET",
-      cache: "no-store",
-    }
-  );
+  try {
+    const res = await fetch(
+      `/api/candidatures/service/${serviceId}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch service candidatures");
+    return await handleResponse<Candidature[]>(res);
+  } catch (error) {
+    console.error(`Erreur getServiceCandidatures ${serviceId}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
+/**
+ * Récupère une candidature par son ID
+ */
+export async function getCandidatureById(
+  candidatureId: number
+): Promise<Candidature> {
+  try {
+    const res = await fetch(
+      `/api/candidatures/${candidatureId}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
+
+    return await handleResponse<Candidature>(res);
+  } catch (error) {
+    console.error(`Erreur getCandidatureById ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== CRÉATION ====================
+
+/**
+ * Crée une nouvelle candidature
+ */
 export async function createCandidature(
-  payload: Omit<
-    Candidature,
-    | "id"
-    | "status"
-    | "application_date"
-    | "updated_at"
-    | "freelancer_name"
-    | "freelancer_rating"
-    | "freelancer_profile_picture"
-    | "service_title"
-    | "service_proposed_amount"
-  >
+  payload: CreateCandidatureDto
 ): Promise<Candidature> {
-  const res = await fetch("/api/candidatures", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to create candidature");
-  }
-
-  return res.json();
-}
-
-export async function updateCandidatureStatus(
-  candidatureId: number,
-  status: "en_attente" | "acceptee" | "refusee"
-): Promise<Candidature> {
-  const res = await fetch(
-    `/api/candidatures/${candidatureId}/status`,
-    {
-      method: "PUT",
+  try {
+    const res = await fetch("/api/candidatures", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status }),
-    }
-  );
+      body: JSON.stringify(payload),
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to update candidature status");
+    return await handleResponse<Candidature>(res);
+  } catch (error) {
+    console.error("Erreur createCandidature:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
+// ==================== MISE À JOUR ====================
+
+/**
+ * Met à jour le statut d'une candidature
+ */
+export async function updateCandidatureStatus(
+  candidatureId: number,
+  status: UpdateCandidatureStatusDto["status"],
+  options?: {
+    rejection_reason?: string;
+    message?: string;
+  }
+): Promise<Candidature> {
+  try {
+    const payload: UpdateCandidatureStatusDto = {
+      status,
+      ...options
+    };
+
+    const res = await fetch(
+      `/api/candidatures/${candidatureId}/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    return await handleResponse<Candidature>(res);
+  } catch (error) {
+    console.error(`Erreur updateCandidatureStatus ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Accepte une candidature
+ */
+export async function acceptCandidature(
+  candidatureId: number,
+  message?: string
+): Promise<Candidature> {
+  return updateCandidatureStatus(candidatureId, "accepted", { message });
+}
+
+/**
+ * Refuse une candidature
+ */
+export async function rejectCandidature(
+  candidatureId: number,
+  rejection_reason?: string
+): Promise<Candidature> {
+  return updateCandidatureStatus(candidatureId, "rejected", { rejection_reason });
+}
+
+/**
+ * Met une candidature en attente
+ */
+export async function pendCandidature(
+  candidatureId: number
+): Promise<Candidature> {
+  return updateCandidatureStatus(candidatureId, "pending");
+}
+
+// ==================== SUPPRESSION ====================
+
+/**
+ * Supprime une candidature
+ */
 export async function deleteCandidature(
   candidatureId: number
 ): Promise<void> {
-  const res = await fetch(
-    `/api/candidatures/${candidatureId}`,
-    {
-      method: "DELETE",
-    }
-  );
+  try {
+    const res = await fetch(
+      `/api/candidatures/${candidatureId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to delete candidature");
+    await handleResponse<{ success: boolean }>(res);
+  } catch (error) {
+    console.error(`Erreur deleteCandidature ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== STATISTIQUES ====================
+
+/**
+ * Récupère les statistiques des candidatures pour un freelancer
+ */
+export async function getFreelancerCandidatureStats(
+  freelancerId: number
+): Promise<{
+  total: number;
+  en_attente: number;
+  acceptees: number;
+  refusees: number;
+  taux_reussite: number;
+}> {
+  try {
+    const candidatures = await getCandidaturesByFreelancer(freelancerId);
+    
+    const total = candidatures.length;
+    const en_attente = candidatures.filter(c => c.status === "pending").length;
+    const acceptees = candidatures.filter(c => c.status === "accepted").length;
+    const refusees = candidatures.filter(c => c.status === "rejected").length;
+    const taux_reussite = total > 0 ? (acceptees / total) * 100 : 0;
+
+    return {
+      total,
+      en_attente,
+      acceptees,
+      refusees,
+      taux_reussite
+    };
+  } catch (error) {
+    console.error(`Erreur getFreelancerCandidatureStats ${freelancerId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère les statistiques des candidatures pour un service
+ */
+export async function getServiceCandidatureStats(
+  serviceId: number
+): Promise<{
+  total: number;
+  en_attente: number;
+  acceptees: number;
+  refusees: number;
+}> {
+  try {
+    const candidatures = await getServiceCandidatures(serviceId);
+    
+    return {
+      total: candidatures.length,
+      en_attente: candidatures.filter(c => c.status === "pending").length,
+      acceptees: candidatures.filter(c => c.status === "accepted").length,
+      refusees: candidatures.filter(c => c.status === "rejected").length,
+    };
+  } catch (error) {
+    console.error(`Erreur getServiceCandidatureStats ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== VÉRIFICATION ====================
+
+/**
+ * Vérifie si un freelancer a déjà postulé à un service
+ */
+export async function hasFreelancerApplied(
+  freelancerId: number,
+  serviceId: number
+): Promise<boolean> {
+  try {
+    const candidatures = await getCandidaturesByFreelancer(freelancerId);
+    return candidatures.some(c => c.service_id === serviceId);
+  } catch (error) {
+    console.error(`Erreur hasFreelancerApplied:`, error);
+    throw error;
   }
 }

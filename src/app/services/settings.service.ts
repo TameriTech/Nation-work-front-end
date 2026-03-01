@@ -1,3 +1,5 @@
+// services/admin/settings.service.ts
+
 import { 
   GeneralSettings, 
   FeeSettings, 
@@ -5,8 +7,12 @@ import {
   ThresholdSettings, 
   AdminUser,
   ActivityLog, 
-  PaginatedResponse
-} from '../types/admin';
+  PaginatedResponse,
+  EmailTemplate
+} from '@/app/types/admin';
+import { handleResponse } from '@/app/lib/error-handler';
+
+// ==================== PARAMÈTRES GÉNÉRAUX ====================
 
 /**
  * Récupère les paramètres généraux
@@ -18,13 +24,7 @@ export async function getGeneralSettings(): Promise<GeneralSettings> {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des paramètres');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<GeneralSettings>(res);
   } catch (error) {
     console.error('Erreur getGeneralSettings:', error);
     throw error;
@@ -44,21 +44,14 @@ export async function updateGeneralSettings(settings: Partial<GeneralSettings>):
       body: JSON.stringify(settings),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la mise à jour',
-        field: responseData.field,
-      };
-    }
-
-    return responseData;
+    return await handleResponse<GeneralSettings>(res);
   } catch (error) {
     console.error('Erreur updateGeneralSettings:', error);
     throw error;
   }
 }
+
+// ==================== PARAMÈTRES DES FRAIS ====================
 
 /**
  * Récupère les paramètres des frais
@@ -70,13 +63,7 @@ export async function getFeeSettings(): Promise<FeeSettings> {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des frais');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<FeeSettings>(res);
   } catch (error) {
     console.error('Erreur getFeeSettings:', error);
     throw error;
@@ -96,21 +83,14 @@ export async function updateFeeSettings(settings: Partial<FeeSettings>): Promise
       body: JSON.stringify(settings),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la mise à jour',
-        field: responseData.field,
-      };
-    }
-
-    return responseData;
+    return await handleResponse<FeeSettings>(res);
   } catch (error) {
     console.error('Erreur updateFeeSettings:', error);
     throw error;
   }
 }
+
+// ==================== PARAMÈTRES DES DÉLAIS ====================
 
 /**
  * Récupère les paramètres des délais
@@ -122,13 +102,7 @@ export async function getTimingSettings(): Promise<TimingSettings> {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des délais');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<TimingSettings>(res);
   } catch (error) {
     console.error('Erreur getTimingSettings:', error);
     throw error;
@@ -148,20 +122,14 @@ export async function updateTimingSettings(settings: Partial<TimingSettings>): P
       body: JSON.stringify(settings),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la mise à jour',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<TimingSettings>(res);
   } catch (error) {
     console.error('Erreur updateTimingSettings:', error);
     throw error;
   }
 }
+
+// ==================== SEUILS ====================
 
 /**
  * Récupère les seuils
@@ -173,13 +141,7 @@ export async function getThresholdSettings(): Promise<ThresholdSettings> {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des seuils');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<ThresholdSettings>(res);
   } catch (error) {
     console.error('Erreur getThresholdSettings:', error);
     throw error;
@@ -199,20 +161,14 @@ export async function updateThresholdSettings(settings: Partial<ThresholdSetting
       body: JSON.stringify(settings),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la mise à jour',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<ThresholdSettings>(res);
   } catch (error) {
     console.error('Erreur updateThresholdSettings:', error);
     throw error;
   }
 }
+
+// ==================== ADMINISTRATEURS ====================
 
 /**
  * Récupère la liste des administrateurs
@@ -224,13 +180,7 @@ export async function getAdmins(): Promise<AdminUser[]> {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des administrateurs');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<AdminUser[]>(res);
   } catch (error) {
     console.error('Erreur getAdmins:', error);
     throw error;
@@ -255,16 +205,7 @@ export async function addAdmin(data: {
       body: JSON.stringify(data),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de l\'ajout',
-        field: responseData.field,
-      };
-    }
-
-    return responseData;
+    return await handleResponse<AdminUser>(res);
   } catch (error) {
     console.error('Erreur addAdmin:', error);
     throw error;
@@ -287,15 +228,7 @@ export async function updateAdmin(
       body: JSON.stringify(data),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la modification',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<AdminUser>(res);
   } catch (error) {
     console.error(`Erreur updateAdmin ${adminId}:`, error);
     throw error;
@@ -314,20 +247,14 @@ export async function deleteAdmin(adminId: number): Promise<{ message: string }>
       },
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la suppression',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string }>(res);
   } catch (error) {
     console.error(`Erreur deleteAdmin ${adminId}:`, error);
     throw error;
   }
 }
+
+// ==================== LOGS D'ACTIVITÉ ====================
 
 /**
  * Récupère les logs d'activité
@@ -355,18 +282,14 @@ export async function getActivityLogs(filters?: {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des logs');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<PaginatedResponse<ActivityLog>>(res);
   } catch (error) {
     console.error('Erreur getActivityLogs:', error);
     throw error;
   }
 }
+
+// ==================== MODE MAINTENANCE ====================
 
 /**
  * Activer/désactiver le mode maintenance
@@ -381,40 +304,45 @@ export async function toggleMaintenanceMode(enable: boolean): Promise<{ message:
       body: JSON.stringify({ enabled: enable }),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors du changement de mode',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string }>(res);
   } catch (error) {
     console.error('Erreur toggleMaintenanceMode:', error);
     throw error;
   }
 }
 
+// ==================== TEMPLATES D'EMAIL ====================
+
 /**
  * Récupère les templates d'email
  */
-export async function getEmailTemplates(): Promise<any[]> {
+export async function getEmailTemplates(): Promise<EmailTemplate[]> {
   try {
     const res = await fetch('/api/admin/settings/email-templates', {
       method: 'GET',
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des templates');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<EmailTemplate[]>(res);
   } catch (error) {
     console.error('Erreur getEmailTemplates:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère un template d'email par son ID
+ */
+export async function getEmailTemplateById(templateId: string): Promise<EmailTemplate> {
+  try {
+    const res = await fetch(`/api/admin/settings/email-templates/${templateId}`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    return await handleResponse<EmailTemplate>(res);
+  } catch (error) {
+    console.error(`Erreur getEmailTemplateById ${templateId}:`, error);
     throw error;
   }
 }
@@ -429,7 +357,7 @@ export async function updateEmailTemplate(
     body: string;
     variables?: string[];
   }
-): Promise<any> {
+): Promise<EmailTemplate> {
   try {
     const res = await fetch(`/api/admin/settings/email-templates/${templateId}`, {
       method: 'PUT',
@@ -439,15 +367,7 @@ export async function updateEmailTemplate(
       body: JSON.stringify(data),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la mise à jour',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<EmailTemplate>(res);
   } catch (error) {
     console.error(`Erreur updateEmailTemplate ${templateId}:`, error);
     throw error;
@@ -460,7 +380,7 @@ export async function updateEmailTemplate(
 export async function testEmailTemplate(
   templateId: string,
   testEmail: string
-): Promise<{ message: string }> {
+): Promise<{ message: string; success: boolean }> {
   try {
     const res = await fetch(`/api/admin/settings/email-templates/${templateId}/test`, {
       method: 'POST',
@@ -470,15 +390,7 @@ export async function testEmailTemplate(
       body: JSON.stringify({ test_email: testEmail }),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de l\'envoi du test',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string; success: boolean }>(res);
   } catch (error) {
     console.error(`Erreur testEmailTemplate ${templateId}:`, error);
     throw error;

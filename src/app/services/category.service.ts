@@ -1,9 +1,10 @@
 import { CategoryFilters, PaginatedResponse, Category } from "../types/admin";
+import { Category as UserCategory} from "../types/category";
 
 /**
  * Récupère toutes les catégories
  */
-export async function getCategories(filters: CategoryFilters ): Promise<PaginatedResponse<Category>> {
+export async function getCategories(filters?: CategoryFilters ): Promise<UserCategory[]> {
   try {
     const params = new URLSearchParams();
     if (filters) {

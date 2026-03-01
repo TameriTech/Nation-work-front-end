@@ -2,102 +2,21 @@
 
 import { 
   Service, 
-  ServicePayload, 
+  CreateServiceDto, 
   PaginatedResponse,
   ServiceFilters,
   ServiceStats,
   WishlistItem,
   ServiceStatus
 } from "@/app/types/services";
-
-// Types d'erreurs personnalisés
-export class ApiError extends Error {
-  status: number;
-  data?: any;
-  
-  constructor(message: string, status: number, data?: any) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.data = data;
-  }
-}
-
-export class ValidationError extends Error {
-  fields: Record<string, string>;
-  
-  constructor(message: string, fields: Record<string, string> = {}) {
-    super(message);
-    this.name = "ValidationError";
-    this.fields = fields;
-  }
-}
-
-// Fonction utilitaire pour gérer les réponses
-async function handleResponse<T>(response: Response): Promise<T> {
-  // Tentative de parsing du JSON, même en cas d'erreur
-  let data: any = null;
-  const contentType = response.headers.get("content-type");
-  
-  if (contentType && contentType.includes("application/json")) {
-    try {
-      data = await response.json();
-    } catch (e) {
-      // Ignorer les erreurs de parsing JSON
-    }
-  }
-
-  // Si la réponse est ok, retourner les données
-  if (response.ok) {
-    return data as T;
-  }
-
-  // Gestion des erreurs HTTP
-  const errorMessage = 
-    data?.message || 
-    data?.error || 
-    data?.detail || 
-    `Erreur ${response.status}: ${response.statusText}`;
-
-  // Erreurs de validation (400)
-  if (response.status === 400 && data?.fields) {
-    throw new ValidationError(errorMessage, data.fields);
-  }
-
-  // Erreurs d'authentification (401)
-  if (response.status === 401) {
-    // Rediriger vers la page de connexion si token expiré
-    if (typeof window !== "undefined") {
-      window.location.href = "/login?session_expired=true";
-    }
-    throw new ApiError("Session expirée, veuillez vous reconnecter", response.status, data);
-  }
-
-  // Erreurs de permission (403)
-  if (response.status === 403) {
-    throw new ApiError("Vous n'avez pas les droits pour effectuer cette action", response.status, data);
-  }
-
-  // Erreurs "non trouvé" (404)
-  if (response.status === 404) {
-    throw new ApiError("Ressource non trouvée", response.status, data);
-  }
-
-  // Erreurs serveur (500)
-  if (response.status >= 500) {
-    throw new ApiError("Erreur serveur, veuillez réessayer plus tard", response.status, data);
-  }
-
-  // Autres erreurs
-  throw new ApiError(errorMessage, response.status, data);
-}
+import { handleResponse } from "../lib/error-handler";
 
 // ==================== CLIENT ROUTES ====================
 
 /**
  * Publier un nouveau service (client)
  */
-export async function publishService(payload: ServicePayload): Promise<Service> {
+export async function publishService(payload: CreateServiceDto): Promise<Service> {
   try {
     const res = await fetch("/api/services/publish", {
       method: "POST",
@@ -172,7 +91,7 @@ export async function getClientServiceDetails(serviceId: number): Promise<{
  */
 export async function updateService(
   serviceId: number,
-  payload: Partial<ServicePayload>
+  payload: Partial<CreateServiceDto>
 ): Promise<Service> {
   try {
     const res = await fetch(`/api/services/${serviceId}`, {
@@ -215,7 +134,7 @@ export async function assignFreelancer(
 ): Promise<{ message: string; service: Service }> {
   try {
     const res = await fetch(`/api/services/${serviceId}/assign`, {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -225,6 +144,22 @@ export async function assignFreelancer(
     return await handleResponse<{ message: string; service: Service }>(res);
   } catch (error) {
     console.error(`Erreur assignFreelancer ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Marquer un service comme terminé (client/freelancer)
+ */
+export async function completeService(serviceId: number): Promise<{ message: string; service: Service }> {
+  try {
+    const res = await fetch(`/api/services/${serviceId}/complete`, {
+      method: "POST",
+    });
+
+    return await handleResponse<{ message: string; service: Service }>(res);
+  } catch (error) {
+    console.error(`Erreur completeService ${serviceId}:`, error);
     throw error;
   }
 }
@@ -442,6 +377,47 @@ export async function updateServiceStatus(
     return await handleResponse<{ message: string; service: Service }>(res);
   } catch (error) {
     console.error(`Erreur updateServiceStatus ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Supprimer un service (admin)
+ */
+export async function adminDeleteService(
+  serviceId: number
+): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/admin/services/${serviceId}/delete`, {
+      method: "DELETE",
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error(`Erreur adminDeleteService ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Annuler un service (admin)
+ */
+export async function adminCancelService(
+  serviceId: number,
+  reason: string
+): Promise<{ message: string; service: Service }> {
+  try {
+    const res = await fetch(`/api/admin/services/${serviceId}/cancel`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason }),
+    });
+
+    return await handleResponse<{ message: string; service: Service }>(res);
+  } catch (error) {
+    console.error(`Erreur adminCancelService ${serviceId}:`, error);
     throw error;
   }
 }

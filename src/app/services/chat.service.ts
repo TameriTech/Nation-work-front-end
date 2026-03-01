@@ -5,8 +5,10 @@ import type {
   Message, 
   ConversationFilters, 
   PaginatedResponse,
-  ConversationStats 
+  ConversationStats,
+  TypingIndicator
 } from "@/app/types/admin";
+import { handleResponse } from "@/app/lib/error-handler";
 
 // ==================== CONVERSATIONS ====================
 
@@ -14,61 +16,61 @@ import type {
  * Récupère la liste des conversations avec filtres
  */
 export async function getConversations(filters?: ConversationFilters): Promise<PaginatedResponse<Conversation>> {
-  const params = new URLSearchParams();
-  
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, String(value));
-      }
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    const res = await fetch(`/api/chat/conversations?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
     });
+
+    return await handleResponse<PaginatedResponse<Conversation>>(res);
+  } catch (error) {
+    console.error("Erreur getConversations:", error);
+    throw error;
   }
-
-  const res = await fetch(`/api/chat/conversations?${params.toString()}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch conversations");
-  }
-
-  return res.json();
 }
 
 /**
  * Récupère les statistiques des conversations
  */
 export async function getConversationStats(): Promise<ConversationStats> {
-  const res = await fetch("/api/chat/conversations/stats", {
-    method: "GET",
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch("/api/chat/conversations/stats", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch conversation stats");
+    return await handleResponse<ConversationStats>(res);
+  } catch (error) {
+    console.error("Erreur getConversationStats:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
  * Récupère une conversation spécifique par son ID
  */
 export async function getConversationById(id: number): Promise<Conversation> {
-  const res = await fetch(`/api/chat/conversations/${id}`, {
-    method: "GET",
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`/api/chat/conversations/${id}`, {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch conversation");
+    return await handleResponse<Conversation>(res);
+  } catch (error) {
+    console.error(`Erreur getConversationById ${id}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
@@ -80,20 +82,20 @@ export async function createConversation(data: {
   freelancer_id: number;
   initial_message?: string;
 }): Promise<Conversation> {
-  const res = await fetch("/api/chat/conversations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch("/api/chat/conversations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to create conversation");
+    return await handleResponse<Conversation>(res);
+  } catch (error) {
+    console.error("Erreur createConversation:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
@@ -103,20 +105,20 @@ export async function updateConversation(
   id: number, 
   data: Partial<Conversation>
 ): Promise<Conversation> {
-  const res = await fetch(`/api/chat/conversations/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch(`/api/chat/conversations/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to update conversation");
+    return await handleResponse<Conversation>(res);
+  } catch (error) {
+    console.error(`Erreur updateConversation ${id}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
@@ -130,13 +132,15 @@ export async function archiveConversation(id: number, archive: boolean): Promise
  * Supprime une conversation
  */
 export async function deleteConversation(id: number): Promise<void> {
-  const res = await fetch(`/api/chat/conversations/${id}`, {
-    method: "DELETE",
-  });
+  try {
+    const res = await fetch(`/api/chat/conversations/${id}`, {
+      method: "DELETE",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to delete conversation");
+    await handleResponse<{ success: boolean }>(res);
+  } catch (error) {
+    console.error(`Erreur deleteConversation ${id}:`, error);
+    throw error;
   }
 }
 
@@ -154,27 +158,27 @@ export async function getMessages(
     after?: string;
   }
 ): Promise<PaginatedResponse<Message>> {
-  const queryParams = new URLSearchParams();
-  
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryParams.append(key, String(value));
-      }
+  try {
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+    }
+
+    const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${queryParams.toString()}`, {
+      method: "GET",
+      cache: "no-store",
     });
+
+    return await handleResponse<PaginatedResponse<Message>>(res);
+  } catch (error) {
+    console.error(`Erreur getMessages ${conversationId}:`, error);
+    throw error;
   }
-
-  const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${queryParams.toString()}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch messages");
-  }
-
-  return res.json();
 }
 
 /**
@@ -186,31 +190,31 @@ export async function sendMessage(data: {
   media?: File;
   media_type?: string;
 }): Promise<Message> {
-  const formData = new FormData();
-  formData.append("conversation_id", String(data.conversation_id));
-  
-  if (data.content) {
-    formData.append("content", data.content);
-  }
-  
-  if (data.media) {
-    formData.append("media", data.media);
-    if (data.media_type) {
-      formData.append("media_type", data.media_type);
+  try {
+    const formData = new FormData();
+    formData.append("conversation_id", String(data.conversation_id));
+    
+    if (data.content) {
+      formData.append("content", data.content);
     }
+    
+    if (data.media) {
+      formData.append("media", data.media);
+      if (data.media_type) {
+        formData.append("media_type", data.media_type);
+      }
+    }
+
+    const res = await fetch(`/api/chat/conversations/${data.conversation_id}/messages`, {
+      method: "POST",
+      body: formData,
+    });
+
+    return await handleResponse<Message>(res);
+  } catch (error) {
+    console.error("Erreur sendMessage:", error);
+    throw error;
   }
-
-  const res = await fetch(`/api/chat/conversations/${data.conversation_id}/messages`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to send message");
-  }
-
-  return res.json();
 }
 
 /**
@@ -220,49 +224,51 @@ export async function uploadMessageMedia(
   conversationId: number,
   file: File
 ): Promise<{ url: string; type: string }> {
-  const formData = new FormData();
-  formData.append("file", file);
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const res = await fetch(`/api/chat/conversations/${conversationId}/upload`, {
-    method: "POST",
-    body: formData,
-  });
+    const res = await fetch(`/api/chat/conversations/${conversationId}/upload`, {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to upload media");
+    return await handleResponse<{ url: string; type: string }>(res);
+  } catch (error) {
+    console.error(`Erreur uploadMessageMedia ${conversationId}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
  * Marque un message comme lu
  */
 export async function markMessageAsRead(messageId: number): Promise<Message> {
-  const res = await fetch(`/api/chat/messages/${messageId}/read`, {
-    method: "POST",
-  });
+  try {
+    const res = await fetch(`/api/chat/messages/${messageId}/read`, {
+      method: "POST",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to mark message as read");
+    return await handleResponse<Message>(res);
+  } catch (error) {
+    console.error(`Erreur markMessageAsRead ${messageId}:`, error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
  * Marque tous les messages d'une conversation comme lus
  */
-export async function markConversationAsRead(conversationId: number): Promise<void> {
-  const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
-    method: "POST",
-  });
+export async function markConversationAsRead(conversationId: number): Promise<{ count: number }> {
+  try {
+    const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
+      method: "POST",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to mark conversation as read");
+    return await handleResponse<{ count: number }>(res);
+  } catch (error) {
+    console.error(`Erreur markConversationAsRead ${conversationId}:`, error);
+    throw error;
   }
 }
 
@@ -270,13 +276,15 @@ export async function markConversationAsRead(conversationId: number): Promise<vo
  * Supprime un message
  */
 export async function deleteMessage(messageId: number): Promise<void> {
-  const res = await fetch(`/api/chat/messages/${messageId}`, {
-    method: "DELETE",
-  });
+  try {
+    const res = await fetch(`/api/chat/messages/${messageId}`, {
+      method: "DELETE",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to delete message");
+    await handleResponse<{ success: boolean }>(res);
+  } catch (error) {
+    console.error(`Erreur deleteMessage ${messageId}:`, error);
+    throw error;
   }
 }
 
@@ -286,34 +294,34 @@ export async function deleteMessage(messageId: number): Promise<void> {
  * Récupère le nombre de messages non lus
  */
 export async function getUnreadCount(): Promise<{ total: number; by_conversation: Record<number, number> }> {
-  const res = await fetch("/api/chat/messages/unread/count", {
-    method: "GET",
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch("/api/chat/messages/unread/count", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch unread count");
+    return await handleResponse<{ total: number; by_conversation: Record<number, number> }>(res);
+  } catch (error) {
+    console.error("Erreur getUnreadCount:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
  * Récupère les conversations avec messages non lus
  */
 export async function getUnreadConversations(): Promise<Conversation[]> {
-  const res = await fetch("/api/chat/conversations/unread", {
-    method: "GET",
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch("/api/chat/conversations/unread", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to fetch unread conversations");
+    return await handleResponse<Conversation[]>(res);
+  } catch (error) {
+    console.error("Erreur getUnreadConversations:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
 // ==================== RECHERCHE ====================
@@ -321,36 +329,39 @@ export async function getUnreadConversations(): Promise<Conversation[]> {
 /**
  * Recherche dans les messages
  */
-export async function searchMessages(query: string, filters?: {
-  conversation_id?: number;
-  user_id?: number;
-  date_from?: string;
-  date_to?: string;
-}): Promise<Message[]> {
-  const params = new URLSearchParams({ query });
-  
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, String(value));
-      }
+export async function searchMessages(
+  query: string, 
+  filters?: {
+    conversation_id?: number;
+    user_id?: number;
+    date_from?: string;
+    date_to?: string;
+  }
+): Promise<Message[]> {
+  try {
+    const params = new URLSearchParams({ query });
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    const res = await fetch(`/api/chat/messages/search?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
     });
+
+    return await handleResponse<Message[]>(res);
+  } catch (error) {
+    console.error("Erreur searchMessages:", error);
+    throw error;
   }
-
-  const res = await fetch(`/api/chat/messages/search?${params.toString()}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to search messages");
-  }
-
-  return res.json();
 }
 
-// ==================== UTILS ====================
+// ==================== UTILS (PAS D'APPELS API) ====================
 
 /**
  * Formate une date pour l'affichage des messages
@@ -415,6 +426,7 @@ export function groupMessagesByDate(messages: Message[]): Map<string, Message[]>
 
 let socket: WebSocket | null = null;
 let messageListeners: ((message: Message) => void)[] = [];
+let typingListeners: ((indicator: TypingIndicator) => void)[] = [];
 
 /**
  * Se connecte au WebSocket pour les messages en temps réel
@@ -424,17 +436,29 @@ export function connectWebSocket(token: string): WebSocket {
     return socket;
   }
 
-  socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/chat?token=${token}`);
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
+  socket = new WebSocket(`${wsUrl}/chat?token=${token}`);
 
   socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type === "new_message") {
-      messageListeners.forEach((listener) => listener(data.message));
+    try {
+      const data = JSON.parse(event.data);
+      
+      if (data.type === "new_message") {
+        messageListeners.forEach((listener) => listener(data.message));
+      } else if (data.type === "typing") {
+        typingListeners.forEach((listener) => listener(data));
+      }
+    } catch (e) {
+      console.error("Erreur WebSocket message:", e);
     }
   };
 
   socket.onclose = () => {
     socket = null;
+  };
+
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
   };
 
   return socket;
@@ -457,6 +481,16 @@ export function addMessageListener(listener: (message: Message) => void): () => 
   messageListeners.push(listener);
   return () => {
     messageListeners = messageListeners.filter((l) => l !== listener);
+  };
+}
+
+/**
+ * Ajoute un listener pour les indicateurs de frappe
+ */
+export function addTypingListener(listener: (indicator: TypingIndicator) => void): () => void {
+  typingListeners.push(listener);
+  return () => {
+    typingListeners = typingListeners.filter((l) => l !== listener);
   };
 }
 

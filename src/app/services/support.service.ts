@@ -1,4 +1,7 @@
+// services/support.service.ts
+
 import { PaginatedResponse, SupportTicket } from '../types/admin';
+import { handleResponse } from '../lib/error-handler';
 
 /**
  * Récupère les tickets de support
@@ -28,13 +31,7 @@ export async function getSupportTickets(filters?: {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des tickets');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<PaginatedResponse<SupportTicket>>(res);
   } catch (error) {
     console.error('Erreur getSupportTickets:', error);
     throw error;
@@ -51,13 +48,7 @@ export async function getSupportTicketById(ticketId: string): Promise<SupportTic
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Ticket non trouvé');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<SupportTicket>(res);
   } catch (error) {
     console.error(`Erreur getSupportTicketById ${ticketId}:`, error);
     throw error;
@@ -80,15 +71,7 @@ export async function assignTicket(
       body: JSON.stringify({ assigned_to: adminId }),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de l\'assignation',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string; ticket: SupportTicket }>(res);
   } catch (error) {
     console.error(`Erreur assignTicket ${ticketId}:`, error);
     throw error;
@@ -112,15 +95,7 @@ export async function replyToTicket(
       body: JSON.stringify({ message, is_private }),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de l\'envoi de la réponse',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string; timestamp: string }>(res);
   } catch (error) {
     console.error(`Erreur replyToTicket ${ticketId}:`, error);
     throw error;
@@ -143,15 +118,7 @@ export async function closeTicket(
       body: JSON.stringify({ resolution }),
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la fermeture',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string; ticket: SupportTicket }>(res);
   } catch (error) {
     console.error(`Erreur closeTicket ${ticketId}:`, error);
     throw error;
@@ -170,15 +137,7 @@ export async function reopenTicket(ticketId: string): Promise<{ message: string;
       },
     });
 
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la réouverture',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ message: string; ticket: SupportTicket }>(res);
   } catch (error) {
     console.error(`Erreur reopenTicket ${ticketId}:`, error);
     throw error;
@@ -195,20 +154,54 @@ export async function getSupportStats(): Promise<{
   tickets_by_status: Record<string, number>;
 }> {
   try {
-    const res = await fetch('/api/admin/support/stats', {
+    const res = await fetch('/api/admin/support/tickets/stats', {
       method: 'GET',
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des statistiques');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<{
+      open_tickets: number;
+      avg_response_time: string;
+      tickets_by_priority: Record<string, number>;
+      tickets_by_status: Record<string, number>;
+    }>(res);
   } catch (error) {
     console.error('Erreur getSupportStats:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère l'historique d'un ticket
+ */
+export async function getTicketHistory(ticketId: string): Promise<{
+  created_at: string;
+  updated_at: string;
+  actions: Array<{
+    type: string;
+    user: string;
+    timestamp: string;
+    details: string;
+  }>;
+}> {
+  try {
+    const res = await fetch(`/api/admin/support/tickets/${ticketId}/history`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    return await handleResponse<{
+      created_at: string;
+      updated_at: string;
+      actions: Array<{
+        type: string;
+        user: string;
+        timestamp: string;
+        details: string;
+      }>;
+    }>(res);
+  } catch (error) {
+    console.error(`Erreur getTicketHistory ${ticketId}:`, error);
     throw error;
   }
 }

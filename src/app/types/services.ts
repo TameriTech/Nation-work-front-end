@@ -1,25 +1,14 @@
 // ===== FILE: app/types/services.ts =====
 
+import { boolean, nullable, string } from "zod";
+import { Category } from "./category";
+import { User } from "./user";
+
 // Enums correspondant au backend
-export type ServiceStatus = 
-  | "published" 
-  | "assigned" 
-  | "en_cours" 
-  | "terminé" 
-  | "annulé"
-  | "draft"; // Pour les brouillons côté frontend
+export type ServiceStatus = "published" | "assigned" | "in_progress" | "completed" | "canceled"| "draft";
+export type ServiceType = 'standard' | 'premium' | 'candidature' | 'direct';
 
-export type ServiceType = 
-  | "standard" 
-  | "premium" 
-  | "candidature" 
-  | "directe";
-
-export type CandidatureStatus = 
-  | "en_attente" 
-  | "accepted" 
-  | "rejected" 
-  | "withdrawn";
+export type CandidatureStatus = "pending" | "accepted" | "rejected" | "withdrawn";
 
 export interface UserBasicInfo {
   id: number;
@@ -50,66 +39,100 @@ export interface DisputeInfo {
   status: string;
 }
 
+// types/services.ts
+
 export interface Service {
   id: number;
   title: string;
-  short_description: string;
+  short_description?: string;
   full_description?: string;
-  category?: CategoryInfo;
   service_type: ServiceType;
   category_id?: number;
-  status: ServiceStatus;
-  client: UserBasicInfo;
-  freelancer?: UserBasicInfo & { rating?: number } | null;
-  date_pratique: string; // date_pratique
-  start_time?: string;
-  duration?: string;
-  completed_at?: string;
-  cancelled_at?: string;
-  cancellation_reason?: string;
+  date_pratique: string; // DateTime
+  start_time: string; // "HH:MM"
+  duration: string; // "1h", "2h", "3h+"
   address: string;
+  quarter?: string;
+  city: string;
+  postal_code?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  required_skills: string[]; // JSON array
+  proposed_amount: number;
+  accepted_amount?: number;
+  status: ServiceStatus;
+  client_id: number;
+  assigned_freelancer_id?: number;
+  created_at: string;
+  updated_at?: string;
+  completed_at?: string;
+  client: User;
+  freelancer?: User;
+  category?: Category;
+  service_images?: ServiceImage[];
+  is_favorite?: boolean;
+}
+
+export interface ServiceImage {
+  id: number;
+  service_id: number;
+  image_url: string;
+  is_primary: boolean;
+  created_at: string;
+  service?: Service;
+}
+export interface ServiceFilters {
+  // Recherche textuelle
+  search?: string;
+  
+  // Catégorie
+  category_id?: number;
+  
+  // Prix
+  min_price?: number;
+  max_price?: number;
+  
+  // Localisation
   city?: string;
   quarter?: string;
   country?: string;
-  postal_code?: string;
   latitude?: number;
   longitude?: number;
-  budget: number; // proposed_amount
-  proposed_amount?: number;
-  accepted_amount?: number;
-  candidatures_count: number;
-  created_at: string;
-  updated_at?: string;
-  priority?: "normal" | "high";
-  rating?: RatingInfo;
-  dispute?: DisputeInfo;
-  required_skills?: string[];
-  images?: string[];
+  radius_km?: number; // Rayon de recherche en km
+  
+  // Date et heure
+  date_pratique?: string; // Date spécifique
+  date_from?: string; // Date de début (>=)
+  date_to?: string; // Date de fin (<=)
+  start_time_from?: string; // Heure de début (>=)
+  start_time_to?: string; // Heure de début (<=)
+  
+  // Durée
+  duration?: string[]; // ["1h", "2h", "3h+"]
+  
+  // Compétences requises
+  skills?: string[]; // Liste de compétences
+  
+  // Type de service
+  service_types?: ServiceType[];
+  
+  // Statut (pour freelancer/admin)
+  status?: ServiceStatus[];
+  
+  // Pagination
+  page?: number;
+  limit?: number;
+  sort_by?: 'date' | 'price' | 'rating';
+  sort_order?: 'asc' | 'desc';
 }
 
-export interface ServiceFilters {
-  status?: string;
-  category_id?: number;
-  client_id?: number;
-  freelancer_id?: number;
-  date_from?: string;
-  date_to?: string;
-  budget_min?: number;
-  budget_max?: number;
-  search?: string;
-  city?: string;
-  page?: number;
-  per_page?: number;
-  sort_by?: string;
-  sort_order?: "asc" | "desc";
-}
 
 export interface PaginatedResponse<T> {
   services: T[];
   total: number;
   page: number;
   per_page: number;
-  pages: number;
 }
 
 export interface ServiceStats {
@@ -123,7 +146,7 @@ export interface ServiceStats {
 }
 
 // Payload pour création/update
-export interface ServicePayload {
+export interface CreateServiceDto {
   title: string;
   short_description: string;
   full_description?: string;

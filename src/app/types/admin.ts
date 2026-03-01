@@ -838,3 +838,94 @@ export interface ConversationStats {
   participants: number;
   engagement_rate: number;
 }
+
+
+export interface EmailTemplate{
+  id: number;
+  name: string;
+  subject: string;
+  body: string;
+  variables: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationStats {
+  total: number;
+  unread: number;
+  by_type: {
+    urgent: number;
+    warning: number;
+    info: number;
+    success: number;
+  };
+  recent: AdminNotification[];
+}
+
+
+export interface DisputeHistoryEntry {
+  id: string;
+  action: string;
+  description: string;
+  timestamp: string;
+  user: {
+    id: number;
+    name: string;
+    role: string;
+  };
+}
+
+export interface DashboardSummary {
+  total_users: number;
+  total_services: number;
+  total_revenue: number;
+  new_users: number;
+  new_services: number;
+  revenue_growth: number;
+  top_freelancers: TopFreelancer[];
+  recent_activities: RecentActivity[];
+  stats: DashboardStats;
+}
+
+export interface TypingIndicator {
+  conversation_id: number;
+  user_id: number;
+  is_typing: boolean;
+}
+
+
+// types/candidatures.ts
+export type CandidatureStatus = "en_attente" | "acceptee" | "refusee";
+
+export interface Candidature {
+  id: number;
+  service_id: number;
+  freelancer_id: number;
+  message?: string;
+  proposed_amount?: number;
+  estimated_duration?: string;
+  status: CandidatureStatus;
+  application_date: string;
+  updated_at?: string;
+  
+  // Champs joints (optionnels selon le contexte)
+  freelancer_name?: string;
+  freelancer_rating?: number;
+  freelancer_profile_picture?: string;
+  service_title?: string;
+  service_proposed_amount?: number;
+}
+
+export interface CreateCandidatureDto {
+  service_id: number;
+  freelancer_id: number;
+  message?: string;
+  proposed_amount?: number;
+  estimated_duration?: string;
+}
+
+export interface UpdateCandidatureStatusDto {
+  status: CandidatureStatus;
+  rejection_reason?: string;
+  message?: string;
+}

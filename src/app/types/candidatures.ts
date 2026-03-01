@@ -22,3 +22,20 @@ export interface Candidature {
   updated_at: string,
   provider: Freelancer,
 }
+
+export interface CandidatureStats {
+  total: number;
+  en_attente: number;
+  acceptees: number;
+  refusees: number;
+  taux_reussite: number;
+}
+
+export interface UpdateCandidatureStatusDto {
+  status: "accepted" | "rejected" | "pending";
+}
+
+export interface CreateCandidatureDto {
+  service_id: number;
+  cover_letter: string;
+}
