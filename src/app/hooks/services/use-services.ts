@@ -1,8 +1,8 @@
 // hooks/services/useServices.ts
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as serviceService from '@/services/service.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as serviceService from '@/app/services/service.service';
 import type { 
   Service, 
   CreateServiceDto, 
@@ -136,11 +136,11 @@ export const useServices = (filters?: ServiceFilters) => {
       serviceService.updateServiceStatus(id, status),
     onSuccess: (updatedService) => {
       queryClient.invalidateQueries({ queryKey: serviceKeys.lists() });
-      queryClient.setQueryData(serviceKeys.detail(updatedService.id), updatedService);
+      queryClient.setQueryData(serviceKeys.detail(updatedService.service.id), updatedService);
       
       toast({
         title: "Statut mis à jour",
-        description: `Le service est maintenant ${updatedService.status}`,
+        description: `Le service est maintenant ${updatedService.service.status}`,
       });
     },
     onError: (error: any) => {
@@ -162,7 +162,7 @@ export const useServices = (filters?: ServiceFilters) => {
     queryFn: ({ pageParam = 1 }) => 
       serviceService.searchServices({ page: pageParam, limit: 10 }),
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.pages || lastPage.page >= lastPage.pages) return undefined;
+      if (!Math.ceil(lastPage.total / lastPage.per_page) || lastPage.page >= Math.ceil(lastPage.total / lastPage.per_page)) return undefined;
       return allPages.length + 1;
     },
     initialPageParam: 1,
@@ -195,7 +195,7 @@ export const useServices = (filters?: ServiceFilters) => {
     pagination: servicesQuery.data ? {
       total: servicesQuery.data.total,
       page: servicesQuery.data.page,
-      pages: servicesQuery.data.pages,
+      pages: Math.ceil(servicesQuery.data.total / servicesQuery.data.per_page),
       perPage: servicesQuery.data.per_page,
     } : null,
     isLoading: servicesQuery.isLoading,

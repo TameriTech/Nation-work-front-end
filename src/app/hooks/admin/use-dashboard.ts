@@ -1,8 +1,8 @@
 // hooks/admin/useDashboard.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as dashboardService from '@/services/admin/dashboard.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as dashboardService from '@/app/services/dashboard.service';
 import type { 
   DashboardStats, 
   RecentActivity, 

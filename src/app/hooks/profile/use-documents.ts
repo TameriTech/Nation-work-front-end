@@ -1,8 +1,8 @@
 // hooks/kyc/useDocuments.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
 import type { 
   DocumentDisplay, 
   KYCStatus, 
@@ -69,11 +69,11 @@ export const useDocuments = () => {
     queryFn: async () => {
       const kycStatus = await userService.getKYCStatus();
       return {
-        total: kycStatus.total_documents,
+        total: kycStatus.submitted_documents,
         verified: kycStatus.verified_count,
         pending: kycStatus.pending_count,
         rejected: kycStatus.rejected_count,
-        percentage: kycStatus.progress_percentage,
+        percentage: kycStatus.completion_percentage,
       };
     },
     staleTime: 2 * 60 * 1000,

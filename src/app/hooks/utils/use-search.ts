@@ -1,12 +1,12 @@
 // hooks/search/useSearch.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/app/components/ui/use-toast';
 import { useState, useEffect, useCallback } from 'react';
-import * as serviceService from '@/services/service.service';
-import * as userService from '@/services/user.service';
-import * as messageService from '@/services/messages.service';
-import type { Service } from '@/app/types/services';
+import * as serviceService from '@/app/services/service.service';
+import * as userService from '@/app/services/users.service';
+import * as messageService from '@/app/services/chat.service';
+import type { PaginatedResponse, Service } from '@/app/types/services';
 import type { FreelancerFullProfile } from '@/app/types/user';
 import type { Message } from '@/app/types/admin';
 
@@ -85,17 +85,17 @@ export const useSearch = () => {
 
       // Recherche de services
       if (!filters?.type || filters.type.includes('service')) {
-        const services = await serviceService.searchServices({ search: query });
-        results.push(...services.services.map((s: Service) => ({
-          id: `service-${s.id}`,
-          type: 'service',
-          title: s.title,
-          subtitle: s.short_description,
-          image: s.images?.[0],
-          url: `/services/${s.id}`,
-          data: s,
-        })));
-      }
+          const services:PaginatedResponse<Service> = await serviceService.searchServices({ search: query });
+          results.push(...services.services.map((s: Service) => ({
+            id: `service-${s.id}`,
+            type: 'service' as const, // Add 'as const' to fix the type
+            title: s.title,
+            subtitle: s.short_description,
+            service_images: s.service_images?.[0],
+            url: `/services/${s.id}`,
+            data: s,
+          })));
+        }
 
       // Recherche de freelancers
       if (!filters?.type || filters.type.includes('freelancer')) {
@@ -105,10 +105,10 @@ export const useSearch = () => {
         });
         results.push(...freelancers.map((f: FreelancerFullProfile) => ({
           id: `freelancer-${f.userId}`,
-          type: 'freelancer',
+          type: 'freelancer' as const,
           title: f.user?.username || 'Freelancer',
-          subtitle: f.primarySkill,
-          image: f.user?.profilePicture,
+          subtitle: f.primary_skill,
+          image: f.user?.profile_picture,
           url: `/freelancer/${f.userId}`,
           data: f,
         })));
@@ -120,7 +120,7 @@ export const useSearch = () => {
           const messages = await messageService.searchMessages(query);
           results.push(...messages.map((m: Message) => ({
             id: `message-${m.id}`,
-            type: 'message',
+            type: 'message' as const,
             title: `Message dans conversation #${m.conversation_id}`,
             subtitle: m.content?.substring(0, 100),
             url: `/chat/${m.conversation_id}`,

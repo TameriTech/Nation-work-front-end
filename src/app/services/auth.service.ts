@@ -1,6 +1,28 @@
 // services/auth.service.ts (ou dans votre fichier existant)
 
 import { handleResponse } from "@/app/lib/error-handler";
+import { LoginCredentials } from "../types/user";
+
+
+/**
+ * Authenticate user
+ * @returns 
+ */
+
+export async function login(data:LoginCredentials): Promise<{ message: string }> {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: "POST",
+      cache: "no-store",
+      body: JSON.stringify(data)
+    })
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error("Erreur login:", error);
+    throw error;
+  }
+}
 
 /**
  * Déconnecte l'utilisateur

@@ -12,7 +12,7 @@ import type {
   AuthResponse,
   FreelancerFullProfile 
 } from '@/app/types/user';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -24,17 +24,32 @@ export const authKeys = {
   permissions: () => [...authKeys.all, 'permissions'] as const,
 };
 
+// ==================== FONCTION UTILITAIRE ====================
+
+const getTokenFromCookie = (): string | null => {
+  if (typeof document === 'undefined') return null;
+  const cookies = document.cookie.split(';');
+  const tokenCookie = cookies.find(c => c.trim().startsWith('access_token='));
+  return tokenCookie ? tokenCookie.split('=')[1] : null;
+};
+
 // ==================== HOOK PRINCIPAL ====================
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
+
+  // Vérifier la présence du token au chargement
+  useEffect(() => {
+    setHasToken(!!getTokenFromCookie());
+  }, []);
 
   // ==================== QUERIES ====================
 
   /**
-   * Récupère l'utilisateur connecté
+   * Récupère l'utilisateur connecté - UNIQUEMENT si token présent
    */
   const userQuery = useQuery({
     queryKey: authKeys.user(),
@@ -45,8 +60,13 @@ export const useAuth = () => {
         return null;
       }
     },
+    enabled: hasToken === true, // ← CRITIQUE : Ne tourne que si token présent
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes - plus long
+    gcTime: 1000 * 60 * 60, // 1 heure
+    refetchOnWindowFocus: false, // ← Évite les refetch au focus
+    refetchOnReconnect: false, // ← Évite les refetch à la reconnexion
+    refetchInterval: false, // ← Pas de polling
   });
 
   /**
@@ -55,8 +75,10 @@ export const useAuth = () => {
   const freelancerProfileQuery = useQuery({
     queryKey: authKeys.profile(),
     queryFn: () => userService.getMyFreelancerProfile(),
-    enabled: userQuery.data?.role === 'freelancer',
-    staleTime: 5 * 60 * 1000,
+    enabled: userQuery.data?.role === 'freelancer' && !!userQuery.data,
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
 
   /**
@@ -66,7 +88,9 @@ export const useAuth = () => {
     queryKey: authKeys.role(),
     queryFn: () => authService.verifyRole(),
     enabled: !!userQuery.data,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
 
   // ==================== MUTATIONS ====================
@@ -75,11 +99,11 @@ export const useAuth = () => {
    * Connexion
    */
   const loginMutation = useMutation({
-    mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
+    mutationFn: (credentials: LoginCredentials) => userService.login(credentials),
     onSuccess: async (data) => {
-      // Invalider les queries pour forcer le rechargement
+      setHasToken(true); // ← Mettre à jour l'état du token
       await queryClient.invalidateQueries({ queryKey: authKeys.all });
-      
+
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur Nation Work",
@@ -87,11 +111,11 @@ export const useAuth = () => {
 
       // Rediriger en fonction du rôle
       if (data.user_role === 'admin' || data.user_role === 'super_admin') {
-        router.push('/admin/dashboard');
+        router.push('dashboard/admin');
       } else if (data.user_role === 'freelancer') {
-        router.push('/freelancer/dashboard');
+        router.push('dashboard/freelancer');
       } else {
-        router.push('/client/dashboard');
+        router.push('dashboard/customer');
       }
     },
     onError: (error: any) => {
@@ -107,8 +131,9 @@ export const useAuth = () => {
    * Inscription
    */
   const registerMutation = useMutation({
-    mutationFn: (userData: SignUpData) => authService.signUp(userData),
+    mutationFn: (userData: SignUpData) => userService.signUp(userData),
     onSuccess: async (data) => {
+      setHasToken(true);
       await queryClient.invalidateQueries({ queryKey: authKeys.all });
       
       toast({
@@ -138,7 +163,7 @@ export const useAuth = () => {
   const logoutMutation = useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: async () => {
-      // Vider le cache
+      setHasToken(false); // ← Mettre à jour l'état du token
       queryClient.clear();
       
       toast({
@@ -150,7 +175,7 @@ export const useAuth = () => {
     },
     onError: (error: any) => {
       console.error('Erreur déconnexion:', error);
-      // Forcer la déconnexion côté client même si l'API échoue
+      setHasToken(false);
       queryClient.clear();
       router.push('/login');
     },
@@ -166,7 +191,7 @@ export const useAuth = () => {
     },
     onError: (error: any) => {
       console.error('Erreur rafraîchissement token:', error);
-      // Forcer la déconnexion si le refresh échoue
+      setHasToken(false);
       logoutMutation.mutate();
     },
   });
@@ -218,7 +243,7 @@ export const useAuth = () => {
   return {
     // Utilisateur
     user: userQuery.data,
-    isLoading: userQuery.isLoading,
+    isLoading: userQuery.isLoading || hasToken === null, // ← Attendre la vérification du token
     isError: userQuery.isError,
     error: userQuery.error,
 
@@ -253,6 +278,7 @@ export const useAuth = () => {
     refetchProfile: () => queryClient.invalidateQueries({ queryKey: authKeys.profile() }),
   };
 };
+
 
 // ==================== HOOKS SPÉCIALISÉS ====================
 

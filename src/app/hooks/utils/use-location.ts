@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as serviceService from '@/services/service.service';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as serviceService from '@/app/services/service.service';
+import * as userService from '@/app/services/users.service';
 
 // ==================== TYPES ====================
 
@@ -218,9 +218,9 @@ export const useLocation = () => {
   ): Promise<any[]> => {
     try {
       const freelancers = await userService.searchFreelancers({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        radius_km: radius,
+        //latitude: coords.latitude,
+        //longitude: coords.longitude,
+        //radius_km: radius,
       });
       
       return freelancers.map((f: any) => ({

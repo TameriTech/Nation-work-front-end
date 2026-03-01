@@ -30,7 +30,7 @@ import {
  */
 export async function signUp(userData: SignUpData): Promise<User> {
   try {
-    const res = await fetch("/api/users/auth/signup", {
+    const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export async function signUp(userData: SignUpData): Promise<User> {
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   try {
-    const res = await fetch("/api/users/auth/login", {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,10 +68,29 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 /**
  * Récupérer l'utilisateur connecté
  */
-export async function getCurrentUser(): Promise<User> {
+export async function getCurrentUser(): Promise<User | null> {
   try {
     const res = await fetch("/api/users/auth/me", {
       method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+
+    if (res.status === 401) {
+      return null; // ← Important : ne pas throw
+    }
+
+    return await handleResponse<User>(res);
+  } catch (error) {
+    console.error("Erreur getCurrentUser:", error);
+    return null; // ← Important : ne pas throw
+  }
+}
+
+export async function uploadAvatar(file: File): Promise<User>{
+  try {
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -79,7 +98,7 @@ export async function getCurrentUser(): Promise<User> {
 
     return await handleResponse<User>(res);
   } catch (error) {
-    console.error("Erreur getCurrentUser:", error);
+    console.error("Erreur logout:", error);
     throw error;
   }
 }
@@ -89,7 +108,7 @@ export async function getCurrentUser(): Promise<User> {
  */
 export async function logout(): Promise<{ message: string }> {
   try {
-    const res = await fetch("/api/users/auth/logout", {
+    const res = await fetch("/api/auth/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -99,6 +118,26 @@ export async function logout(): Promise<{ message: string }> {
     return await handleResponse<{ message: string }>(res);
   } catch (error) {
     console.error("Erreur logout:", error);
+    throw error;
+  }
+}
+
+export async function changePassword(data: {
+    current_password: string;
+    new_password: string;
+}): Promise<string>{
+  try {
+    const res = await fetch("/api/auth/update_password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await handleResponse<string>(res);
+  } catch (error) {
+    console.error("Erreur login:", error);
     throw error;
   }
 }
@@ -289,6 +328,23 @@ export async function deleteDocument(documentId: number): Promise<{ message: str
 // ==================== EXPÉRIENCES ====================
 
 /**
+ * Lister les experiences d'un freelancer
+ */
+export async function getExperiences(): Promise<ProfessionalExperience[]> {
+  try {    const res = await fetch("/api/users/freelancer/experiences", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse<ProfessionalExperience[]>(res);
+  } catch (error) {
+    console.error("Erreur getMyExperiences:", error);
+    throw error;
+  }
+}
+
+/**
  * Ajouter une expérience
  */
 export async function addExperience(data: CreateExperienceDto): Promise<ProfessionalExperience> {
@@ -348,6 +404,23 @@ export async function deleteExperience(id: number): Promise<{ message: string }>
 }
 
 // ==================== FORMATIONS ====================
+/**
+ * Lister les formations d'un freelancer
+ */
+export async function getEducation(): Promise<Education[]> {
+  try {
+    const res = await fetch("/api/users/freelancer/education", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse<Education[]>(res);
+  } catch (error) {
+    console.error("Erreur getEducation:", error);
+    throw error;
+  }
+}
 
 /**
  * Ajouter une formation
@@ -749,4 +822,46 @@ export async function getAllUsers(params?: {
     console.error("Erreur getAllUsers:", error);
     throw error;
   }
+}
+
+
+
+export async function getUserById(userId: number):Promise<User>{
+  try {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<User>(res);
+  } catch (error) {
+    console.error("Erreur getCurrentUser:", error);
+    throw error;
+  }
+}
+
+export async function updateUser(userId: number, data: any): Promise<User>{
+  try {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<User>(res);
+  } catch (error) {
+    console.error("Erreur getCurrentUser:", error);
+    throw error;
+  }
+}
+
+export async function getUserStats(userId: number): Promise<any>{
+
+}
+
+export async function getUserHistory(userId: number, filters: any): Promise<any>{
+  
 }

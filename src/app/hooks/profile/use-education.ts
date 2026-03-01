@@ -1,8 +1,8 @@
 // hooks/profile/useEducation.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
 import type { Education, CreateEducationDto, UpdateEducationDto } from '@/app/types/user';
 
 // ==================== CLÉS DE QUERY ====================
@@ -135,11 +135,11 @@ export const useEducation = () => {
       'doctorat': 6,
     };
     
-    return education.reduce((highest, current) => {
+    return education.reduce((highest: Education | null, current: Education) => {
       const currentLevel = degreeLevels[current.degree || ''] || 0;
       const highestLevel = highest ? degreeLevels[highest.degree || ''] || 0 : 0;
       return currentLevel > highestLevel ? current : highest;
-    }, null);
+    }, null as Education | null);
   };
 
   /**

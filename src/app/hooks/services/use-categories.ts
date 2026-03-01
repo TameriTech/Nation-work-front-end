@@ -1,9 +1,9 @@
 // hooks/categories/useCategories.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as categoryService from '@/services/category.service';
-import type { Category, CategoryFilters, PaginatedResponse } from '@/app/types/category';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as categoryService from '@/app/services/category.service';
+import type { Category, CategoryFilters, CreateCategoryDTO, PaginatedResponse } from '@/app/types/category';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -30,12 +30,25 @@ export const useCategories = (filters?: CategoryFilters, isAdmin: boolean = fals
    */
   const categoriesQuery = useQuery({
     queryKey: isAdmin ? categoryKeys.admin(filters) : categoryKeys.list(filters),
-    queryFn: () => isAdmin 
-      ? categoryService.getAllCategories(filters)
-      : categoryService.getCategories(filters),
+    queryFn: async () => {
+      if (isAdmin) {
+        // Return as PaginatedResponse<Category>
+        return categoryService.getAllCategories(filters || {});
+      } else {
+        // Convert Category[] to PaginatedResponse format
+        const categories = await categoryService.getCategories(filters);
+        return {
+          items: categories,
+          total: categories.length,
+          page: 1,
+          per_page: categories.length,
+          total_pages: 1
+        };
+      }
+    },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
-
+  
   /**
    * Récupère une catégorie par son ID
    */
@@ -63,7 +76,7 @@ export const useCategories = (filters?: CategoryFilters, isAdmin: boolean = fals
    * Crée une nouvelle catégorie (admin)
    */
   const createCategoryMutation = useMutation({
-    mutationFn: (data: Omit<Category, 'id' | 'created_at' | 'updated_at'>) =>
+    mutationFn: (data: CreateCategoryDTO) =>
       categoryService.createCategory(data),
     onSuccess: (newCategory) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.admin({}) });
@@ -143,9 +156,9 @@ export const useCategories = (filters?: CategoryFilters, isAdmin: boolean = fals
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
       
       toast({
-        title: updatedCategory.is_active ? "Catégorie activée" : "Catégorie désactivée",
-        description: `La catégorie "${updatedCategory.name}" est maintenant ${
-          updatedCategory.is_active ? 'active' : 'inactive'
+        title: updatedCategory.category.is_active ? "Catégorie activée" : "Catégorie désactivée",
+        description: `La catégorie "${updatedCategory.category.name}" est maintenant ${
+          updatedCategory.category.is_active ? 'active' : 'inactive'
         }`,
       });
     },
@@ -162,7 +175,7 @@ export const useCategories = (filters?: CategoryFilters, isAdmin: boolean = fals
 
   return {
     // Données
-    categories: categoriesQuery.data?.categories || categoriesQuery.data || [],
+    categories: categoriesQuery.data?.page || categoriesQuery.data || [],
     pagination: categoriesQuery.data && 'pagination' in categoriesQuery.data 
       ? categoriesQuery.data.pagination 
       : null,

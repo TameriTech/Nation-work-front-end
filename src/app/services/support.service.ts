@@ -41,7 +41,7 @@ export async function getSupportTickets(filters?: {
 /**
  * Récupère un ticket par son ID
  */
-export async function getSupportTicketById(ticketId: string): Promise<SupportTicket> {
+export async function getSupportTicketById(ticketId: number): Promise<SupportTicket> {
   try {
     const res = await fetch(`/api/admin/support/tickets/${ticketId}`, {
       method: 'GET',
@@ -59,7 +59,7 @@ export async function getSupportTicketById(ticketId: string): Promise<SupportTic
  * Assigner un ticket à un admin
  */
 export async function assignTicket(
-  ticketId: string,
+  ticketId: number,
   adminId: number
 ): Promise<{ message: string; ticket: SupportTicket }> {
   try {
@@ -82,7 +82,7 @@ export async function assignTicket(
  * Répondre à un ticket
  */
 export async function replyToTicket(
-  ticketId: string,
+  ticketId: number,
   message: string,
   is_private: boolean = false
 ): Promise<{ message: string; timestamp: string }> {
@@ -106,7 +106,7 @@ export async function replyToTicket(
  * Fermer un ticket
  */
 export async function closeTicket(
-  ticketId: string,
+  ticketId: number,
   resolution: string
 ): Promise<{ message: string; ticket: SupportTicket }> {
   try {
@@ -128,7 +128,7 @@ export async function closeTicket(
 /**
  * Rouvrir un ticket
  */
-export async function reopenTicket(ticketId: string): Promise<{ message: string; ticket: SupportTicket }> {
+export async function reopenTicket(ticketId: number): Promise<{ message: string; ticket: SupportTicket }> {
   try {
     const res = await fetch(`/api/admin/support/tickets/${ticketId}/reopen`, {
       method: 'POST',
@@ -174,7 +174,7 @@ export async function getSupportStats(): Promise<{
 /**
  * Récupère l'historique d'un ticket
  */
-export async function getTicketHistory(ticketId: string): Promise<{
+export async function getTicketHistory(ticketId: number): Promise<{
   created_at: string;
   updated_at: string;
   actions: Array<{

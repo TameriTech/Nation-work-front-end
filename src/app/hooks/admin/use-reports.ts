@@ -1,8 +1,8 @@
 // hooks/admin/useReports.ts
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as reportsService from '@/services/admin/reports.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as reportsService from '@/app/services/reports.service';
 import type { 
   ReportStats, 
   RevenueData, 

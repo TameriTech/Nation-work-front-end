@@ -1,8 +1,8 @@
 // hooks/profile/useExperiences.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
 import type { ProfessionalExperience, CreateExperienceDto, UpdateExperienceDto } from '@/app/types/user';
 
 // ==================== CLÉS DE QUERY ====================

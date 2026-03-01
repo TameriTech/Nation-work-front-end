@@ -1,8 +1,8 @@
 // hooks/admin/useAdminSettings.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as settingsService from '@/services/admin/settings.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as settingsService from '@/app/services/settings.service';
 import type { 
   GeneralSettings, 
   FeeSettings, 
@@ -173,7 +173,7 @@ export const useAdminSettings = () => {
   const updateAdminMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<AdminUser> }) =>
       settingsService.updateAdmin(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (_:any, variables:any) => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.admins() });
       queryClient.invalidateQueries({ queryKey: settingsKeys.admin(variables.id) });
       toast({
@@ -192,7 +192,7 @@ export const useAdminSettings = () => {
 
   const deleteAdminMutation = useMutation({
     mutationFn: (id: number) => settingsService.deleteAdmin(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_:any, id:number) => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.admins() });
       queryClient.removeQueries({ queryKey: settingsKeys.admin(id) });
       toast({
@@ -223,7 +223,7 @@ export const useAdminSettings = () => {
 
   const toggleMaintenanceModeMutation = useMutation({
     mutationFn: (enable: boolean) => settingsService.toggleMaintenanceMode(enable),
-    onSuccess: (_, enable) => {
+    onSuccess: (_:any, enable:any) => {
       toast({
         title: enable ? "Mode maintenance activé" : "Mode maintenance désactivé",
         description: enable 
@@ -260,7 +260,7 @@ export const useAdminSettings = () => {
   const updateEmailTemplateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof settingsService.updateEmailTemplate>[1] }) =>
       settingsService.updateEmailTemplate(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (_:any, variables:any) => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.templates() });
       queryClient.invalidateQueries({ queryKey: settingsKeys.template(variables.id) });
       toast({

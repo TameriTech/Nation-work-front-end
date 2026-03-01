@@ -1,14 +1,15 @@
 // hooks/services/useFreelancerServices.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as serviceService from '@/services/service.service';
-import * as candidatureService from '@/services/candidatures.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as serviceService from '@/app/services/service.service';
+import * as candidatureService from '@/app/services/candidatures.service';
 import type { 
   Service, 
   ServiceFilters,
   PaginatedResponse 
 } from '@/app/types/services';
+import { serviceKeys } from './use-services';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -42,7 +43,10 @@ export const useFreelancerServices = (filters?: ServiceFilters) => {
    */
   const assignedServicesQuery = useQuery({
     queryKey: freelancerServiceKeys.assigned(filters),
-    queryFn: () => serviceService.getFreelancerServices({ ...filters, status: 'assigned' }),
+    queryFn: () => serviceService.getFreelancerServices({ 
+      ...filters, 
+      status: ['assigned'] // Pass as array
+    }),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -84,9 +88,8 @@ export const useFreelancerServices = (filters?: ServiceFilters) => {
       proposedAmount?: number;
     }) => candidatureService.createCandidature({
       service_id: serviceId,
-      freelancer_id: 0, // Sera géré côté API
-      message,
-      proposed_amount: proposedAmount,
+      cover_letter: message || '',
+      proposed_amount: proposedAmount || undefined,
     }),
     onSuccess: (_, variables) => {
       // Invalider les listes
@@ -206,7 +209,7 @@ export const useFreelancerServices = (filters?: ServiceFilters) => {
     assignedPagination: assignedServicesQuery.data ? {
       total: assignedServicesQuery.data.total,
       page: assignedServicesQuery.data.page,
-      pages: assignedServicesQuery.data.pages,
+      pages: Math.ceil(assignedServicesQuery.data.total / assignedServicesQuery.data.per_page),
       perPage: assignedServicesQuery.data.per_page,
     } : null,
     isLoadingAssigned: assignedServicesQuery.isLoading,
@@ -215,7 +218,7 @@ export const useFreelancerServices = (filters?: ServiceFilters) => {
     availablePagination: availableServicesQuery.data ? {
       total: availableServicesQuery.data.total,
       page: availableServicesQuery.data.page,
-      pages: availableServicesQuery.data.pages,
+      pages: Math.ceil(availableServicesQuery.data.total / availableServicesQuery.data.per_page),
       perPage: availableServicesQuery.data.per_page,
     } : null,
     isLoadingAvailable: availableServicesQuery.isLoading,

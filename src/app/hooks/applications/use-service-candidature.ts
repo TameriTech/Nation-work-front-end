@@ -1,8 +1,8 @@
 // hooks/services/useServiceCandidatures.ts
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as candidatureService from '@/services/candidatures.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as candidatureService from '@/app/services/candidatures.service';
 import type { Candidature, UpdateCandidatureStatusDto } from '@/app/types/candidatures';
 
 export const useServiceCandidatures = (serviceId: number) => {

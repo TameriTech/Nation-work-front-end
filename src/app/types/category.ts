@@ -22,3 +22,24 @@ export interface CategoryStats {
   created_at: string;
   updated_at: string;
 }
+
+export interface CategoryFilters {
+  name?: string;
+  is_active?: boolean;
+}
+
+
+export interface PaginatedResponse {
+  items: Category[];
+  total: number;
+  per_page:number;
+  page: number;
+}
+
+export interface CreateCategoryDTO {
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  is_active: boolean;
+}

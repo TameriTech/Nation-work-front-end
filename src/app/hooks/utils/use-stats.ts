@@ -1,9 +1,9 @@
 // hooks/stats/useStats.ts
 
 import { useQuery } from '@tanstack/react-query';
-import * as userService from '@/services/user.service';
-import * as serviceService from '@/services/service.service';
-import * as paymentService from '@/services/admin/payments.service';
+import * as userService from '@/app/services/users.service';
+import * as serviceService from '@/app/services/service.service';
+import * as paymentService from '@/app/services/payments.service';
 
 // ==================== TYPES ====================
 
@@ -148,7 +148,7 @@ export const useStats = (userId?: number) => {
         // Récupérer les données nécessaires
         const profile = await userService.getFreelancerPublicProfile(freelancerId || userId!);
         const services = await serviceService.getFreelancerServices({ 
-          freelancer_id: freelancerId || userId 
+          //freelancer_id: freelancerId || userId 
         });
         const applications = await userService.getFreelancerReviews(freelancerId || userId!, 0, 1000);
         
@@ -180,15 +180,15 @@ export const useStats = (userId?: number) => {
           acceptedApplications: applications.filter(a => a.status === 'accepted').length,
           pendingApplications: applications.filter(a => a.status === 'pending').length,
           applicationSuccessRate: applications.length > 0
-            ? (applications.filter(a => a.status === 'accepted').length / applications.length) * 100
-            : 0,
+           ? (applications.filter(a => a.status === 'accepted').length / applications.length) * 100
+           : 0,
           
           // Revenus
           totalEarnings,
           monthlyEarnings: totalEarnings / 12, // Approximation
           averageEarningsPerService: completed > 0 ? totalEarnings / completed : 0,
           pendingPayments: services.services
-            .filter(s => s.status === 'completed' && !s.paid)
+            .filter(s => s.status === 'completed' && !s.accepted_amount /** Changer accepted_amount par paid*/)
             .reduce((sum, s) => sum + (s.accepted_amount || s.proposed_amount), 0),
           
           // Performance
@@ -219,7 +219,7 @@ export const useStats = (userId?: number) => {
       queryKey: statsKeys.client(clientId || userId || 0),
       queryFn: async (): Promise<ClientStats> => {
         const services = await serviceService.getClientServices({ 
-          client_id: clientId || userId 
+          //client_id: clientId || userId 
         });
         
         const totalServices = services.services.length;
@@ -269,8 +269,8 @@ export const useStats = (userId?: number) => {
       queryKey: statsKeys.earnings(userId || 0, period),
       queryFn: async (): Promise<EarningsStats> => {
         const services = await serviceService.getFreelancerServices({ 
-          freelancer_id: userId,
-          status: 'completed'
+          //freelancer_id: userId,
+          //status: 'completed'
         });
         
         const earnings = services.services.map(s => s.accepted_amount || s.proposed_amount);
@@ -345,7 +345,7 @@ export const useStats = (userId?: number) => {
       queryKey: statsKeys.performance(userId || 0),
       queryFn: async (): Promise<PerformanceMetrics> => {
         const services = await serviceService.getFreelancerServices({ 
-          freelancer_id: userId 
+          //freelancer_id: userId 
         });
         const reviews = await userService.getFreelancerReviews(userId!, 0, 1000);
         
