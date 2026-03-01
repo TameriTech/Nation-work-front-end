@@ -3,81 +3,74 @@ import { Icon } from "@iconify/react";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
-import { useState } from "react";
-import { JobCardProps } from "@/app/types/services";
-import { sampleServices } from "@/data/mock";
+import { useState, useEffect } from "react";
+import { useServices } from "@/app/hooks/services/use-services";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/app/components/ui/tabs";
 
 interface JobHistoryContentProps {
-  favorites: number[];
   toggleFavorite: (id: number) => void;
+  isFavorite: (id: number) => boolean;
 }
 
 export function JobHistoryContent({
-  favorites,
   toggleFavorite,
+  isFavorite,
 }: JobHistoryContentProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryQuery, setCategoryQuery] = useState("");
+  const { services, loading } = useServices({
+    mode: "client", // Historique des services du client
+  });
+  const [activeTab, setActiveTab] = useState("all");
+
+  const filteredServices = services.filter((s) => {
+    if (activeTab === "all") return true;
+    return s.status === activeTab;
+  });
 
   return (
     <>
-      {/* Search Bars */}
-      <div className="flex flex-wrap gap-4 mb-0">
+      <div className="flex gap-4 mb-6">
         <div className="flex-1 relative">
           <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Recherchez une offre"
-            className="pr-16 h-12 text-gray-600 focus:right-0 rounded-full focus:outline-none border-gray-400 bg-white"
+            placeholder="Rechercher dans votre historique"
+            className="pr-16 h-12 text-gray-600 rounded-full border-gray-400 bg-white"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="p-1 hover:bg-gray-400 rounded"
-              >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-gray-400" />
-              </button>
-            )}
-            <Icon icon={"bi:search"} className="w-5 h-5 text-gray-400" />
-          </div>
         </div>
-        <div className="flex-1 relative">
-          <Input
-            value={categoryQuery}
-            onChange={(e) => setCategoryQuery(e.target.value)}
-            placeholder="Catégories prioritaires"
-            className="pr-16 h-12 rounded-full border-gray-400 bg-white text-gray-600 focus:right-0 focus:outline-none"
-          />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {categoryQuery && (
-              <button
-                onClick={() => setCategoryQuery("")}
-                className="p-1 hover:bg-muted rounded"
-              >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-slate-400" />
-              </button>
-            )}
-            <button className="p-1 hover:bg-muted rounded border border-border">
-              <Icon icon={"bi:plus"} className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
-        </div>
-        <Button className="h-12 px-6 bg-blue-900 hover:bg-blue-900/90 text-white rounded-full">
-          Rechercher
-        </Button>
       </div>
-      ;{/* Job Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {sampleServices.map((job) => (
-          <JobCard
-            key={job.id}
-            service={job}
-            isFavorite={favorites.includes(job.id)}
-            onFavoriteClick={() => toggleFavorite(job.id)}
-          />
-        ))}
-      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList>
+          <TabsTrigger value="all">Tous</TabsTrigger>
+          <TabsTrigger value="completed">Terminés</TabsTrigger>
+          <TabsTrigger value="canceled">Annulés</TabsTrigger>
+          <TabsTrigger value="in_progress">En cours</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="mt-4">
+          {loading ? (
+            <div className="text-center py-8">Chargement...</div>
+          ) : filteredServices.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Aucun service dans l'historique</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {filteredServices.map((job) => (
+                <JobCard
+                  key={job.id}
+                  service={job}
+                  isFavorite={isFavorite(job.id)}
+                  onFavoriteClick={() => toggleFavorite(job.id)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </>
   );
 }

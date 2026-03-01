@@ -11,7 +11,7 @@ import {
   getServiceDetails,
   updateService,
 } from "@/app/services/service.service";
-import { ServicePayload } from "@/app/types/services";
+import { CreateServiceDto } from "@/app/types/services";
 
 export default function EditServicePage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function EditServicePage() {
   const [error, setError] = useState<string | null>(null);
 
   // État pour TOUS les champs du formulaire
-  const [formData, setFormData] = useState<Partial<ServicePayload>>({
+  const [formData, setFormData] = useState<Partial<CreateServiceDto>>({
     title: "",
     short_description: "",
     full_description: "",
@@ -75,9 +75,10 @@ export default function EditServicePage() {
           latitude: service.latitude,
           longitude: service.longitude,
           required_skills: service.required_skills || [],
-          proposed_amount: service.proposed_amount || service.budget,
+          proposed_amount: service.proposed_amount || 0,
           accepted_amount: service.accepted_amount,
-          images: service.images || [],
+          images:
+            service.service_images?.map((img: any) => img.image_url) || [],
         });
       } catch (err: any) {
         setError(err.message || "Erreur lors du chargement du service");

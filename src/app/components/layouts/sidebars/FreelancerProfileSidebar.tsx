@@ -17,7 +17,7 @@ interface UserProfile {
   profileCompletion: number;
   summary: string;
   email: string;
-  phone: string;
+  phone_number: string;
   nationality: string;
   gender: string;
   age: number;
@@ -36,7 +36,7 @@ const defaultProfile: UserProfile = {
   summary:
     "Étudiante en 4e année, je propose mes services de garde d'enfants, ménage et aide aux devoirs. Sérieuse, ponctuelle et disponible en...",
   email: "nom@tamari.com",
-  phone: "+237 655 31 60 13",
+  phone_number: "+237 655 31 60 13",
   nationality: "Camerounais",
   gender: "Femme",
   age: 25,
@@ -206,7 +206,7 @@ export function CustomerProfileSidebar({
                   />
                 }
                 label="Téléphone"
-                value={profile.phone}
+                value={profile.phone_number}
               />
               <InfoRow
                 icon={

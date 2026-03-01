@@ -3,35 +3,52 @@ import { Icon } from "@iconify/react";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
-import { useState } from "react";
-import { sampleServices } from "@/data/mock";
+import { useState, useEffect } from "react";
+import { useServices } from "@/app/hooks/services/use-services";
+import { Service } from "@/app/types/services";
 
-interface JobListingsContentProps {
+interface FavoritesJobsContentProps {
   toggleFavorite: (id: number) => void;
+  isFavorite: (id: number) => boolean;
 }
 
 export function FavoritesJobsContent({
   toggleFavorite,
-}: JobListingsContentProps) {
+  isFavorite,
+}: FavoritesJobsContentProps) {
+  const { services, loading } = useServices();
+  const [favoriteServices, setFavoriteServices] = useState<Service[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryQuery, setCategoryQuery] = useState("");
 
-  const MOCK_JOBS = sampleServices;
+  useEffect(() => {
+    // Filtrer les services pour ne garder que les favoris
+    const favorites = services.filter((s) => isFavorite(s.id));
+
+    // Appliquer la recherche
+    if (searchQuery) {
+      setFavoriteServices(
+        favorites.filter((s) =>
+          s.title.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      );
+    } else {
+      setFavoriteServices(favorites);
+    }
+  }, [services, isFavorite, searchQuery]);
 
   return (
     <>
-      {/* Title */}
       <h1 className="text-3xl font-bold text-gray-800 mb-4">
         Travaux enregistrés dans vos favoris
       </h1>
-      {/* Search Bars */}
-      <div className="flex gap-4 mb-0">
+
+      <div className="flex gap-4 mb-6">
         <div className="flex-1 relative">
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Recherchez une offre"
-            className="pr-16 h-12 text-gray-600 focus:right-0 rounded-full focus:outline-none border-gray-400 bg-white"
+            placeholder="Recherchez dans vos favoris"
+            className="pr-16 h-12 text-gray-600 rounded-full border-gray-400 bg-white"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             {searchQuery && (
@@ -39,48 +56,36 @@ export function FavoritesJobsContent({
                 onClick={() => setSearchQuery("")}
                 className="p-1 hover:bg-gray-400 rounded"
               >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-gray-400" />
+                <Icon icon="bi:x" className="w-4 h-4 text-gray-400" />
               </button>
             )}
-            <Icon icon={"bi:search"} className="w-5 h-5 text-gray-400" />
+            <Icon icon="bi:search" className="w-5 h-5 text-gray-400" />
           </div>
         </div>
-        <div className="flex-1 relative">
-          <Input
-            value={categoryQuery}
-            onChange={(e) => setCategoryQuery(e.target.value)}
-            placeholder="Catégories prioritaires"
-            className="pr-16 h-12 rounded-full border-gray-400 bg-white text-gray-600 focus:right-0 focus:outline-none"
+      </div>
+
+      {loading ? (
+        <div className="text-center py-8">Chargement...</div>
+      ) : favoriteServices.length === 0 ? (
+        <div className="text-center py-12">
+          <Icon
+            icon="bi:heart"
+            className="w-16 h-16 text-gray-300 mx-auto mb-4"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {categoryQuery && (
-              <button
-                onClick={() => setCategoryQuery("")}
-                className="p-1 hover:bg-muted rounded"
-              >
-                <Icon icon={"bi:x"} className="w-4 h-4 text-slate-400" />
-              </button>
-            )}
-            <button className="p-1 hover:bg-muted rounded border border-border">
-              <Icon icon={"bi:plus"} className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
+          <p className="text-gray-500">Vous n'avez pas encore de favoris</p>
         </div>
-        <Button className="h-12 px-6 bg-blue-900 hover:bg-blue-900/90 text-white rounded-full">
-          Rechercher
-        </Button>
-      </div>
-      ;{/* Job Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {MOCK_JOBS.map((job) => (
-          <JobCard
-            key={job.id}
-            service={job}
-            isFavorite={true}
-            onFavoriteClick={() => toggleFavorite(job.id)}
-          />
-        ))}
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {favoriteServices.map((job) => (
+            <JobCard
+              key={job.id}
+              service={job}
+              isFavorite={true}
+              onFavoriteClick={() => toggleFavorite(job.id)}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
 }

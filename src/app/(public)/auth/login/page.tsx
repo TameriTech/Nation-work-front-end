@@ -10,8 +10,8 @@ const LoginPage = () => {
   // admin: admin@example.com / Admin123!
   // client: cto@techstartup.io / Startup123!
   // freelancer: web.dev@freelance.fr / Dev12345!
-  const [email, setEmail] = useState("cto@techstartup.io");
-  const [password, setPassword] = useState("Startup123!");
+  const [email, setEmail] = useState("web.dev@freelance.fr");
+  const [password, setPassword] = useState("Dev12345!");
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},

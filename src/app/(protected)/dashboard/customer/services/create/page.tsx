@@ -9,12 +9,12 @@ import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
 import { publishService, updateService } from "@/app/services/service.service";
-import { ServicePayload, ServiceType } from "@/app/types/services";
+import { CreateServiceDto, ServiceType } from "@/app/types/services";
 
 interface ServiceFormProps {
   mode?: "create" | "edit";
   serviceId?: number;
-  initialData?: Partial<ServicePayload>;
+  initialData?: Partial<CreateServiceDto>;
 }
 
 export default function ServiceFormPage({
@@ -26,7 +26,7 @@ export default function ServiceFormPage({
   const [loading, setLoading] = useState(false);
 
   // État local pour tous les champs du formulaire
-  const [formData, setFormData] = useState<Partial<ServicePayload>>({
+  const [formData, setFormData] = useState<Partial<CreateServiceDto>>({
     title: "Catering pour événement - Cuisine camerounaise",
     short_description: "Traiteur spécialisé en plats traditionnels à Yaoundé",
     full_description:
@@ -163,7 +163,7 @@ export default function ServiceFormPage({
 
     try {
       if (mode === "create") {
-        await publishService(formData as ServicePayload);
+        await publishService(formData as CreateServiceDto);
         toast.success("Service publié avec succès !");
       } else if (mode === "edit" && serviceId) {
         await updateService(serviceId, formData);

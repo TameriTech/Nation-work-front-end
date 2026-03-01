@@ -1,84 +1,27 @@
 "use client";
 import { Button } from "@/app/components/ui/button";
 import { Icon } from "@iconify/react";
-
-interface ExperienceItem {
-  id: string;
-  position: string;
-  company: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  iconBg: string;
-  iconColor: string;
-  icon: React.ReactNode;
-}
-
-interface EducationItem {
-  id: string;
-  school: string;
-  cycle: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  iconBg: string;
-  icon: React.ReactNode;
-}
-
-const experienceData: ExperienceItem[] = [
-  {
-    id: "1",
-    position: "Poste Occupé",
-    company: "Entreprise 3",
-    startDate: "02/24",
-    endDate: "03/25",
-    description:
-      "courte description courte description courte description courte description courte description courte descriptioncourte description courte description courte description courte description courte description courte descriptioncourte description",
-    iconBg: "bg-orange-100",
-    iconColor: "text-orange-500",
-    icon: <Icon icon={"bi:briefcase"} className="w-5 h-5 text-orange-500" />,
-  },
-  {
-    id: "2",
-    position: "Poste Occupé",
-    company: "Entreprise 2",
-    startDate: "02/24",
-    endDate: "03/25",
-    description:
-      "courte description courte description courte description courte description courte description courte descriptioncourte description courte description courte description courte description courte description courte descriptioncourte description",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    icon: <Icon icon={"bi:briefcase"} className="w-5 h-5 text-blue-600" />,
-  },
-  {
-    id: "3",
-    position: "Poste Occupé",
-    company: "Entreprise 1",
-    startDate: "02/24",
-    endDate: "03/25",
-    description:
-      "courte description courte description courte description courte description courte description courte descriptioncourte description courte description courte description courte description courte description courte descriptioncourte description",
-    iconBg: "bg-red-100",
-    iconColor: "text-red-500",
-    icon: <Icon icon={"bi:briefcase"} className="w-5 h-5 text-red-500" />,
-  },
-];
-
-const educationData: EducationItem[] = [
-  {
-    id: "1",
-    school: "Ecole 3",
-    cycle: "Cycle_Formation",
-    startDate: "02/24",
-    endDate: "03/25",
-    description:
-      "courte description courte description courte description courte description courte description courte descriptioncourte description",
-    iconBg: "bg-cyan-100",
-    icon: (
-      <Icon icon={"bi:mortarboard-fill"} className="w-5 h-5 text-cyan-500" />
-    ),
-  },
-];
+import { useState } from "react";
+import {
+  CreateEducationDto,
+  CreateExperienceDto,
+  Education,
+  ProfessionalExperience,
+  UpdateEducationDto,
+  UpdateExperienceDto,
+} from "@/app/types/user";
+import { AddEducationModal } from "@/app/components/features/profile/modals/AddEducationModal";
+import { AddExperienceModal } from "@/app/components/features/profile/modals/AddExperienceModal";
+import { toast } from "@/app/hooks/use-toast";
+import {
+  addEducation,
+  addExperience,
+  deleteEducation,
+  deleteExperience,
+  updateEducation,
+  updateExperience,
+} from "@/app/services/users.service";
+import { useFreelancerProfile } from "@/app/hooks/use-freelancer-profile";
 
 function SectionHeader({
   icon,
@@ -108,118 +51,122 @@ function SectionHeader({
   );
 }
 
-function ExperienceItemCard({
-  item,
-  isLast,
-}: {
-  item: ExperienceItem;
-  isLast: boolean;
-}) {
-  return (
-    <div className={`py-5 ${!isLast ? "border-b border-gray-200" : ""}`}>
-      <div className="flex items-start gap-4">
-        <div
-          className={`w-12 h-12 rounded-xl ${item.iconBg} flex items-center justify-center shrink-0`}
-        >
-          {item.icon}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-2">
-            <div>
-              <h4 className="font-semibold text-gray-800">{item.position}</h4>
-              <p className="text-sm text-gray-500 italic">{item.company}</p>
-            </div>
-
-            <div className="flex items-center gap-4 shrink-0">
-              <span className="text-sm hidden md:inline text-gray-500 whitespace-nowrap">
-                debut_{item.startDate} – fin_{item.endDate}
-              </span>
-              <div className="flex items-center gap-2">
-                <button className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-                  <Icon
-                    icon={"bx:bx-edit-alt"}
-                    className="w-4 h-4 text-blue-900"
-                  />
-                </button>
-                <button className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-                  <Icon icon={"bi:trash"} className="w-4 h-4 text-red-600" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-sm hidden sm:block text-gray-500 leading-relaxed">
-            {item.description}
-          </p>
-        </div>
-      </div>
-      <p className="text-sm block sm:hidden text-gray-500 leading-relaxed">
-        {item.description}
-      </p>
-    </div>
-  );
-}
-
-function EducationItemCard({
-  item,
-  isLast,
-}: {
-  item: EducationItem;
-  isLast: boolean;
-}) {
-  return (
-    <div className={`py-5 ${!isLast ? "border-b border-border/40" : ""}`}>
-      <div className="flex items-start gap-4">
-        <div
-          className={`w-12 h-12 rounded-xl ${item.iconBg} flex items-center justify-center shrink-0`}
-        >
-          {item.icon}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h4 className="font-semibold text-foreground">{item.school}</h4>
-              <p className="text-sm text-slate-400 italic">{item.cycle}</p>
-              <p className="text-xs hidden lg:inline text-slate-400 mt-0.5">
-                debut_{item.startDate} - fin_{item.endDate}
-              </p>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <p className="text-sm hidden md:block text-slate-400 leading-relaxed max-w-md">
-                {item.description}
-              </p>
-              <div className="items-center gap-2 shrink-0">
-                <button className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-                  <Icon
-                    icon={"bx:bx-edit-alt"}
-                    className="w-4 h-4 text-blue-900"
-                  />
-                </button>
-                <button className="p-1.5 hover:bg-muted rounded-lg transition-colors">
-                  <Icon icon={"bi:trash"} className="w-4 h-4 text-red-600" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p className="text-sm block md:hidden text-slate-400 leading-relaxed max-w-md">
-        {item.description}
-      </p>
-    </div>
-  );
-}
-
 export function ExperienceTabContent() {
-  const handleAddExperience = () => {
-    console.log("Add experience");
+  const {
+    experiences,
+    educations,
+    addExperience,
+    updateExperience,
+    deleteExperience,
+    addEducation,
+    updateEducation,
+    deleteEducation,
+    loading,
+  } = useFreelancerProfile();
+  const [education, setEducation] = useState<Education | null>(null);
+  const [experience, setExperience] = useState<ProfessionalExperience | null>(
+    null,
+  );
+  const [showAddExperienceModal, setShowAddExperienceModal] = useState(false);
+  const [showAddEducationModal, setShowAddEducationModal] = useState(false);
+
+  const handleSubmitExperience = async (data: CreateExperienceDto) => {
+    try {
+      if (experience) {
+        await updateExperience(experience.id, data);
+        toast({
+          title: "Succès",
+          description: "L'expérience a été mise à jour avec succès.",
+          variant: "default",
+        });
+      } else {
+        await addExperience(data);
+        toast({
+          title: "Succès",
+          description: "L'expérience a été ajoutée avec succès.",
+          variant: "default",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding experience:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de l'expérience.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddEducation = () => {
-    console.log("Add education");
+  const handleSubmitEducation = async (data: CreateEducationDto) => {
+    try {
+      const response = await addEducation(data);
+      console.log("Education added successfully:", response);
+      // fetch experiences
+      toast({
+        title: "Succès",
+        description: "L'education a été ajoutée avec succès.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error adding education:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de l'education.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditExperience = (item: ProfessionalExperience) => {
+    setExperience(item);
+    setShowAddExperienceModal(true);
+  };
+
+  const handleEditEducation = (item: Education) => {
+    setEducation(item);
+    setShowAddEducationModal(true);
+  };
+
+  const handleEducationDelete = async (id: number) => {
+    if (confirm(`Supprimer définitivement cette education ?`)) {
+      try {
+        await deleteEducation(id);
+        toast({
+          title: "Succès",
+          description: "L'education a été supprimée avec succès.",
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Error deleting education:", error);
+        toast({
+          title: "Erreur",
+          description:
+            "Une erreur est survenue lors de la suppression de l'education.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleExperienceDelete = async (id: number) => {
+    if (confirm(`Supprimer définitivement cette experience ?`)) {
+      try {
+        await deleteExperience(id);
+        toast({
+          title: "Succès",
+          description: "L'expérience a été supprimée avec succès.",
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Error deleting experience:", error);
+        toast({
+          title: "Erreur",
+          description:
+            "Une erreur est survenue lors de la suppression de l'expérience.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -229,18 +176,77 @@ export function ExperienceTabContent() {
         <SectionHeader
           icon={<Icon icon={"bi:briefcase"} className="w-5 h-5 text-primary" />}
           title="Expérience Professionnelle"
-          onAdd={handleAddExperience}
+          onAdd={() => setShowAddExperienceModal(true)}
         />
 
         <div>
-          {experienceData.map((item, index) => (
-            <ExperienceItemCard
-              key={item.id}
-              item={item}
-              isLast={index === experienceData.length - 1}
-            />
+          {experiences.map((item, index) => (
+            <div
+              className={`py-5 ${!item.is_current ? "border-b border-gray-200" : ""}`}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className={`w-12 h-12 rounded-xl ${item.icon_bg} flex items-center justify-center shrink-0`}
+                >
+                  <Icon icon="bi:briefcase" className="w-6 h-6 text-blue-900" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <div>
+                      <h4 className="font-semibold text-gray-800">
+                        {item.position}
+                      </h4>
+                      <p className="text-sm text-gray-500 italic">
+                        {item.company}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4 shrink-0">
+                      <span className="text-sm hidden md:inline text-gray-500 whitespace-nowrap">
+                        debut_{item.start_date} – fin_{item.end_date}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditExperience(item)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon={"bx:bx-edit-alt"}
+                            className="w-4 h-4 text-blue-900"
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleExperienceDelete(item.id)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon={"bi:trash"}
+                            className="w-4 h-4 text-red-600"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-sm hidden sm:block text-gray-500 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm block sm:hidden text-gray-500 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
           ))}
         </div>
+
+        <AddExperienceModal
+          isOpen={showAddExperienceModal}
+          initialData={experience || undefined}
+          onSave={handleSubmitExperience}
+          onClose={() => setShowAddExperienceModal(false)}
+        />
       </div>
 
       {/* Education Section */}
@@ -253,16 +259,74 @@ export function ExperienceTabContent() {
             />
           }
           title="Education"
-          onAdd={handleAddEducation}
+          onAdd={() => setShowAddEducationModal(true)}
+        />
+
+        <AddEducationModal
+          isOpen={showAddEducationModal}
+          initialData={education || undefined}
+          onSave={handleSubmitEducation}
+          onClose={() => setShowAddEducationModal(false)}
         />
 
         <div>
-          {educationData.map((item, index) => (
-            <EducationItemCard
-              key={item.id}
-              item={item}
-              isLast={index === educationData.length - 1}
-            />
+          {educations.map((item, index) => (
+            <div
+              className={`py-5 ${index !== educations.length - 1 ? "border-b border-border/40" : ""}`}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className={`w-12 h-12 rounded-xl ${item.icon_bg} flex items-center justify-center shrink-0`}
+                >
+                  <Icon icon={item.icon} className="w-6 h-6 text-blue-900" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground">
+                        {item.school}
+                      </h4>
+                      <p className="text-sm text-slate-400 italic">
+                        {item.field_of_study}
+                      </p>
+                      <p className="text-xs hidden lg:inline text-slate-400 mt-0.5">
+                        debut_{item.start_date} - fin_{item.end_date}
+                      </p>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <p className="text-sm hidden md:block text-slate-400 leading-relaxed max-w-md">
+                        {item.description}
+                      </p>
+                      <div className="items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleEditEducation(item)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon={"bx:bx-edit-alt"}
+                            className="w-4 h-4 text-blue-900"
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleEducationDelete(item.id)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon={"bi:trash"}
+                            className="w-4 h-4 text-red-600"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm block md:hidden text-slate-400 leading-relaxed max-w-md">
+                {item.description}
+              </p>
+            </div>
           ))}
         </div>
       </div>
