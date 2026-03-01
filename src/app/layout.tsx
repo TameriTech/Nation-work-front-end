@@ -1,21 +1,24 @@
+// app/layout.tsx
 import type React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-//import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/app/components/theme-provider";
 import { AuthProvider } from "@/app/components/auth-provider";
+import { QueryProvider } from "@/app/providers/QueryProvider";
+import { ClientToaster } from "@/app/components/client-toaster"; // ← Nouvel import
 import "./globals.css";
 
-const geistSans = Geist({
-  subsets: ["latin"],
+const geistSans = {
   variable: "--font-geist-sans",
-});
+  style: {
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+  },
+};
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
+const geistMono = {
   variable: "--font-geist-mono",
-});
-
+  style: { fontFamily: "monospace" },
+};
 export const metadata: Metadata = {
   title: "WhizCyber - Cybersecurity Awareness Platform",
   description:
@@ -39,7 +42,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+              <ClientToaster /> {/* ← Maintenant c'est un client component */}
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
