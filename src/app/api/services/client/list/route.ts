@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const page = searchParams.get("page");
     const per_page = searchParams.get("per_page");
-
+    console.log("🔍 Headers reçus:", req.headers.get('authorization'));
     const query = new URLSearchParams();
 
     if (search) query.append("search", search);

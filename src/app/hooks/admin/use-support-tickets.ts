@@ -1,8 +1,8 @@
 // hooks/admin/useSupportTickets.ts
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as supportService from '@/services/admin/support.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as supportService from '@/app/services/support.service';
 import type { 
   SupportTicket, 
   PaginatedResponse,
@@ -17,10 +17,10 @@ export const ticketKeys = {
   lists: () => [...ticketKeys.all, 'list'] as const,
   list: (filters: any) => [...ticketKeys.lists(), filters] as const,
   details: () => [...ticketKeys.all, 'detail'] as const,
-  detail: (id: string) => [...ticketKeys.details(), id] as const,
+  detail: (id: number) => [...ticketKeys.details(), id] as const,
   stats: () => [...ticketKeys.all, 'stats'] as const,
-  history: (id: string) => [...ticketKeys.all, 'history', id] as const,
-  messages: (id: string) => [...ticketKeys.all, 'messages', id] as const,
+  history: (id: number) => [...ticketKeys.all, 'history', id] as const,
+  messages: (id: number) => [...ticketKeys.all, 'messages', id] as const,
   assigned: (adminId: number) => [...ticketKeys.all, 'assigned', adminId] as const,
 };
 
@@ -46,7 +46,7 @@ export const useSupportTickets = (filters?: {
     queryKey: ticketKeys.list(filters),
     queryFn: ({ pageParam = 1 }) => 
       supportService.getSupportTickets({ ...filters, page: pageParam }),
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: (lastPage:any) => {
       if (lastPage.page >= lastPage.pages) return undefined;
       return lastPage.page + 1;
     },
@@ -57,7 +57,7 @@ export const useSupportTickets = (filters?: {
   /**
    * Récupère un ticket par son ID
    */
-  const getTicketById = (id: string) => {
+  const getTicketById = (id: number) => {
     return useQuery({
       queryKey: ticketKeys.detail(id),
       queryFn: () => supportService.getSupportTicketById(id),
@@ -78,7 +78,7 @@ export const useSupportTickets = (filters?: {
   /**
    * Récupère l'historique d'un ticket
    */
-  const getTicketHistory = (id: string) => {
+  const getTicketHistory = (id: number) => {
     return useQuery({
       queryKey: ticketKeys.history(id),
       queryFn: () => supportService.getTicketHistory(id),
@@ -105,9 +105,9 @@ export const useSupportTickets = (filters?: {
    * Assigne un ticket à un admin
    */
   const assignTicketMutation = useMutation({
-    mutationFn: ({ ticketId, adminId }: { ticketId: string; adminId: number }) =>
+    mutationFn: ({ ticketId, adminId }: { ticketId: number; adminId: number }) =>
       supportService.assignTicket(ticketId, adminId),
-    onSuccess: (_, variables) => {
+    onSuccess: (_:any, variables:{ ticketId: number; adminId: number }) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.lists() });
       queryClient.invalidateQueries({ 
         queryKey: ticketKeys.detail(variables.ticketId) 
@@ -132,11 +132,11 @@ export const useSupportTickets = (filters?: {
    */
   const replyToTicketMutation = useMutation({
     mutationFn: ({ ticketId, message, isPrivate }: { 
-      ticketId: string; 
+      ticketId: number; 
       message: string; 
       isPrivate?: boolean 
     }) => supportService.replyToTicket(ticketId, message, isPrivate),
-    onSuccess: (_, variables) => {
+    onSuccess: (_: any, variables: { ticketId: number; message: string; isPrivate?: boolean }) => {
       queryClient.invalidateQueries({ 
         queryKey: ticketKeys.detail(variables.ticketId) 
       });
@@ -162,9 +162,9 @@ export const useSupportTickets = (filters?: {
    * Ferme un ticket
    */
   const closeTicketMutation = useMutation({
-    mutationFn: ({ ticketId, resolution }: { ticketId: string; resolution: string }) =>
+    mutationFn: ({ ticketId, resolution }: { ticketId: number; resolution: string }) =>
       supportService.closeTicket(ticketId, resolution),
-    onSuccess: (_, variables) => {
+    onSuccess: (_:any, variables:{ ticketId: number; resolution: string }) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.lists() });
       queryClient.invalidateQueries({ 
         queryKey: ticketKeys.detail(variables.ticketId) 
@@ -189,8 +189,8 @@ export const useSupportTickets = (filters?: {
    * Rouvre un ticket
    */
   const reopenTicketMutation = useMutation({
-    mutationFn: (ticketId: string) => supportService.reopenTicket(ticketId),
-    onSuccess: (_, ticketId) => {
+    mutationFn: (ticketId: number) => supportService.reopenTicket(ticketId),
+    onSuccess: (_:any, ticketId: number) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ticketKeys.detail(ticketId) });
       queryClient.invalidateQueries({ queryKey: ticketKeys.stats() });
@@ -252,7 +252,6 @@ export const useSupportTickets = (filters?: {
         low: allTickets.filter(t => t.priority === 'low').length,
         normal: allTickets.filter(t => t.priority === 'normal').length,
         high: allTickets.filter(t => t.priority === 'high').length,
-        urgent: allTickets.filter(t => t.priority === 'urgent').length,
       },
     };
   };

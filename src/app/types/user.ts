@@ -1,4 +1,3 @@
-
 export interface User {
   id: number;
   email: string;
@@ -6,11 +5,29 @@ export interface User {
   first_name?: string;
   last_name?: string;
   role: 'client' | 'freelancer' | 'admin' | 'super_admin' | 'moderator';
+  phone_number?: string;
   is_active: boolean;
   rating?: number;
-  phone_number?: string;
+  is_verified: boolean;
+  verified_badge?: boolean;
+  top_rated?: boolean;
+  phone?: string;
   profile_picture?: string;
   created_at: string;
+  updated_at: string;
+  last_login?: string;
+  suspension_reason?: string;
+  suspended_until?: string;
+  pending_documents?: string[];
+  stats?: {
+    services_posted?: number;
+    services_completed?: number;
+    total_spent?: number;
+    total_earned?: number;
+    average_rating?: number;
+    response_rate?: number;
+    completion_rate?: number;
+  };
 }
 
 export interface FreelancerProfile {
@@ -39,6 +56,8 @@ export interface FreelancerProfile {
   completion_rate: number;
   profile_completion: number;
   created_at: string;
+  response_rate?: number;
+  avg_response_time?:number;
 }
 
 export interface UpdateFreelancerProfileData {
@@ -60,6 +79,10 @@ export interface UpdateFreelancerProfileData {
   nationality?: string | null;
   gender?: string | null;
   age?: number | null;
+}
+
+export interface FreelancerProfileUpdate{
+
 }
 
 export interface ProfessionalExperience {
@@ -97,24 +120,25 @@ export interface Skill {
 
 export interface FreelancerSkill {
   id: number;
-  skillId: number;
+  skill_id: number;
   skill: Skill;
-  skillType: 'primary' | 'secondary' | 'other';
-  proficiencyLevel: number;
+  skill_type: 'primary' | 'secondary' | 'other';
+  proficiency_level: number;
 }
 
 export interface Review {
   id: number;
-  serviceId: number;
-  clientId: number;
-  freelancerId: number;
+  service_id: number;
+  client_id: number;
+  freelancer_id: number;
   rating: number;
   comment?: string;
-  freelancerResponse?: string;
-  responseDate?: string;
-  isVerified: boolean;
-  helpfulCount: number;
-  createdAt: string;
+  status?: 'pending' | 'accepted' | 'rejected';
+  freelancer_response?: string;
+  response_date?: string;
+  is_verified: boolean;
+  helpful_count: number;
+  created_at: string;
 }
 
 export interface FreelancerFullProfile extends FreelancerProfile {
@@ -137,6 +161,7 @@ export enum DocumentType {
   BANK_RIB = "bank_rib",
   TAX_CERTIFICATE = "tax_certificate",
   CRIMINAL_RECORD = "criminal_record",
+  RESIDENCE_PERMIT = "residence_permit",
   PROFILE_PICTURE = "profile_picture",
   OTHER = "other"
 }
@@ -173,6 +198,9 @@ export interface KYCStatus {
   validated_documents: Document[];
   rejected_documents: Document[];
   pending_documents: Document[];
+  verified_count: number;
+  pending_count: number;
+  rejected_count: number;
   completion_percentage: number;
 }
 
@@ -193,6 +221,8 @@ export interface CreateDocumentDto {
   document_type: DocumentType;
   file: File;
   document_number?: string;
+  front_image?: File;
+  back_image?: File;
   issue_date?: string;
   expiry_date?: string;
   issuing_country?: string;
@@ -202,6 +232,8 @@ export interface UpdateDocumentDto {
   document_type?: DocumentType;
   file?: File;
   document_number?: string;
+  front_image?: File;
+  back_image?: File;
   issue_date?: string;
   expiry_date?: string;
   issuing_country?: string;

@@ -1,16 +1,21 @@
-// ===== FILE: app/dashboard/customer/services/[id]/edit/page.tsx =====
-
+// app/dashboard/customer/services/[id]/edit/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
+import { useServices } from "@/app/hooks/services/use-services";
+import { useCategories } from "@/app/hooks/use-categories";
 import {
-  getServiceDetails,
-  updateService,
-} from "@/app/services/service.service";
+  createServiceSchema,
+  type CreateServiceFormData,
+} from "@/app/lib/validators/service.validator";
+import ServiceLoading from "./loading";
+import ServiceError from "./error";
 import { CreateServiceDto } from "@/app/types/services";
 
 export default function EditServicePage() {
@@ -18,184 +23,136 @@ export default function EditServicePage() {
   const params = useParams();
   const serviceId = Number(params.serviceId);
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [skillInput, setSkillInput] = useState("");
+  const [serviceError, setServiceError] = useState<string | null>(null);
 
-  // État pour TOUS les champs du formulaire
-  const [formData, setFormData] = useState<Partial<CreateServiceDto>>({
-    title: "",
-    short_description: "",
-    full_description: "",
-    service_type: "standard",
-    category_id: undefined,
-    date_pratique: "",
-    start_time: "",
-    duration: "",
-    address: "",
-    quarter: "",
-    city: "",
-    postal_code: "",
-    country: "Cameroun",
-    latitude: undefined,
-    longitude: undefined,
-    required_skills: [],
-    proposed_amount: 0,
-    accepted_amount: undefined,
-    images: [],
+  // Hooks
+  const { getServiceById, updateService, isUpdating } = useServices();
+  const { categories, loading } = useCategories({
+    mode: "public",
   });
 
-  // État pour les erreurs de validation
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Utiliser le hook pour récupérer les détails du service
+  const { data: serviceData, isLoading: isLoadingService } =
+    getServiceById(serviceId);
 
-  // État pour les compétences
-  const [skillInput, setSkillInput] = useState("");
+  // Initialisation du formulaire react-hook-form
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreateServiceFormData>({
+    resolver: zodResolver(createServiceSchema),
+    defaultValues: {
+      title: "",
+      short_description: "",
+      full_description: "",
+      service_type: "standard",
+      category_id: undefined,
+      date_pratique: "",
+      start_time: "",
+      duration: "",
+      address: "",
+      quarter: "",
+      city: "",
+      postal_code: "",
+      country: "Cameroun",
+      latitude: undefined,
+      longitude: undefined,
+      required_skills: [],
+      proposed_amount: 0,
+      accepted_amount: undefined,
+      images: [],
+    },
+  });
 
-  // Charger les données du service au montage
+  // Watcher pour les compétences
+  const requiredSkills = watch("required_skills") || [];
+
+  // Mettre à jour le formulaire quand les données sont chargées
   useEffect(() => {
-    const loadService = async () => {
-      try {
-        setLoading(true);
-        const service = await getServiceDetails(serviceId);
-
-        setFormData({
-          title: service.title,
-          short_description: service.short_description,
-          full_description: service.full_description || "",
-          service_type: service.service_type as any,
-          category_id: service.category_id,
-          date_pratique: service.date_pratique?.split("T")[0] || "", // Format YYYY-MM-DD
-          start_time: service.start_time || "",
-          duration: service.duration || "",
-          address: service.address,
-          quarter: service.quarter || "",
-          city: service.city || "",
-          postal_code: service.postal_code || "",
-          country: service.country || "Cameroun",
-          latitude: service.latitude,
-          longitude: service.longitude,
-          required_skills: service.required_skills || [],
-          proposed_amount: service.proposed_amount || 0,
-          accepted_amount: service.accepted_amount,
-          images:
-            service.service_images?.map((img: any) => img.image_url) || [],
-        });
-      } catch (err: any) {
-        setError(err.message || "Erreur lors du chargement du service");
-        toast.error("Impossible de charger le service");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (serviceId) {
-      loadService();
-    }
-  }, [serviceId]);
-
-  // Gestionnaire de changement pour les champs simples
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value, type } = e.target;
-
-    setFormData((prev: any) => ({
-      ...prev,
-      [name]: type === "number" ? (value ? Number(value) : 0) : value,
-    }));
-
-    // Effacer l'erreur du champ
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
+    if (serviceData) {
+      reset({
+        title: serviceData.title,
+        short_description: serviceData.short_description,
+        full_description: serviceData.full_description || undefined,
+        service_type: serviceData.service_type,
+        category_id: serviceData.category_id ?? undefined, // ← Convertit null en undefined
+        date_pratique: serviceData.date_pratique?.split("T")[0] || "",
+        start_time: serviceData.start_time || "",
+        duration: serviceData.duration || "",
+        address: serviceData.address,
+        quarter: serviceData.quarter || undefined,
+        city: serviceData.city || "",
+        postal_code: serviceData.postal_code || undefined,
+        country: serviceData.country || "Cameroun",
+        latitude: serviceData.latitude ?? undefined,
+        longitude: serviceData.longitude ?? undefined,
+        required_skills: serviceData.required_skills || [],
+        proposed_amount: serviceData.proposed_amount || 0,
+        accepted_amount: serviceData.accepted_amount ?? undefined,
+        images:
+          serviceData.service_images?.map((img: any) => img.image_url) || [],
       });
     }
-  };
+  }, [serviceData, reset]);
 
   // Gestionnaire pour ajouter une compétence
   const handleAddSkill = () => {
-    if (
-      skillInput.trim() &&
-      !formData.required_skills?.includes(skillInput.trim())
-    ) {
-      setFormData((prev: any) => ({
-        ...prev,
-        required_skills: [...(prev.required_skills || []), skillInput.trim()],
-      }));
+    if (skillInput.trim() && !requiredSkills.includes(skillInput.trim())) {
+      setValue("required_skills", [...requiredSkills, skillInput.trim()]);
       setSkillInput("");
     }
   };
 
   // Gestionnaire pour supprimer une compétence
   const handleRemoveSkill = (skill: string) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      required_skills:
-        prev.required_skills?.filter((s: string) => s !== skill) || [],
-    }));
+    setValue(
+      "required_skills",
+      requiredSkills.filter((s) => s !== skill),
+    );
   };
 
-  // Validation du formulaire
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title?.trim()) {
-      newErrors.title = "Le titre est requis";
-    } else if (formData.title.length < 5) {
-      newErrors.title = "Le titre doit contenir au moins 5 caractères";
-    }
-
-    if (!formData.short_description?.trim()) {
-      newErrors.short_description = "La description courte est requise";
-    }
-
-    if (!formData.date_pratique) {
-      newErrors.date_pratique = "La date est requise";
-    }
-
-    if (!formData.address?.trim()) {
-      newErrors.address = "L'adresse est requise";
-    }
-
-    if (!formData.city?.trim()) {
-      newErrors.city = "La ville est requise";
-    }
-
-    if (!formData.proposed_amount || formData.proposed_amount <= 0) {
-      newErrors.proposed_amount = "Le montant proposé doit être supérieur à 0";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const cleanUndefined = <T,>(value: T | null | undefined): T | undefined => {
+    if (value === null || value === undefined) return undefined;
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
   };
 
   // Soumission du formulaire
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      toast.error("Veuillez corriger les erreurs du formulaire");
-      return;
-    }
-
-    setSaving(true);
-
+  const onSubmit = async (data: CreateServiceFormData) => {
     try {
-      await updateService(serviceId, formData);
-      toast.success("Service mis à jour avec succès !");
+      const cleanData: Partial<CreateServiceDto> = {
+        title: data.title,
+        short_description: data.short_description,
+        full_description: cleanUndefined(data.full_description),
+        service_type: data.service_type,
+        category_id: cleanUndefined(data.category_id),
+        date_pratique: data.date_pratique,
+        start_time: cleanUndefined(data.start_time),
+        duration: cleanUndefined(data.duration),
+        address: data.address,
+        quarter: cleanUndefined(data.quarter),
+        city: data.city,
+        postal_code: cleanUndefined(data.postal_code),
+        country: data.country,
+        latitude: cleanUndefined(data.latitude),
+        longitude: cleanUndefined(data.longitude),
+        required_skills: cleanUndefined(data.required_skills),
+        proposed_amount: data.proposed_amount,
+        accepted_amount: cleanUndefined(data.accepted_amount),
+        images: cleanUndefined(data.images),
+      };
 
-      // Redirection vers la page de détails
+      await updateService({ id: serviceId, data: cleanData });
+      toast.success("Service mis à jour avec succès !");
       router.push(`/dashboard/customer/services/${serviceId}`);
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de la mise à jour");
-      console.log("Error updating service: ", error);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -204,52 +161,26 @@ export default function EditServicePage() {
     router.back();
   };
 
+  // États de chargement et d'erreur
+  if (isLoadingService || loading) {
+    return <ServiceLoading />;
+  }
+
+  if (!serviceData) {
+    return (
+      <ServiceError error="Service non trouvé" onRetry={() => router.back()} />
+    );
+  }
+
   // Classes CSS communes
   const inputClass =
     "w-full px-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900 disabled:bg-gray-50 disabled:text-gray-500";
   const labelClass = "block text-sm font-medium text-gray-600 mb-1";
   const errorClass = "text-sm text-red-500 mt-1";
 
-  // Affichage du chargement
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Icon
-            icon="mdi:loading"
-            className="animate-spin text-4xl text-blue-600 mx-auto mb-4"
-          />
-          <p className="text-gray-600">Chargement du service...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Affichage de l'erreur
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Icon
-            icon="mdi:alert-circle"
-            className="text-4xl text-red-500 mx-auto mb-4"
-          />
-          <p className="text-gray-800 font-medium mb-2">Erreur de chargement</p>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={handleCancel}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Retour
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white rounded py-8">
-      <div className="mx-auto px-4">
+      <div className="mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -259,6 +190,7 @@ export default function EditServicePage() {
             <p className="text-sm text-gray-500 mt-1">ID: #{serviceId}</p>
           </div>
           <button
+            type="button"
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full"
           >
@@ -267,9 +199,9 @@ export default function EditServicePage() {
         </div>
 
         {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Section 1: Informations générales */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Informations générales
             </h2>
@@ -278,43 +210,41 @@ export default function EditServicePage() {
               <label className={labelClass}>Titre du service *</label>
               <input
                 type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
+                {...register("title")}
                 placeholder="Ex: Développement d'une application mobile"
                 className={inputClass}
               />
-              {errors.title && <p className={errorClass}>{errors.title}</p>}
+              {errors.title && (
+                <p className={errorClass}>{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Type de service *</label>
-                <select
-                  name="service_type"
-                  value={formData.service_type}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
+                <select {...register("service_type")} className={inputClass}>
                   <option value="standard">Standard</option>
                   <option value="premium">Premium</option>
                   <option value="candidature">Candidature</option>
                   <option value="directe">Directe</option>
                 </select>
+                {errors.service_type && (
+                  <p className={errorClass}>{errors.service_type.message}</p>
+                )}
               </div>
 
               <div>
                 <label className={labelClass}>Catégorie</label>
                 <select
-                  name="category_id"
-                  value={formData.category_id || ""}
-                  onChange={(e) => handleChange(e as any)}
+                  {...register("category_id", { valueAsNumber: true })}
                   className={inputClass}
                 >
                   <option value="">Sélectionner une catégorie</option>
-                  <option value="1">Développement</option>
-                  <option value="2">Design</option>
-                  <option value="3">Rédaction</option>
+                  {categories?.map((cat: any) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -322,28 +252,24 @@ export default function EditServicePage() {
             <div>
               <label className={labelClass}>Description courte *</label>
               <textarea
-                name="short_description"
-                value={formData.short_description}
-                onChange={handleChange}
+                {...register("short_description")}
                 placeholder="Brève description du service (max 250 caractères)"
                 rows={3}
                 maxLength={250}
                 className={inputClass}
               />
               {errors.short_description && (
-                <p className={errorClass}>{errors.short_description}</p>
+                <p className={errorClass}>{errors.short_description.message}</p>
               )}
               <p className="text-xs text-gray-400 mt-1">
-                {formData.short_description?.length || 0}/250
+                {watch("short_description")?.length || 0}/250
               </p>
             </div>
 
             <div>
               <label className={labelClass}>Description complète</label>
               <textarea
-                name="full_description"
-                value={formData.full_description}
-                onChange={handleChange}
+                {...register("full_description")}
                 placeholder="Description détaillée du service..."
                 rows={5}
                 className={inputClass}
@@ -352,7 +278,7 @@ export default function EditServicePage() {
           </div>
 
           {/* Section 2: Détails pratiques */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Détails pratiques
             </h2>
@@ -362,13 +288,11 @@ export default function EditServicePage() {
                 <label className={labelClass}>Date de prestation *</label>
                 <input
                   type="date"
-                  name="date_pratique"
-                  value={formData.date_pratique}
-                  onChange={handleChange}
+                  {...register("date_pratique")}
                   className={inputClass}
                 />
                 {errors.date_pratique && (
-                  <p className={errorClass}>{errors.date_pratique}</p>
+                  <p className={errorClass}>{errors.date_pratique.message}</p>
                 )}
               </div>
 
@@ -376,21 +300,14 @@ export default function EditServicePage() {
                 <label className={labelClass}>Heure de début</label>
                 <input
                   type="time"
-                  name="start_time"
-                  value={formData.start_time}
-                  onChange={handleChange}
+                  {...register("start_time")}
                   className={inputClass}
                 />
               </div>
 
               <div>
                 <label className={labelClass}>Durée estimée</label>
-                <select
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
+                <select {...register("duration")} className={inputClass}>
                   <option value="">Sélectionner</option>
                   <option value="1h">1 heure</option>
                   <option value="2h">2 heures</option>
@@ -406,7 +323,7 @@ export default function EditServicePage() {
           </div>
 
           {/* Section 3: Localisation */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Localisation
             </h2>
@@ -415,13 +332,13 @@ export default function EditServicePage() {
               <label className={labelClass}>Adresse *</label>
               <input
                 type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
+                {...register("address")}
                 placeholder="Numéro et rue"
                 className={inputClass}
               />
-              {errors.address && <p className={errorClass}>{errors.address}</p>}
+              {errors.address && (
+                <p className={errorClass}>{errors.address.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -429,22 +346,20 @@ export default function EditServicePage() {
                 <label className={labelClass}>Ville *</label>
                 <input
                   type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
+                  {...register("city")}
                   placeholder="Douala, Yaoundé..."
                   className={inputClass}
                 />
-                {errors.city && <p className={errorClass}>{errors.city}</p>}
+                {errors.city && (
+                  <p className={errorClass}>{errors.city.message}</p>
+                )}
               </div>
 
               <div>
                 <label className={labelClass}>Quartier</label>
                 <input
                   type="text"
-                  name="quarter"
-                  value={formData.quarter}
-                  onChange={handleChange}
+                  {...register("quarter")}
                   placeholder="Bonapriso, Mvog-Mbi..."
                   className={inputClass}
                 />
@@ -454,9 +369,7 @@ export default function EditServicePage() {
                 <label className={labelClass}>Code postal</label>
                 <input
                   type="text"
-                  name="postal_code"
-                  value={formData.postal_code}
-                  onChange={handleChange}
+                  {...register("postal_code")}
                   placeholder="BP 1234"
                   className={inputClass}
                 />
@@ -466,9 +379,7 @@ export default function EditServicePage() {
                 <label className={labelClass}>Pays</label>
                 <input
                   type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
+                  {...register("country")}
                   className={inputClass}
                 />
               </div>
@@ -476,7 +387,7 @@ export default function EditServicePage() {
           </div>
 
           {/* Section 4: Compétences */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Compétences requises
             </h2>
@@ -497,38 +408,41 @@ export default function EditServicePage() {
                 <button
                   type="button"
                   onClick={handleAddSkill}
-                  className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  disabled={!skillInput.trim()}
                 >
                   <Icon icon="mdi:plus" className="h-5 w-5" />
                 </button>
               </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Appuyez sur Entrée ou cliquez sur le bouton + pour ajouter
+              </p>
             </div>
 
             {/* Liste des compétences */}
-            {formData.required_skills &&
-              formData.required_skills.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.required_skills.map((skill: string) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            {requiredSkills.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {requiredSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="hover:text-blue-600"
                     >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSkill(skill)}
-                        className="hover:text-blue-600"
-                      >
-                        <Icon icon="mdi:close" className="h-4 w-4" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+                      <Icon icon="mdi:close" className="h-4 w-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Section 5: Prix */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Budget
             </h2>
@@ -539,9 +453,7 @@ export default function EditServicePage() {
                 <div className="relative">
                   <input
                     type="number"
-                    name="proposed_amount"
-                    value={formData.proposed_amount}
-                    onChange={handleChange}
+                    {...register("proposed_amount", { valueAsNumber: true })}
                     min="0"
                     step="100"
                     className={`${inputClass} pr-16`}
@@ -551,7 +463,7 @@ export default function EditServicePage() {
                   </span>
                 </div>
                 {errors.proposed_amount && (
-                  <p className={errorClass}>{errors.proposed_amount}</p>
+                  <p className={errorClass}>{errors.proposed_amount.message}</p>
                 )}
               </div>
 
@@ -560,9 +472,7 @@ export default function EditServicePage() {
                 <div className="relative">
                   <input
                     type="number"
-                    name="accepted_amount"
-                    value={formData.accepted_amount || ""}
-                    onChange={handleChange}
+                    {...register("accepted_amount", { valueAsNumber: true })}
                     min="0"
                     step="100"
                     className={`${inputClass} pr-16`}
@@ -576,13 +486,13 @@ export default function EditServicePage() {
           </div>
 
           {/* Section 6: Images existantes */}
-          {formData.images && formData.images.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 space-y-4">
+          {watch("images") && watch("images")!.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
               <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
                 Images actuelles
               </h2>
               <div className="grid grid-cols-4 gap-4">
-                {formData.images.map((img: string, index: number) => (
+                {watch("images")!.map((img: string, index: number) => (
                   <div key={index} className="relative group">
                     <img
                       src={img}
@@ -593,7 +503,11 @@ export default function EditServicePage() {
                       type="button"
                       className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => {
-                        // Logique pour supprimer l'image
+                        const currentImages = watch("images") || [];
+                        setValue(
+                          "images",
+                          currentImages.filter((_, i) => i !== index),
+                        );
                       }}
                     >
                       <Icon icon="mdi:close" className="h-4 w-4" />
@@ -605,7 +519,7 @@ export default function EditServicePage() {
           )}
 
           {/* Section 7: Nouvelle image */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Ajouter des images
             </h2>
@@ -617,7 +531,10 @@ export default function EditServicePage() {
                 accept="image/*"
                 multiple
                 className={inputClass}
-                // Gestion de l'upload à implémenter
+                onChange={(e) => {
+                  // À implémenter avec un service d'upload
+                  console.log("Fichiers sélectionnés:", e.target.files);
+                }}
               />
               <p className="text-xs text-gray-400 mt-1">
                 Format: JPG, PNG (max 5 Mo par image)
@@ -636,10 +553,10 @@ export default function EditServicePage() {
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={isSubmitting || isUpdating}
               className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
             >
-              {saving ? (
+              {isSubmitting || isUpdating ? (
                 <>
                   <Icon icon="mdi:loading" className="animate-spin h-5 w-5" />
                   Mise à jour en cours...

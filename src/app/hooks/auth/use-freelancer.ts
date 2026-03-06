@@ -1,17 +1,18 @@
 // hooks/freelancer/useFreelancer.ts
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
 import type { 
   FreelancerFullProfile,
   UpdateFreelancerProfileData,
-  FreelancerProfileUpdate,
+  UpdateFreelancerProfileDto,
   FreelancerSkill,
   ProfessionalExperience,
   Education,
   DocumentDisplay,
-  KYCStatus
+  KYCStatus,
+  FreelancerProfileUpdate
 } from '@/app/types/user';
 
 // ==================== CLÉS DE QUERY ====================
@@ -104,7 +105,7 @@ export const useFreelancer = (freelancerId?: number) => {
     if (!currentProfile) return;
 
     updateProfileMutation.mutate({
-      isAvailable: !currentProfile.isAvailable
+      is_available: !currentProfile.is_available
     });
   };
 
@@ -112,7 +113,7 @@ export const useFreelancer = (freelancerId?: number) => {
    * Mettre à jour le tarif horaire
    */
   const updateHourlyRate = (hourlyRate: number) => {
-    updateProfileMutation.mutate({ hourlyRate });
+    updateProfileMutation.mutate({ hourly_rate: hourlyRate });
   };
 
   // ==================== COMPÉTENCES ====================
@@ -518,7 +519,10 @@ export const useFreelancerSearch = () => {
   const infiniteSearchQuery = useInfiniteQuery({
     queryKey: freelancerKeys.search({}),
     queryFn: ({ pageParam = 1 }) => 
-      userService.searchFreelancers({ page: pageParam, limit: 10 }),
+      userService.searchFreelancers({ 
+        skip: (pageParam - 1) * 10, 
+        limit: 10 
+      }),
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length < 10) return undefined;
       return allPages.length + 1;
@@ -656,7 +660,7 @@ export const useFreelancerKYC = (freelancerId?: number) => {
     uploadDocument,
     deleteDocument,
     isUploading,
-    progress: kycStatus?.progress_percentage || 0,
+    progress: kycStatus?.completion_percentage || 0,
     verifiedCount: kycStatus?.verified_count || 0,
     pendingCount: kycStatus?.pending_count || 0,
   };

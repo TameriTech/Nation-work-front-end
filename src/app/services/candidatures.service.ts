@@ -13,7 +13,7 @@ export async function getCandidaturesByFreelancer(
 ): Promise<Candidature[]> {
   try {
     const res = await fetch(
-      `/api/candidatures/freelancer/${freelancerId}`,
+      `/api/candidatures/freelancer`,
       {
         method: "GET",
         cache: "no-store",
@@ -193,25 +193,25 @@ export async function getFreelancerCandidatureStats(
   freelancerId: number
 ): Promise<{
   total: number;
-  en_attente: number;
-  acceptees: number;
-  refusees: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
   taux_reussite: number;
 }> {
   try {
     const candidatures = await getCandidaturesByFreelancer(freelancerId);
     
     const total = candidatures.length;
-    const en_attente = candidatures.filter(c => c.status === "pending").length;
-    const acceptees = candidatures.filter(c => c.status === "accepted").length;
-    const refusees = candidatures.filter(c => c.status === "rejected").length;
-    const taux_reussite = total > 0 ? (acceptees / total) * 100 : 0;
+    const pending = candidatures.filter(c => c.status === "pending").length;
+    const accepted = candidatures.filter(c => c.status === "accepted").length;
+    const rejected = candidatures.filter(c => c.status === "rejected").length;
+    const taux_reussite = total > 0 ? (accepted / total) * 100 : 0;
 
     return {
       total,
-      en_attente,
-      acceptees,
-      refusees,
+      pending,
+      accepted,
+      rejected,
       taux_reussite
     };
   } catch (error) {
@@ -227,18 +227,18 @@ export async function getServiceCandidatureStats(
   serviceId: number
 ): Promise<{
   total: number;
-  en_attente: number;
-  acceptees: number;
-  refusees: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
 }> {
   try {
     const candidatures = await getServiceCandidatures(serviceId);
     
     return {
       total: candidatures.length,
-      en_attente: candidatures.filter(c => c.status === "pending").length,
-      acceptees: candidatures.filter(c => c.status === "accepted").length,
-      refusees: candidatures.filter(c => c.status === "rejected").length,
+      pending: candidatures.filter(c => c.status === "pending").length,
+      accepted: candidatures.filter(c => c.status === "accepted").length,
+      rejected: candidatures.filter(c => c.status === "rejected").length,
     };
   } catch (error) {
     console.error(`Erreur getServiceCandidatureStats ${serviceId}:`, error);

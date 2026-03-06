@@ -1,8 +1,8 @@
 // hooks/applications/useCandidatures.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as candidatureService from '@/services/candidatures.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as candidatureService from '@/app/services/candidatures.service';
 import type { 
   Candidature, 
   CreateCandidatureDto, 

@@ -1,9 +1,13 @@
 // hooks/profile/useExperiences.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
-import type { ProfessionalExperience, CreateExperienceDto, UpdateExperienceDto } from '@/app/types/user';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
+import {
+  CreateExperienceFormData,
+  UpdateExperienceFormData,
+} from "@/app/lib/validators/experience.validator";
+
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -52,7 +56,7 @@ export const useExperiences = () => {
    * Ajoute une nouvelle expérience
    */
   const addExperienceMutation = useMutation({
-    mutationFn: (data: CreateExperienceDto) => userService.addExperience(data),
+    mutationFn: (data: CreateExperienceFormData) => userService.addExperience(data),
     onSuccess: (newExperience) => {
       queryClient.invalidateQueries({ queryKey: experienceKeys.list() });
       
@@ -74,7 +78,7 @@ export const useExperiences = () => {
    * Met à jour une expérience
    */
   const updateExperienceMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateExperienceDto }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateExperienceFormData }) =>
       userService.updateExperience(id, data),
     onSuccess: (updatedExperience) => {
       queryClient.invalidateQueries({ queryKey: experienceKeys.list() });

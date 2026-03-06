@@ -1,5 +1,5 @@
 import Header from "@/app/components/layouts/headers/FreelancerHeader";
-import { AuthProvider } from "@/app/contexts/LoginContext";
+import { AuthProvider } from "@/app/providers/AuthProvider";
 import "@/app/globals.css";
 
 export default function FreelancerLayout({

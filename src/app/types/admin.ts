@@ -442,6 +442,7 @@ export interface Dispute {
   priority: "low" | "normal" | "high" | "urgent";
   status: "open" | "in_progress" | "resolved" | "dismissed" | "escalated";
   created_at: string;
+  updated_at: string;
   assigned_to?: {
     id: number;
     name: string;
@@ -625,6 +626,7 @@ export interface ActivityLog {
 export interface AdminNotification {
   id: string;
   type: 'urgent' | 'warning' | 'info' | 'success';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   title: string;
   message: string;
   action_url?: string;
@@ -643,7 +645,7 @@ export interface SupportTicket {
   subject: string;
   message: string;
   priority: 'low' | 'normal' | 'high';
-  status: 'open' | 'in_progress' | 'closed';
+  status: 'open' | 'in_progress' | 'closed' | 'resolved';
   created_at: string;
   assigned_to?: string;
   assigned_at?: string;
@@ -895,7 +897,7 @@ export interface TypingIndicator {
 
 
 // types/candidatures.ts
-export type CandidatureStatus = "en_attente" | "acceptee" | "refusee";
+export type CandidatureStatus = "pending" | "accepted" | "rejected";
 
 export interface Candidature {
   id: number;
@@ -928,4 +930,33 @@ export interface UpdateCandidatureStatusDto {
   status: CandidatureStatus;
   rejection_reason?: string;
   message?: string;
+}
+
+export interface TicketStats {
+  open: number;
+  in_progress: number;
+  closed: number;
+  by_priority: {
+    low: number;
+    normal: number;
+    high: number;
+  };
+  by_category: Record<string, number>;
+  average_resolution_time: string; // en heures
+}
+
+export interface TicketHistoryEntry {
+  id: string;
+  action: string;
+  description: string;
+  timestamp: string;
+  user: {
+    id: number;
+    name: string;
+    role: string;
+  };
+}
+
+export interface DashboardAlert {
+
 }

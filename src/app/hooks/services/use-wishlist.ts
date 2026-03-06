@@ -1,8 +1,8 @@
 // hooks/favorites/useWishlist.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as serviceService from '@/services/service.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as serviceService from '@/app/services/service.service';
 import type { WishlistItem } from '@/app/types/services';
 
 // ==================== CLÉS DE QUERY ====================
@@ -51,7 +51,7 @@ export const useWishlist = () => {
       queryKey: wishlistKeys.check(serviceId),
       queryFn: async () => {
         const wishlist = await serviceService.getWishlist();
-        return wishlist.items.some(item => item.serviceId === serviceId);
+        return wishlist.items.some(item => item.service_id === serviceId);
       },
       enabled: !!serviceId,
       staleTime: 5 * 60 * 1000,
@@ -117,7 +117,7 @@ export const useWishlist = () => {
     mutationFn: async () => {
       const wishlist = await serviceService.getWishlist();
       await Promise.all(
-        wishlist.items.map(item => serviceService.removeFromWishlist(item.serviceId))
+        wishlist.items.map(item => serviceService.removeFromWishlist(item.service_id))
       );
     },
     onSuccess: () => {
@@ -163,7 +163,7 @@ export const useWishlist = () => {
     useIsInWishlist,
     isInWishlist: async (serviceId: number) => {
       const wishlist = await serviceService.getWishlist();
-      return wishlist.items.some(item => item.serviceId === serviceId);
+      return wishlist.items.some(item => item.service_id === serviceId);
     },
 
     // Mutations

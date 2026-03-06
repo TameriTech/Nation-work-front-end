@@ -1,8 +1,8 @@
 // hooks/chat/useChat.ts
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as messageService from '@/services/messages.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as messageService from '@/app/services/chat.service';
 import type { 
   Conversation, 
   Message, 
@@ -59,7 +59,7 @@ export const useChat = (conversationId?: number) => {
     queryFn: ({ pageParam = 1 }) => 
       messageService.getMessages(conversationId!, { page: pageParam, limit: 20 }),
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length < 20) return undefined;
+      if (lastPage.items.length < 20) return undefined;
       return allPages.length + 1;
     },
     initialPageParam: 1,
@@ -201,10 +201,10 @@ export const useChat = (conversationId?: number) => {
           }
         );
         
-        // Marquer comme lu si c'est la conversation active
-        if (message.sender_id !== currentUserId) {
-          markAsReadMutation.mutate(message.id);
-        }
+        // TODO:Marquer comme lu si c'est la conversation active
+        //if (message.sender_id !== currentUserId) {
+        //  markAsReadMutation.mutate(message.id);
+        //}
       }
       
       // Mettre à jour la liste des conversations
@@ -236,7 +236,7 @@ export const useChat = (conversationId?: number) => {
 
   // ==================== TYPING INDICATOR ====================
 
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout>('' as unknown as NodeJS.Timeout);
 
   const handleTyping = useCallback(() => {
     if (!conversationId) return;
@@ -260,7 +260,8 @@ export const useChat = (conversationId?: number) => {
    * Groupe les messages par date
    */
   const getGroupedMessages = () => {
-    const messages = messagesQuery.data?.pages.flat() || [];
+    // Extract the 'data' property from each paginated response
+    const messages = messagesQuery.data?.pages.flatMap(page => page.items) || [];
     return messageService.groupMessagesByDate(messages);
   };
 

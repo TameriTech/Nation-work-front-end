@@ -1,7 +1,7 @@
 // hooks/use-login.ts
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/contexts/LoginContext";
+import { useAuth } from "@/app/providers/AuthProvider";
 import { useToast } from "@/app/hooks/use-toast";
 
 export function useLogin() {

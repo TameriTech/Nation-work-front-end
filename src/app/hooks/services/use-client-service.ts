@@ -1,8 +1,8 @@
 // hooks/services/useClientServices.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as serviceService from '@/services/service.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as serviceService from '@/app/services/service.service';
 import type { 
   Service, 
   CreateServiceDto, 
@@ -133,7 +133,7 @@ export const useClientServices = (filters?: ServiceFilters) => {
       serviceService.assignFreelancer(serviceId, freelancerId),
     onSuccess: (updatedService) => {
       queryClient.invalidateQueries({ queryKey: clientServiceKeys.lists() });
-      queryClient.setQueryData(clientServiceKeys.details(updatedService.id), updatedService);
+      queryClient.setQueryData(clientServiceKeys.details(updatedService.service.id), updatedService);
       
       toast({
         title: "Freelancer assigné",
@@ -156,7 +156,7 @@ export const useClientServices = (filters?: ServiceFilters) => {
     mutationFn: (serviceId: number) => serviceService.completeService(serviceId),
     onSuccess: (updatedService) => {
       queryClient.invalidateQueries({ queryKey: clientServiceKeys.lists() });
-      queryClient.setQueryData(clientServiceKeys.details(updatedService.id), updatedService);
+      queryClient.setQueryData(clientServiceKeys.details(updatedService.service.id), updatedService);
       
       toast({
         title: "Service terminé",
@@ -180,7 +180,7 @@ export const useClientServices = (filters?: ServiceFilters) => {
     pagination: clientServicesQuery.data ? {
       total: clientServicesQuery.data.total,
       page: clientServicesQuery.data.page,
-      pages: clientServicesQuery.data.pages,
+      pages: Math.ceil(clientServicesQuery.data.total / clientServicesQuery.data.per_page),
       perPage: clientServicesQuery.data.per_page,
     } : null,
     isLoading: clientServicesQuery.isLoading,

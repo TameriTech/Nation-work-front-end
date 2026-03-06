@@ -1,7 +1,7 @@
 // lib/server/backend.ts
 import { cookies } from 'next/headers';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://0.0.0.0:8000';
+const API_BASE_URL = /*process.env.API_BASE_URL || */'http://0.0.0.0:8000';
 
 export class BackendError extends Error {
   status: number;
@@ -17,6 +17,7 @@ export class BackendError extends Error {
 
 type HttpHeaders = Record<string, string>;
 
+// lib/server/backend.ts
 export async function backendFetch<T = any>(
   endpoint: string,
   options: RequestInit = {}
@@ -24,50 +25,50 @@ export async function backendFetch<T = any>(
   const cookieStore = await cookies();
   const token = cookieStore.get('access_token')?.value;
 
+  const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const headers: HttpHeaders = {
+  console.log(`🌐 ${options.method || 'GET'} ${url}`);
+  console.log(`🔑 Token: ${token ? 'présent' : 'absent'}`);
+
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> || {}),
   };
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+    console.log('✅ Token ajouté aux headers');
   }
 
-  if (options.headers) {
-    Object.assign(headers, options.headers);
-  }
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
 
-  const response = await fetch(url, {
-    ...options,
-    headers: headers as HeadersInit,
-  });
+    console.log(`📡 Status: ${response.status}`);
 
-  if (!response.ok) {
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = { message: response.statusText };
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: response.statusText };
+      }
+
+      throw new BackendError(
+        errorData.message || errorData.detail || 'Erreur serveur',
+        response.status,
+        errorData.field
+      );
     }
 
-    throw new BackendError(
-      errorData.message || errorData.detail || 'Erreur serveur',
-      response.status,
-      errorData.field
-    );
+    return response.json();
+  } catch (error) {
+    console.error('💥 Erreur backendFetch:', error);
+    throw error;
   }
-
-  if (response.status === 204) {
-    return null as T;
-  }
-
-  const contentType = response.headers.get('content-type');
-  if (contentType?.includes('application/pdf') || contentType?.includes('text/csv')) {
-    return response.blob() as T;
-  }
-
-  return response.json();
 }
 
 export async function backendFetchFormData<T = any>(

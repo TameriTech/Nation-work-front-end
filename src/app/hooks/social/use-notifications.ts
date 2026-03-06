@@ -1,8 +1,8 @@
 // hooks/notifications/useNotifications.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as notificationService from '@/services/admin/notifications.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as notificationService from '@/app/services/notifications.service';
 import type { AdminNotification, NotificationStats } from '@/app/types/admin';
 import { useEffect, useState, useCallback } from 'react';
 
@@ -273,7 +273,7 @@ export const useNotifications = (includeRead: boolean = false) => {
    */
   const filterByType = (type: string) => {
     const notifications = notificationsQuery.data || [];
-    return notifications.filter(n => n.notification_type === type);
+    return notifications.filter(n => n.type === type);
   };
 
   /**

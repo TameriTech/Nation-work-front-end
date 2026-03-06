@@ -1,9 +1,13 @@
 // hooks/profile/useEducation.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
-import type { Education, CreateEducationDto, UpdateEducationDto } from '@/app/types/user';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
+import type { Education} from '@/app/types/user';
+import {
+  CreateEducationFormData,
+  UpdateEducationFormData,
+} from "@/app/lib/validators/experience.validator";
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -52,7 +56,7 @@ export const useEducation = () => {
    * Ajoute une nouvelle formation
    */
   const addEducationMutation = useMutation({
-    mutationFn: (data: CreateEducationDto) => userService.addEducation(data),
+    mutationFn: (data: CreateEducationFormData) => userService.addEducation(data),
     onSuccess: (newEducation) => {
       queryClient.invalidateQueries({ queryKey: educationKeys.list() });
       
@@ -74,7 +78,7 @@ export const useEducation = () => {
    * Met à jour une formation
    */
   const updateEducationMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateEducationDto }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateEducationFormData }) =>
       userService.updateEducation(id, data),
     onSuccess: (updatedEducation) => {
       queryClient.invalidateQueries({ queryKey: educationKeys.list() });
@@ -135,11 +139,11 @@ export const useEducation = () => {
       'doctorat': 6,
     };
     
-    return education.reduce((highest, current) => {
+    return education.reduce((highest: Education | null, current: Education) => {
       const currentLevel = degreeLevels[current.degree || ''] || 0;
       const highestLevel = highest ? degreeLevels[highest.degree || ''] || 0 : 0;
       return currentLevel > highestLevel ? current : highest;
-    }, null);
+    }, null as Education | null);
   };
 
   /**

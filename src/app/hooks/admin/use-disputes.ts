@@ -1,8 +1,8 @@
 // hooks/admin/useDisputes.ts
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as disputeService from '@/services/admin/disputes.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as disputeService from '@/app/services/disputes.service';
 import type { 
   Dispute, 
   DisputeStats, 
@@ -47,7 +47,7 @@ export const useDisputes = (filters?: {
     queryFn: ({ pageParam = 1 }) => 
       disputeService.getDisputes({ ...filters, page: pageParam }),
     getNextPageParam: (lastPage) => {
-      if (lastPage.page >= lastPage.pages) return undefined;
+      if (lastPage.page >= Math.ceil(lastPage.total / lastPage.per_page)) return undefined;
       return lastPage.page + 1;
     },
     initialPageParam: 1,

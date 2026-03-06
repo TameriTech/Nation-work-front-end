@@ -8,8 +8,8 @@ export async function GET(req: Request) {
     const category = searchParams.get('category');
 
     const url = category 
-      ? `/users/skills?category=${encodeURIComponent(category)}`
-      : "/users/skills";
+      ? `/skills?category=${encodeURIComponent(category)}`
+      : "/skills";
 
     const data = await backendFetch(url);
     return NextResponse.json(data);

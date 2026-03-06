@@ -4,37 +4,45 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { JobCard } from "../JobCard";
 import { useState, useEffect } from "react";
-import { useServices } from "@/app/hooks/services/use-services";
 import { Service } from "@/app/types/services";
 
 interface FavoritesJobsContentProps {
-  toggleFavorite: (id: number) => void;
-  isFavorite: (id: number) => boolean;
+  services: Service[];
+  isLoading: boolean;
+  toggleFavorite?: (id: number) => void;
+  isFavorite?: (id: number) => boolean;
+  favorites?: number[];
 }
 
 export function FavoritesJobsContent({
+  services,
+  isLoading,
   toggleFavorite,
   isFavorite,
+  favorites = [],
 }: FavoritesJobsContentProps) {
-  const { services, loading } = useServices();
   const [favoriteServices, setFavoriteServices] = useState<Service[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Filtrer les services pour ne garder que les favoris
-    const favorites = services.filter((s) => isFavorite(s.id));
+    const favs = services.filter((s) => favorites.includes(s.id));
 
     // Appliquer la recherche
     if (searchQuery) {
       setFavoriteServices(
-        favorites.filter((s) =>
+        favs.filter((s) =>
           s.title.toLowerCase().includes(searchQuery.toLowerCase()),
         ),
       );
     } else {
-      setFavoriteServices(favorites);
+      setFavoriteServices(favs);
     }
-  }, [services, isFavorite, searchQuery]);
+  }, [services, favorites, searchQuery]);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Chargement...</div>;
+  }
 
   return (
     <>
@@ -64,9 +72,7 @@ export function FavoritesJobsContent({
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-8">Chargement...</div>
-      ) : favoriteServices.length === 0 ? (
+      {favoriteServices.length === 0 ? (
         <div className="text-center py-12">
           <Icon
             icon="bi:heart"
@@ -81,7 +87,9 @@ export function FavoritesJobsContent({
               key={job.id}
               service={job}
               isFavorite={true}
-              onFavoriteClick={() => toggleFavorite(job.id)}
+              onFavoriteClick={
+                toggleFavorite ? () => toggleFavorite(job.id) : undefined
+              }
             />
           ))}
         </div>

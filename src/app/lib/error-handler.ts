@@ -58,7 +58,7 @@ export async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 401) {
     // Rediriger vers la page de connexion si token expiré
     if (typeof window !== "undefined") {
-      window.location.href = "auth/login?session_expired=true";
+      window.location.href = "/auth/login?session_expired=true";
     }
     throw new ApiError("Session expirée, veuillez vous reconnecter", response.status, data);
   }

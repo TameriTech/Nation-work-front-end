@@ -1,8 +1,8 @@
 // hooks/payments/usePayments.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as paymentService from '@/services/admin/payments.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as paymentService from '@/app/services/payments.service';
 import type { 
   Payment, 
   PaymentSummary, 

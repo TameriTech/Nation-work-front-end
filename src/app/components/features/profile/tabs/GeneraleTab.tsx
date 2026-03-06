@@ -8,7 +8,7 @@ import {
 } from "@/app/components/ui/card";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
-import { useFreelancerProfile } from "@/app/hooks/use-freelancer-profile";
+import { useFreelancer } from "@/app/hooks/auth/use-freelancer";
 import { EditProfileModal } from "../modals/EditProfileModal";
 
 interface InfoCardProps {
@@ -64,7 +64,7 @@ function InfoCard({ icon, title, data, onEdit, loading }: InfoCardProps) {
 }
 
 export function GeneraleTabContent() {
-  const { profile, loading, updateProfile } = useFreelancerProfile();
+  const { profile, updateProfile, isLoading } = useFreelancer();
   const [showEditModal, setShowEditModal] = useState(false);
   const [editSection, setEditSection] = useState<
     "professional" | "location" | null
@@ -142,7 +142,7 @@ export function GeneraleTabContent() {
     setEditSection(null);
   };
 
-  if (loading && !profile) {
+  if (isLoading && !profile) {
     return (
       <div className="space-y-6">
         <InfoCard

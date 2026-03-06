@@ -1,5 +1,5 @@
 import { CategoryFilters, PaginatedResponse, Category } from "../types/admin";
-import { Category as UserCategory} from "../types/category";
+import { CreateCategoryDTO, Category as UserCategory} from "../types/category";
 
 /**
  * Récupère toutes les catégories
@@ -32,6 +32,26 @@ export async function getCategories(filters?: CategoryFilters ): Promise<UserCat
   }
 }
 
+export async function getCategoryStats(): Promise<{ category: string; count: number }[]> {
+  try {
+    const res = await fetch('/api/categories/stats', {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Erreur lors du chargement des statistiques');
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Erreur getCategoriesStats:', error);
+    throw error;
+  }
+}
+
 export async function getAllCategories(filters: CategoryFilters ): Promise<PaginatedResponse<Category>> {
   try {
     const params = new URLSearchParams();
@@ -60,17 +80,30 @@ export async function getAllCategories(filters: CategoryFilters ): Promise<Pagin
   }
 }
 
+export async function getCategoryById(id: number): Promise<Category> {
+  try {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Erreur lors du chargement de la catégorie');
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(`Erreur getCategoryById ${id}:`, error);
+    throw error;
+  }
+}
+
 /**
  * Créer une nouvelle catégorie
  */
-export async function createCategory(data: {
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  is_active: boolean;
-  parent_id?: number;
-}): Promise<Category> {
+export async function createCategory(data: CreateCategoryDTO): Promise<Category> {
   try {
     const res = await fetch('/api/admin/services/categories', {
       method: 'POST',

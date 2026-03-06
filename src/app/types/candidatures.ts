@@ -25,11 +25,13 @@ export interface Candidature {
 
 export interface CandidatureStats {
   total: number;
-  en_attente: number;
-  acceptees: number;
-  refusees: number;
-  taux_reussite: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
+  acceptanceRate: number;
 }
+
+export type CandidatureStatus = "pending" | "accepted" | "rejected";
 
 export interface UpdateCandidatureStatusDto {
   status: "accepted" | "rejected" | "pending";
@@ -38,4 +40,5 @@ export interface UpdateCandidatureStatusDto {
 export interface CreateCandidatureDto {
   service_id: number;
   cover_letter: string;
+  proposed_amount?: number;
 }

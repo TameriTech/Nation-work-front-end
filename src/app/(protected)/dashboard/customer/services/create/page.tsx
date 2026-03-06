@@ -1,182 +1,123 @@
-// ===== FILE: app/dashboard/customer/services/create/page.tsx =====
-// Page de création de service
-
+// app/dashboard/customer/services/create/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
-import { publishService, updateService } from "@/app/services/service.service";
-import { CreateServiceDto, ServiceType } from "@/app/types/services";
+import { useClientServices } from "@/app/hooks/services/use-client-service";
+import { useCategories } from "@/app/hooks/use-categories";
+import {
+  createServiceSchema,
+  type CreateServiceFormData,
+} from "@/app/lib/validators/service.validator";
+import type { CreateServiceDto, ServiceType } from "@/app/types/services";
 
-interface ServiceFormProps {
-  mode?: "create" | "edit";
-  serviceId?: number;
-  initialData?: Partial<CreateServiceDto>;
-}
-
-export default function ServiceFormPage({
-  mode = "create",
-  serviceId,
-  initialData = {},
-}: ServiceFormProps) {
+export default function CreateServicePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  // État local pour tous les champs du formulaire
-  const [formData, setFormData] = useState<Partial<CreateServiceDto>>({
-    title: "Catering pour événement - Cuisine camerounaise",
-    short_description: "Traiteur spécialisé en plats traditionnels à Yaoundé",
-    full_description:
-      "Service de traiteur pour vos événements : mariages, anniversaires, réunions. Spécialités : Ndolé, Poisson braisé, Poulet DG, Mbongo Tchobi. Équipe professionnelle avec 10 ans d'expérience dans la restauration à Yaoundé. Ingrédients frais du marché Mfoundi.",
-    service_type: "standard",
-    category_id: 1,
-    date_pratique: "2024-03-15",
-    start_time: "10:00",
-    duration: "6 heures",
-    address: "Bastos, Rue de l'Université",
-    quarter: "Bastos",
-    city: "Yaoundé",
-    postal_code: "BP 5678",
-    country: "Cameroun",
-    latitude: 3.8667,
-    longitude: 11.5167,
-    required_skills: [
-      "Cuisine traditionnelle",
-      "Gestion d'équipe",
-      "Planification événementielle",
-      "Normes d'hygiène",
-    ],
-    proposed_amount: 150000,
-    accepted_amount: 135000,
-    images: [
-      "https://example-cm.com/images/catering-1.jpg",
-      "https://example-cm.com/images/catering-2.jpg",
-    ],
-  });
-
-  // État pour les erreurs de validation
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // État pour les compétences (tag input)
   const [skillInput, setSkillInput] = useState("");
 
-  // Gestionnaire de changement pour les champs simples
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value, type } = e.target;
+  const { publishService, isPublishing } = useClientServices();
+  // get only published categories for service creation (no pagination, no filters)
+  const { categories } = useCategories({
+    mode: "public",
+  });
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "number" ? (value ? Number(value) : 0) : value,
-    }));
+  // Initialisation du formulaire avec react-hook-form
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    getValues,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateServiceFormData>({
+    resolver: zodResolver(createServiceSchema),
+    defaultValues: {
+      title: "Catering pour événement - Cuisine camerounaise",
+      short_description: "Traiteur spécialisé en plats traditionnels à Yaoundé",
+      full_description:
+        "Service de traiteur pour vos événements : mariages, anniversaires, réunions. Spécialités : Ndolé, Poisson braisé, Poulet DG, Mbongo Tchobi. Équipe professionnelle avec 10 ans d'expérience dans la restauration à Yaoundé. Ingrédients frais du marché Mfoundi.",
+      service_type: "standard",
+      category_id: 1,
+      date_pratique: "2024-03-15",
+      start_time: "10:00",
+      duration: "6 heures",
+      address: "Bastos, Rue de l'Université",
+      quarter: "Bastos",
+      city: "Yaoundé",
+      postal_code: "BP 5678",
+      country: "Cameroun",
+      latitude: 3.8667,
+      longitude: 11.5167,
+      required_skills: [
+        "Cuisine traditionnelle",
+        "Gestion d'équipe",
+        "Planification événementielle",
+        "Normes d'hygiène",
+      ],
+      proposed_amount: 150000,
+      accepted_amount: 135000,
+    },
+  });
 
-    // Effacer l'erreur du champ quand l'utilisateur tape
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-  };
+  // Watcher pour les compétences (utile pour l'affichage)
+  const requiredSkills = watch("required_skills") || [];
 
   // Gestionnaire pour ajouter une compétence
   const handleAddSkill = () => {
-    if (
-      skillInput.trim() &&
-      !formData.required_skills?.includes(skillInput.trim())
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        required_skills: [...(prev.required_skills || []), skillInput.trim()],
-      }));
+    if (skillInput.trim() && !requiredSkills.includes(skillInput.trim())) {
+      setValue("required_skills", [...requiredSkills, skillInput.trim()]);
       setSkillInput("");
     }
   };
 
   // Gestionnaire pour supprimer une compétence
   const handleRemoveSkill = (skill: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      required_skills: prev.required_skills?.filter((s) => s !== skill) || [],
-    }));
-  };
-
-  // Validation du formulaire
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title?.trim()) {
-      newErrors.title = "Le titre est requis";
-    } else if (formData.title.length < 5) {
-      newErrors.title = "Le titre doit contenir au moins 5 caractères";
-    }
-
-    if (!formData.short_description?.trim()) {
-      newErrors.short_description = "La description courte est requise";
-    }
-
-    if (!formData.date_pratique) {
-      newErrors.date_pratique = "La date est requise";
-    }
-
-    if (!formData.start_time) {
-      newErrors.start_time = "L'heure de début est requise";
-    }
-
-    if (!formData.duration) {
-      newErrors.duration = "La durée est requise";
-    }
-
-    if (!formData.address?.trim()) {
-      newErrors.address = "L'adresse est requise";
-    }
-
-    if (!formData.city?.trim()) {
-      newErrors.city = "La ville est requise";
-    }
-
-    if (!formData.proposed_amount || formData.proposed_amount <= 0) {
-      newErrors.proposed_amount = "Le montant proposé doit être supérieur à 0";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setValue(
+      "required_skills",
+      requiredSkills.filter((s) => s !== skill),
+    );
   };
 
   // Soumission du formulaire
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      toast.error("Veuillez corriger les erreurs du formulaire");
-      return;
-    }
-
-    setLoading(true);
-
+  // Dans le formulaire, lors de l'appel à createService
+  const onSubmit = async (data: CreateServiceFormData) => {
     try {
-      if (mode === "create") {
-        await publishService(formData as CreateServiceDto);
-        toast.success("Service publié avec succès !");
-      } else if (mode === "edit" && serviceId) {
-        await updateService(serviceId, formData);
-        toast.success("Service mis à jour avec succès !");
-      }
+      // Nettoyer les données avant envoi
+      const cleanData: CreateServiceDto = {
+        title: data.title,
+        short_description: data.short_description,
+        service_type: data.service_type,
+        category_id: data.category_id || undefined,
+        date_pratique: data.date_pratique,
+        start_time: data.start_time,
+        duration: data.duration,
+        address: data.address,
+        city: data.city,
+        proposed_amount: data.proposed_amount,
+        // Champs optionnels avec conversion null → undefined
+        full_description: data.full_description || undefined,
+        quarter: data.quarter || undefined,
+        postal_code: data.postal_code || undefined,
+        country: data.country || "Cameroun", // Valeur par défaut
+        latitude: data.latitude || undefined,
+        longitude: data.longitude || undefined,
+        required_skills: data.required_skills || [],
+        accepted_amount: data.accepted_amount || undefined,
+        images: data.images || undefined,
+      };
 
-      // Redirection vers la liste des services
+      await publishService(cleanData);
+      toast.success("Service publié avec succès !");
       router.push("/dashboard/customer/services");
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Une erreur est survenue");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -187,21 +128,20 @@ export default function ServiceFormPage({
 
   // Classes CSS communes
   const inputClass =
-    "w-full px-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900";
+    "w-full px-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed";
   const labelClass = "block text-sm font-medium text-gray-600 mb-1";
   const errorClass = "text-sm text-red-500 mt-1";
 
   return (
     <div className="min-h-screen bg-white py-8">
-      <div className=" mx-auto px-4">
+      <div className="mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">
-            {mode === "create"
-              ? "Publier un nouveau service"
-              : "Modifier le service"}
+            Publier un nouveau service
           </h1>
           <button
+            type="button"
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full"
           >
@@ -210,9 +150,9 @@ export default function ServiceFormPage({
         </div>
 
         {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Section 1: Informations générales */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Informations générales
             </h2>
@@ -221,43 +161,41 @@ export default function ServiceFormPage({
               <label className={labelClass}>Titre du service *</label>
               <input
                 type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
+                {...register("title")}
                 placeholder="Ex: Développement d'une application mobile"
                 className={inputClass}
               />
-              {errors.title && <p className={errorClass}>{errors.title}</p>}
+              {errors.title && (
+                <p className={errorClass}>{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Type de service *</label>
-                <select
-                  name="service_type"
-                  value={formData.service_type}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
+                <select {...register("service_type")} className={inputClass}>
                   <option value="standard">Standard</option>
                   <option value="premium">Premium</option>
                   <option value="candidature">Candidature</option>
                   <option value="directe">Directe</option>
                 </select>
+                {errors.service_type && (
+                  <p className={errorClass}>{errors.service_type.message}</p>
+                )}
               </div>
 
               <div>
                 <label className={labelClass}>Catégorie</label>
                 <select
-                  name="category_id"
-                  value={formData.category_id || ""}
-                  onChange={(e) => handleChange(e as any)}
+                  {...register("category_id", { valueAsNumber: true })}
                   className={inputClass}
                 >
                   <option value="">Sélectionner une catégorie</option>
-                  <option value="1">Développement</option>
-                  <option value="2">Design</option>
-                  <option value="3">Rédaction</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -265,25 +203,21 @@ export default function ServiceFormPage({
             <div>
               <label className={labelClass}>Description courte *</label>
               <textarea
-                name="short_description"
-                value={formData.short_description}
-                onChange={handleChange}
+                {...register("short_description")}
                 placeholder="Brève description du service (max 250 caractères)"
                 rows={3}
                 maxLength={250}
                 className={inputClass}
               />
               {errors.short_description && (
-                <p className={errorClass}>{errors.short_description}</p>
+                <p className={errorClass}>{errors.short_description.message}</p>
               )}
             </div>
 
             <div>
               <label className={labelClass}>Description complète</label>
               <textarea
-                name="full_description"
-                value={formData.full_description}
-                onChange={handleChange}
+                {...register("full_description")}
                 placeholder="Description détaillée du service..."
                 rows={5}
                 className={inputClass}
@@ -292,7 +226,7 @@ export default function ServiceFormPage({
           </div>
 
           {/* Section 2: Détails pratiques */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Détails pratiques
             </h2>
@@ -302,13 +236,11 @@ export default function ServiceFormPage({
                 <label className={labelClass}>Date de prestation *</label>
                 <input
                   type="date"
-                  name="date_pratique"
-                  value={formData.date_pratique}
-                  onChange={handleChange}
+                  {...register("date_pratique")}
                   className={inputClass}
                 />
                 {errors.date_pratique && (
-                  <p className={errorClass}>{errors.date_pratique}</p>
+                  <p className={errorClass}>{errors.date_pratique.message}</p>
                 )}
               </div>
 
@@ -316,24 +248,17 @@ export default function ServiceFormPage({
                 <label className={labelClass}>Heure de début *</label>
                 <input
                   type="time"
-                  name="start_time"
-                  value={formData.start_time}
-                  onChange={handleChange}
+                  {...register("start_time")}
                   className={inputClass}
                 />
                 {errors.start_time && (
-                  <p className={errorClass}>{errors.start_time}</p>
+                  <p className={errorClass}>{errors.start_time.message}</p>
                 )}
               </div>
 
               <div>
                 <label className={labelClass}>Durée estimée *</label>
-                <select
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
+                <select {...register("duration")} className={inputClass}>
                   <option value="">Sélectionner</option>
                   <option value="1h">1 heure</option>
                   <option value="2h">2 heures</option>
@@ -345,14 +270,14 @@ export default function ServiceFormPage({
                   <option value="3j+">3 jours ou plus</option>
                 </select>
                 {errors.duration && (
-                  <p className={errorClass}>{errors.duration}</p>
+                  <p className={errorClass}>{errors.duration.message}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Section 3: Localisation */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Localisation
             </h2>
@@ -361,13 +286,13 @@ export default function ServiceFormPage({
               <label className={labelClass}>Adresse *</label>
               <input
                 type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
+                {...register("address")}
                 placeholder="Numéro et rue"
                 className={inputClass}
               />
-              {errors.address && <p className={errorClass}>{errors.address}</p>}
+              {errors.address && (
+                <p className={errorClass}>{errors.address.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -375,22 +300,20 @@ export default function ServiceFormPage({
                 <label className={labelClass}>Ville *</label>
                 <input
                   type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
+                  {...register("city")}
                   placeholder="Douala, Yaoundé..."
                   className={inputClass}
                 />
-                {errors.city && <p className={errorClass}>{errors.city}</p>}
+                {errors.city && (
+                  <p className={errorClass}>{errors.city.message}</p>
+                )}
               </div>
 
               <div>
                 <label className={labelClass}>Quartier</label>
                 <input
                   type="text"
-                  name="quarter"
-                  value={formData.quarter}
-                  onChange={handleChange}
+                  {...register("quarter")}
                   placeholder="Bonapriso, Mvog-Mbi..."
                   className={inputClass}
                 />
@@ -400,9 +323,7 @@ export default function ServiceFormPage({
                 <label className={labelClass}>Code postal</label>
                 <input
                   type="text"
-                  name="postal_code"
-                  value={formData.postal_code}
-                  onChange={handleChange}
+                  {...register("postal_code")}
                   placeholder="BP 1234"
                   className={inputClass}
                 />
@@ -412,9 +333,28 @@ export default function ServiceFormPage({
                 <label className={labelClass}>Pays</label>
                 <input
                   type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
+                  {...register("country")}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Latitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  {...register("latitude", { valueAsNumber: true })}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Longitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  {...register("longitude", { valueAsNumber: true })}
                   className={inputClass}
                 />
               </div>
@@ -422,7 +362,7 @@ export default function ServiceFormPage({
           </div>
 
           {/* Section 4: Compétences */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Compétences requises
             </h2>
@@ -443,38 +383,41 @@ export default function ServiceFormPage({
                 <button
                   type="button"
                   onClick={handleAddSkill}
-                  className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  disabled={!skillInput.trim()}
                 >
                   <Icon icon="mdi:plus" className="h-5 w-5" />
                 </button>
               </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Appuyez sur Entrée ou cliquez sur le bouton + pour ajouter
+              </p>
             </div>
 
             {/* Liste des compétences */}
-            {formData.required_skills &&
-              formData.required_skills.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.required_skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            {requiredSkills.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {requiredSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="hover:text-blue-600"
                     >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSkill(skill)}
-                        className="hover:text-blue-600"
-                      >
-                        <Icon icon="mdi:close" className="h-4 w-4" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+                      <Icon icon="mdi:close" className="h-4 w-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Section 5: Prix */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Budget
             </h2>
@@ -485,9 +428,7 @@ export default function ServiceFormPage({
                 <div className="relative">
                   <input
                     type="number"
-                    name="proposed_amount"
-                    value={formData.proposed_amount}
-                    onChange={handleChange}
+                    {...register("proposed_amount", { valueAsNumber: true })}
                     min="0"
                     step="100"
                     className={`${inputClass} pr-12`}
@@ -497,7 +438,7 @@ export default function ServiceFormPage({
                   </span>
                 </div>
                 {errors.proposed_amount && (
-                  <p className={errorClass}>{errors.proposed_amount}</p>
+                  <p className={errorClass}>{errors.proposed_amount.message}</p>
                 )}
               </div>
 
@@ -506,9 +447,7 @@ export default function ServiceFormPage({
                 <div className="relative">
                   <input
                     type="number"
-                    name="accepted_amount"
-                    value={formData.accepted_amount || ""}
-                    onChange={handleChange}
+                    {...register("accepted_amount", { valueAsNumber: true })}
                     min="0"
                     step="100"
                     className={`${inputClass} pr-12`}
@@ -522,7 +461,7 @@ export default function ServiceFormPage({
           </div>
 
           {/* Section 6: Images */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white rounded-2xl p-6 space-y-4 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
               Images
             </h2>
@@ -534,7 +473,10 @@ export default function ServiceFormPage({
                 accept="image/*"
                 multiple
                 className={inputClass}
-                // Gestion simplifiée - vous pouvez ajouter l'upload plus tard
+                onChange={(e) => {
+                  // À implémenter avec un service d'upload
+                  console.log("Fichiers sélectionnés:", e.target.files);
+                }}
               />
               <p className="text-sm text-gray-500 mt-1">
                 Format: JPG, PNG (max 5 Mo par image)
@@ -553,10 +495,10 @@ export default function ServiceFormPage({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting || isPublishing}
               className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? (
+              {isSubmitting || isPublishing ? (
                 <>
                   <Icon icon="mdi:loading" className="animate-spin h-5 w-5" />
                   Publication en cours...
@@ -564,7 +506,7 @@ export default function ServiceFormPage({
               ) : (
                 <>
                   <Icon icon="mdi:send" className="h-5 w-5" />
-                  {mode === "create" ? "Publier le service" : "Mettre à jour"}
+                  Publier le service
                 </>
               )}
             </button>

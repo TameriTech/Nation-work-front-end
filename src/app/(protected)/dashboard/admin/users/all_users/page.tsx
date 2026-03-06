@@ -1,8 +1,8 @@
+// app/(protected)/dashboard/admin/users/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   Users,
   Search,
@@ -11,16 +11,13 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  MoreHorizontal,
   Eye,
   Edit,
   Ban,
   CheckCircle,
-  XCircle,
   Mail,
   Shield,
   Star,
-  Clock,
   Download,
   RefreshCw,
   Loader2,
@@ -34,15 +31,10 @@ import {
   ArrowDown,
 } from "lucide-react";
 
-import {
-  getUsers,
-  suspendUser,
-  activateUser,
-  deleteUser,
-  changeUserRole,
-} from "@/app/services/users.service";
-import type { User, UserFilters, PaginatedResponse } from "@/app/types/admin";
-import { users as mockUsers } from "@/data/admin-mock-data";
+import { useAdminUsers } from "@/app/hooks/admin/use-admin-users";
+import { UserFilters as FilterType, User } from "@/app/types/admin";
+import UsersLoading from "./loading";
+import AdminUsersError from "./error";
 
 // Composant de filtre
 const UserFilters = ({
@@ -50,8 +42,8 @@ const UserFilters = ({
   onFilterChange,
   onSearch,
 }: {
-  filters: UserFilters;
-  onFilterChange: (filters: UserFilters) => void;
+  filters: FilterType;
+  onFilterChange: (filters: FilterType) => void;
   onSearch: () => void;
 }) => {
   const [localSearch, setLocalSearch] = useState(filters.search || "");
@@ -100,6 +92,8 @@ const UserFilters = ({
             <option value="client">Client</option>
             <option value="freelancer">Freelancer</option>
             <option value="admin">Admin</option>
+            <option value="super_admin">Super Admin</option>
+            <option value="moderator">Modérateur</option>
           </select>
         </div>
 
@@ -121,7 +115,6 @@ const UserFilters = ({
             <option value="">Tous les statuts</option>
             <option value="active">Actif</option>
             <option value="suspended">Suspendu</option>
-            <option value="pending_verification">En attente</option>
             <option value="inactive">Inactif</option>
           </select>
         </div>
@@ -187,12 +180,6 @@ const UserTable = ({
           icon: UserX,
           label: "Suspendu",
         },
-        pending_verification: {
-          color:
-            "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
-          icon: AlertCircle,
-          label: "En attente",
-        },
         inactive: {
           color:
             "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
@@ -216,21 +203,33 @@ const UserTable = ({
   const getRoleBadge = (role: string) => {
     const badges: Record<string, { color: string; icon: any; label: string }> =
       {
-        admin: {
+        super_admin: {
           color:
             "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
           icon: Shield,
+          label: "Super Admin",
+        },
+        admin: {
+          color:
+            "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800",
+          icon: Shield,
           label: "Admin",
+        },
+        moderator: {
+          color:
+            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+          icon: Shield,
+          label: "Modérateur",
         },
         freelancer: {
           color:
-            "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
           icon: Star,
           label: "Freelancer",
         },
         client: {
           color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
+            "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
           icon: UserCheck,
           label: "Client",
         },
@@ -261,11 +260,7 @@ const UserTable = ({
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
-        <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
-      </div>
-    );
+    return <UsersLoading />;
   }
 
   return (
@@ -378,41 +373,29 @@ const UserTable = ({
                     <div className="text-sm text-gray-900 dark:text-gray-100">
                       {user.email}
                     </div>
-                    {user.phone && (
+                    {user.phone_number && (
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {user.phone}
+                        {user.phone_number}
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {getRoleBadge(user.role)}
-                      {user.top_rated && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800">
-                          <Star className="w-3 h-3 mr-1 fill-current" />
-                          Top
-                        </span>
-                      )}
-                      {user.verified_badge && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Vérifié
-                        </span>
-                      )}
-                    </div>
+                    {getRoleBadge(user.role)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(user.status)}
+                    {getStatusBadge(user.is_active ? "active" : "inactive")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {new Date(user.created_at).toLocaleDateString("fr-FR")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {user.last_login ? (
+                    {user.last_login_at ? (
                       <>
-                        {new Date(user.last_login).toLocaleDateString("fr-FR")}
+                        {new Date(user.last_login_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
                         <span className="text-xs text-gray-400 dark:text-gray-500 block">
-                          {new Date(user.last_login).toLocaleTimeString(
+                          {new Date(user.last_login_at).toLocaleTimeString(
                             "fr-FR",
                           )}
                         </span>
@@ -430,25 +413,7 @@ const UserTable = ({
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => {
-                          /* Ouvrir modal d'édition */
-                        }}
-                        className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          /* Envoyer email */
-                        }}
-                        className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 p-1 rounded hover:bg-purple-50 dark:hover:bg-purple-900/30 transition"
-                        title="Envoyer un email"
-                      >
-                        <Mail className="w-4 h-4" />
-                      </button>
-                      {user.status === "active" ? (
+                      {user.is_active ? (
                         <button
                           onClick={() => onSuspend(user)}
                           className="text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 p-1 rounded hover:bg-orange-50 dark:hover:bg-orange-900/30 transition"
@@ -456,7 +421,7 @@ const UserTable = ({
                         >
                           <Ban className="w-4 h-4" />
                         </button>
-                      ) : user.status === "suspended" ? (
+                      ) : (
                         <button
                           onClick={() => onActivate(user)}
                           className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
@@ -464,7 +429,7 @@ const UserTable = ({
                         >
                           <CheckCircle className="w-4 h-4" />
                         </button>
-                      ) : null}
+                      )}
                       <select
                         value={user.role}
                         onChange={(e) => onRoleChange(user, e.target.value)}
@@ -472,7 +437,9 @@ const UserTable = ({
                       >
                         <option value="client">Client</option>
                         <option value="freelancer">Freelancer</option>
+                        <option value="moderator">Modérateur</option>
                         <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
                       </select>
                     </div>
                   </td>
@@ -557,10 +524,9 @@ const SuspendModal = ({
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  onConfirm: (reason: string, duration: number) => void;
+  onConfirm: (reason: string) => void;
 }) => {
   const [reason, setReason] = useState("");
-  const [duration, setDuration] = useState(7);
   const [error, setError] = useState("");
 
   if (!isOpen || !user) return null;
@@ -570,9 +536,8 @@ const SuspendModal = ({
       setError("La raison est requise");
       return;
     }
-    onConfirm(reason, duration);
+    onConfirm(reason);
     setReason("");
-    setDuration(7);
     setError("");
     onClose();
   };
@@ -608,23 +573,6 @@ const SuspendModal = ({
           )}
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Durée (jours)
-          </label>
-          <select
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-          >
-            <option value={7}>7 jours</option>
-            <option value={14}>14 jours</option>
-            <option value={30}>30 jours</option>
-            <option value={90}>90 jours</option>
-            <option value={365}>1 an</option>
-          </select>
-        </div>
-
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
@@ -645,23 +593,21 @@ const SuspendModal = ({
 };
 
 // Page principale
+// app/(protected)/dashboard/admin/users/page.tsx
+// Dans la fonction UsersPage, supprimez la partie pagination et adaptez :
+
 export default function UsersPage() {
   const router = useRouter();
 
   // États
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>([]);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    per_page: 10,
-    total_pages: 1,
-  });
-  const [filters, setFilters] = useState<UserFilters>({
+  const [filters, setFilters] = useState<FilterType>({
     page: 1,
     per_page: 10,
     sort_by: "created_at",
     sort_order: "desc",
+    search: "",
+    role: undefined,
+    status: undefined,
   });
   const [suspendModal, setSuspendModal] = useState<{
     isOpen: boolean;
@@ -671,40 +617,32 @@ export default function UsersPage() {
     user: null,
   });
 
-  // Charger les données
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
-      // Utiliser les mock data pour l'instant
-      const mockResponse = {
-        items: mockUsers.list as User[],
-        total: mockUsers.list.length,
-        page: filters.page || 1,
-        per_page: filters.per_page || 10,
-        total_pages: Math.ceil(
-          mockUsers.list.length / (filters.per_page || 10),
-        ),
-      };
-      setUsers(mockResponse.items);
-      setPagination(mockResponse);
-    } catch (error) {
-      console.error("Erreur chargement utilisateurs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Hook personnalisé
+  const {
+    users,
+    isLoading,
+    error,
+    suspendUser,
+    activateUser,
+    changeUserRole,
+    refetch,
+  } = useAdminUsers(filters);
 
-  useEffect(() => {
-    loadUsers();
-  }, [filters.page, filters.per_page, filters.sort_by, filters.sort_order]);
+  // Pagination manuelle (côté client si l'API ne la gère pas)
+  const paginatedUsers = users.slice(
+    ((filters.page || 1) - 1) * (filters.per_page || 10),
+    (filters.page || 1) * (filters.per_page || 10),
+  );
+
+  const totalPages = Math.ceil(users.length / (filters.per_page || 10));
 
   // Gestionnaires d'événements
-  const handleFilterChange = (newFilters: UserFilters) => {
+  const handleFilterChange = (newFilters: FilterType) => {
     setFilters({ ...filters, ...newFilters, page: 1 });
   };
 
   const handleSearch = () => {
-    loadUsers();
+    refetch();
   };
 
   const handleSort = (field: string) => {
@@ -723,47 +661,35 @@ export default function UsersPage() {
     router.push(`/dashboard/admin/users/${user.id}`);
   };
 
-  const handleSuspend = async (reason: string, duration: number) => {
+  const handleSuspend = async (reason: string) => {
     if (!suspendModal.user) return;
-    try {
-      await suspendUser(suspendModal.user.id, {
-        reason,
-        duration_days: duration,
-      });
-      loadUsers();
-    } catch (error) {
-      console.error("Erreur suspension:", error);
-    }
+    await suspendUser({
+      userId: suspendModal.user.id,
+      reason,
+    });
+    setSuspendModal({ isOpen: false, user: null });
   };
 
   const handleActivate = async (user: User) => {
     if (confirm(`Êtes-vous sûr de vouloir réactiver ${user.username} ?`)) {
-      try {
-        await activateUser(user.id);
-        loadUsers();
-      } catch (error) {
-        console.error("Erreur activation:", error);
-      }
+      await activateUser(user.id);
     }
   };
 
   const handleRoleChange = async (user: User, newRole: string) => {
     if (confirm(`Changer le rôle de ${user.username} en ${newRole} ?`)) {
-      try {
-        await changeUserRole(user.id, newRole as any);
-        loadUsers();
-      } catch (error) {
-        console.error("Erreur changement rôle:", error);
-      }
+      await changeUserRole({
+        userId: user.id,
+        role: newRole as any,
+      });
     }
   };
 
   const handleExport = () => {
-    // Logique d'export CSV
     const csv = users
       .map(
         (u) =>
-          `${u.id},${u.username},${u.email},${u.role},${u.status},${new Date(u.created_at).toLocaleDateString()}`,
+          `${u.id},${u.username},${u.email},${u.role},${u.is_active ? "actif" : "inactif"},${new Date(u.created_at).toLocaleDateString()}`,
       )
       .join("\n");
 
@@ -777,16 +703,93 @@ export default function UsersPage() {
     a.click();
   };
 
+  // Fonction de tri corrigée
+  const sortedUsers = [...paginatedUsers].sort((a, b) => {
+    const field = filters.sort_by || "created_at";
+    const order = filters.sort_order === "asc" ? 1 : -1;
+
+    // Utiliser les propriétés existantes
+    if (field === "created_at") {
+      const aVal = a.created_at || "";
+      const bVal = b.created_at || "";
+      return (aVal.localeCompare(bVal) || 0) * order;
+    }
+
+    if (field === "last_login") {
+      const aVal = a.last_login_at || "";
+      const bVal = b.last_login_at || "";
+      return (aVal.localeCompare(bVal) || 0) * order;
+    }
+
+    if (field === "username") {
+      const aVal = a.username || "";
+      const bVal = b.username || "";
+      return aVal.localeCompare(bVal) * order;
+    }
+
+    if (field === "email") {
+      const aVal = a.email || "";
+      const bVal = b.email || "";
+      return aVal.localeCompare(bVal) * order;
+    }
+
+    if (field === "role") {
+      const aVal = a.role || "";
+      const bVal = b.role || "";
+      return aVal.localeCompare(bVal) * order;
+    }
+
+    return 0;
+  });
+
+  // Trier les utilisateurs selon sort_by et sort_order
+  const sortedUsers = [...paginatedUsers].sort((a, b) => {
+    const field = filters.sort_by || "created_at";
+    const order = filters.sort_order === "asc" ? 1 : -1;
+
+    if (field === "created_at" || field === "last_login") {
+      const aVal = a[field as keyof User] as string;
+      const bVal = b[field as keyof User] as string;
+      return (aVal?.localeCompare(bVal || "") || 0) * order;
+    }
+
+    const aVal = String(a[field as keyof User] || "");
+    const bVal = String(b[field as keyof User] || "");
+    return aVal.localeCompare(bVal) * order;
+  });
+
+  // Filtrer les utilisateurs selon les filtres
+  const filteredUsers = sortedUsers.filter((user) => {
+    if (filters.role && user.role !== filters.role) return false;
+    if (filters.status) {
+      const status = user.is_active ? "active" : "inactive";
+      if (status !== filters.status) return false;
+    }
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      return (
+        user.username?.toLowerCase().includes(search) ||
+        user.email?.toLowerCase().includes(search) ||
+        user.phone_number?.toLowerCase().includes(search)
+      );
+    }
+    return true;
+  });
+
+  if (error) {
+    return <AdminUsersError error={error} onRetry={refetch} />;
+  }
+
   return (
     <div className="min-h-screen dark:bg-slate-950">
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
-            <Users className="w-6 h-6 mr-2 text-blue-400" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+            <Users className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
             Gestion des utilisateurs
           </h1>
-          <p className="text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Gérez tous les utilisateurs de la plateforme
           </p>
         </div>
@@ -795,10 +798,13 @@ export default function UsersPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
           <div className="flex space-x-2">
             <button
-              onClick={loadUsers}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition disabled:opacity-50"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
               Actualiser
             </button>
             <button
@@ -809,10 +815,10 @@ export default function UsersPage() {
               Exporter CSV
             </button>
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             Total:{" "}
-            <span className="font-medium text-gray-700 dark:text-gray-300">
-              {pagination.total}
+            <span className="font-medium text-gray-900 dark:text-gray-200">
+              {users.length}
             </span>{" "}
             utilisateurs
           </div>
@@ -827,7 +833,7 @@ export default function UsersPage() {
 
         {/* Tableau */}
         <UserTable
-          users={users}
+          users={filteredUsers}
           onSort={handleSort}
           sortBy={filters.sort_by || "created_at"}
           sortOrder={filters.sort_order || "desc"}
@@ -835,17 +841,19 @@ export default function UsersPage() {
           onSuspend={(user) => setSuspendModal({ isOpen: true, user })}
           onActivate={handleActivate}
           onRoleChange={handleRoleChange}
-          loading={loading}
+          loading={isLoading}
         />
 
         {/* Pagination */}
-        <Pagination
-          currentPage={pagination.page}
-          totalPages={pagination.total_pages}
-          totalItems={pagination.total}
-          perPage={pagination.per_page}
-          onPageChange={handlePageChange}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={filters.page || 1}
+            totalPages={totalPages}
+            totalItems={users.length}
+            perPage={filters.per_page || 10}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       {/* Modal de suspension */}

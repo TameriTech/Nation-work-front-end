@@ -1,8 +1,8 @@
 // hooks/auth/useUser.ts
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import * as userService from '@/services/user.service';
+import { useToast } from '@/app/components/ui/use-toast';
+import * as userService from '@/app/services/users.service';
 import type { 
   User, 
   FreelancerFullProfile, 
@@ -78,7 +78,7 @@ export const useUser = (userId?: number) => {
    */
   const uploadAvatarMutation = useMutation({
     mutationFn: ({ userId, file }: { userId: number; file: File }) =>
-      userService.uploadAvatar(userId, file),
+      userService.uploadAvatar(file),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.profile(variables.userId) });
       
