@@ -10,26 +10,16 @@ const fileSchema = z.instanceof(File)
     return allowedTypes.includes(file.type);
   }, "Type de fichier non autorisé. Formats acceptés: PDF, JPEG, PNG");
 
+// lib/validators/document.validator.ts
+import { DocumentType } from '@/app/types/user';
+
 export const createDocumentSchema = z.object({
-  document_type: z.enum([
-    "id_card", 
-    "passport", 
-    "driver_license", 
-    "diploma", 
-    "certificate", 
-    "professional_card", 
-    "residence_permit", 
-    "other"
-  ]).refine((val) => true, {
-    message: "Type de document invalide"
-  }),
+  document_type: z.nativeEnum(DocumentType), // ✅ Utilise l'enum directement
   file: fileSchema,
   document_number: z.string()
     .max(100, "Numéro de document trop long")
     .optional()
     .nullable(),
-  front_image: fileSchema.optional().nullable(),
-  back_image: fileSchema.optional().nullable(),
   issue_date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
     .optional()
@@ -43,6 +33,7 @@ export const createDocumentSchema = z.object({
     .optional()
     .nullable(),
 });
+
 
 export const updateDocumentSchema = z.object({
   document_type: z.enum([

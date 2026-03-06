@@ -897,7 +897,7 @@ export interface TypingIndicator {
 
 
 // types/candidatures.ts
-export type CandidatureStatus = "en_attente" | "acceptee" | "refusee";
+export type CandidatureStatus = "pending" | "accepted" | "rejected";
 
 export interface Candidature {
   id: number;

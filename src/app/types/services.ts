@@ -5,7 +5,7 @@ import { Category } from "./category";
 import { User } from "./user";
 
 // Enums correspondant au backend
-export type ServiceStatus = "published" | "assigned" | "in_progress" | "completed" | "canceled"| "draft";
+export type ServiceStatus = "published" | "assigned" | "pending" | "in_progress" | "completed" | "canceled"| "draft";
 export type ServiceType = 'standard' | 'premium' | 'candidature' | 'direct';
 
 export type CandidatureStatus = "pending" | "accepted" | "rejected" | "withdrawn";
@@ -44,8 +44,8 @@ export interface DisputeInfo {
 export interface Service {
   id: number;
   title: string;
-  short_description?: string;
-  full_description?: string;
+  short_description: string;
+  full_description: string;
   service_type: ServiceType;
   category_id?: number;
   date_pratique: string; // DateTime
@@ -72,6 +72,10 @@ export interface Service {
   category?: Category;
   service_images?: ServiceImage[];
   is_favorite?: boolean;
+  candidatures_count: number;
+  ratings?: RatingInfo[];
+  dispute?: DisputeInfo;
+  views_count: number;
 }
 
 export interface ServiceImage {
@@ -122,7 +126,7 @@ export interface ServiceFilters {
   
   // Pagination
   page?: number;
-  limit?: number;
+  per_page?: number;
   sort_by?: 'date' | 'price' | 'rating';
   sort_order?: 'asc' | 'desc';
 }

@@ -100,7 +100,7 @@ export const useAuth = () => {
    */
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginCredentials) => userService.login(credentials),
-    onSuccess: async (data) => {
+    onSuccess: async (data: any) => {
       setHasToken(true); // ← Mettre à jour l'état du token
       await queryClient.invalidateQueries({ queryKey: authKeys.all });
 
@@ -109,13 +109,15 @@ export const useAuth = () => {
         description: "Bienvenue sur Nation Work",
       });
 
+      console.log("Rôle de l'utilisateur:", data.user.role); // ← Log du rôle pour le debug
+
       // Rediriger en fonction du rôle
-      if (data.user_role === 'admin' || data.user_role === 'super_admin') {
-        router.push('dashboard/admin');
-      } else if (data.user_role === 'freelancer') {
-        router.push('dashboard/freelancer');
-      } else {
-        router.push('dashboard/customer');
+      if (data.user.role === 'admin' || data.user.role === 'super_admin') {
+        router.push('/dashboard/admin');
+      } else if (data.user.role === 'freelancer') {
+        router.push('/dashboard/freelancer');
+      } else if (data.user.role === 'client') {
+        router.push('/dashboard/customer');
       }
     },
     onError: (error: any) => {

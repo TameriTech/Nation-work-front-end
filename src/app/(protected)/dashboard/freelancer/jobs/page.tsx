@@ -8,22 +8,34 @@ import {
 import { JobFilters } from "@/app/components/features/job/JobFilters";
 import { JobListings } from "@/app/components/features/job/JobListingsTab";
 import { Icon } from "@iconify/react";
-import { useServices } from "@/app/hooks/services/use-services";
+import { useFreelancerServices } from "@/app/hooks/services/use-freelancer-service";
 import { useCategories } from "@/app/hooks/use-categories";
 
-// app/jobs/page.tsx (extrait)
-
 export default function JobListingsPage() {
-  const { filters, updateFilters, services, loading } = useServices({
+  const {
+    availableServices,
+    availablePagination,
+    isLoadingAvailable,
+    filters,
+    updateFilters,
+    applyToService,
+    isApplying,
+    applications,
+    wishlist, // À ajouter dans le hook si nécessaire
+    toggleFavorite, // À ajouter dans le hook si nécessaire
+    isFavorite, // À ajouter dans le hook si nécessaire
+    isLoading,
+  } = useFreelancerServices({
     initialFilters: {
       page: 1,
-      limit: 10,
+      per_page: 10,
       sort_by: "date",
       sort_order: "desc",
     },
   });
-
-  const { categories } = useCategories();
+  // keep only the ids
+  const favorites = wishlist.map((item) => item.service_id);
+  const { categories, loading: categoriesLoading } = useCategories();
 
   return (
     <div className="min-h-screen bg-white mt-5 rounded-3xl flex flex-col lg:flex-row">
@@ -57,7 +69,17 @@ export default function JobListingsPage() {
       </div>
 
       {/* Results */}
-      <JobListings />
+      <JobListings
+        availableServices={availableServices}
+        isLoading={isLoadingAvailable}
+        onApply={applyToService}
+        isApplying={isApplying}
+        pagination={availablePagination}
+        applications={applications}
+        toggleFavorite={toggleFavorite}
+        isFavorite={isFavorite}
+        favorites={favorites}
+      />
     </div>
   );
 }

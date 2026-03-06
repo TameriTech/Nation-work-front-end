@@ -130,6 +130,7 @@ export const updateFreelancerProfileSchema = z.object({
     .optional()
     .nullable(),
   is_available: z.boolean().optional(),
+  phone_number: z.string().optional().nullable(),
 });
 
 // Types exportés

@@ -5,7 +5,8 @@ import { handleApiError } from "@/app/lib/server/errors";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const data = await backendFetch("/candidatures", { 
+    console.log("Candidature created successfully:", body);
+    const data = await backendFetch("/candidatures/apply", { 
       method: "POST", 
       body: JSON.stringify(body) 
     });

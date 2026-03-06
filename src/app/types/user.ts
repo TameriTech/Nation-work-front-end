@@ -1,4 +1,3 @@
-
 export interface User {
   id: number;
   email: string;
@@ -6,11 +5,29 @@ export interface User {
   first_name?: string;
   last_name?: string;
   role: 'client' | 'freelancer' | 'admin' | 'super_admin' | 'moderator';
+  phone_number?: string;
   is_active: boolean;
   rating?: number;
-  phone_number?: string;
+  is_verified: boolean;
+  verified_badge?: boolean;
+  top_rated?: boolean;
+  phone?: string;
   profile_picture?: string;
   created_at: string;
+  updated_at: string;
+  last_login?: string;
+  suspension_reason?: string;
+  suspended_until?: string;
+  pending_documents?: string[];
+  stats?: {
+    services_posted?: number;
+    services_completed?: number;
+    total_spent?: number;
+    total_earned?: number;
+    average_rating?: number;
+    response_rate?: number;
+    completion_rate?: number;
+  };
 }
 
 export interface FreelancerProfile {
@@ -144,6 +161,7 @@ export enum DocumentType {
   BANK_RIB = "bank_rib",
   TAX_CERTIFICATE = "tax_certificate",
   CRIMINAL_RECORD = "criminal_record",
+  RESIDENCE_PERMIT = "residence_permit",
   PROFILE_PICTURE = "profile_picture",
   OTHER = "other"
 }

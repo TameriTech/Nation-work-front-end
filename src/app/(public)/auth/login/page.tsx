@@ -13,6 +13,9 @@ import {
 import Link from "next/link";
 
 const LoginPage = () => {
+  // admin: admin@example.com / Admin123!
+  // client: cto@techstartup.io / Startup123!
+  // freelancer: web.dev@freelance.fr / Dev12345!
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
@@ -29,6 +32,14 @@ const LoginPage = () => {
     setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    // defaultValues: {
+    //   email: "admin@example.com",
+    //   password: "Admin123!",
+    // },
+    // defaultValues: {
+    //   email: "cto@techstartup.io",
+    //   password: "Startup123!",
+    // },
     defaultValues: {
       email: "web.dev@freelance.fr",
       password: "Dev12345!",

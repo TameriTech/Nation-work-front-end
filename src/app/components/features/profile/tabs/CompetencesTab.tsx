@@ -1,49 +1,53 @@
-// components/features/profile/tabs/CompetencesTab.tsx
+// components/features/profile/tabs/CompetencesTabContent.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
 import { Icon } from "@iconify/react";
-import { useFreelancerProfile } from "@/app/hooks/use-freelancer-profile";
+import { useSkills } from "@/app/hooks/profile/use-skills";
 import { AddSkillModal } from "../modals/AddSkillModal";
-import { Skill } from "@/app/types/user";
-import * as userService from "@/app/services/users.service";
-
-interface SkillGroup {
-  id: number;
-  name: string;
-  tags: string[];
-}
+import { Skill, FreelancerSkill } from "@/app/types/user";
 
 export default function CompetencesTabContent() {
-  const { skills, removeSkill, loading } = useFreelancerProfile();
+  const {
+    mySkills,
+    allSkills,
+    isLoading,
+    addSkill,
+    removeSkill,
+    updateSkill,
+    getAvailableSkills,
+    getSkillsByType,
+  } = useSkills();
+
   const [showAddSkillModal, setShowAddSkillModal] = useState(false);
-  const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
-  const [skillType, setSkillType] = useState<"primary" | "secondary">(
-    "primary",
+  const [editingSkill, setEditingSkill] = useState<FreelancerSkill | null>(
+    null,
   );
 
-  useEffect(() => {
-    loadAvailableSkills();
-  }, []);
-
-  const loadAvailableSkills = async () => {
-    try {
-      // À implémenter: appel API pour récupérer toutes les compétences disponibles
-      const skills = await userService.getAllSkills();
-      setAvailableSkills(skills);
-    } catch (error) {
-      console.error("Error loading skills:", error);
-    }
-  };
+  const { primary, secondary, other } = getSkillsByType();
+  const availableSkills = getAvailableSkills();
 
   const handleAddSkill = async (
     skillId: number,
-    type: string,
+    skillType: string,
     proficiency: number,
   ) => {
-    await userService.addSkill(skillId, type, proficiency);
-    setShowAddSkillModal(false);
+    if (editingSkill) {
+      await updateSkill({
+        skillId: editingSkill.id,
+        type: skillType,
+        proficiency,
+      });
+      setEditingSkill(null);
+    } else {
+      await addSkill({ skillId, type: skillType, proficiency });
+    }
+  };
+
+  const handleEditSkill = (skill: FreelancerSkill) => {
+    setEditingSkill(skill);
+    setShowAddSkillModal(true);
   };
 
   const handleRemoveSkill = async (skillId: number) => {
@@ -52,23 +56,13 @@ export default function CompetencesTabContent() {
     }
   };
 
-  // Grouper les compétences par type
-  const primarySkills = skills.filter((s) => s.skillType === "primary");
-  const secondarySkills = skills.filter((s) => s.skillType === "secondary");
-  const otherSkills = skills.filter((s) => s.skillType === "other");
-
-  const transformToSkillGroup = (
-    freelancerSkills: typeof skills,
-  ): SkillGroup[] => {
-    return freelancerSkills.map((fs) => ({
-      id: fs.id,
-      name: fs.skill.name,
-      tags: [
-        fs.skill.category || "Compétence",
-        `Niveau ${fs.proficiencyLevel}/5`,
-      ],
-    }));
-  };
+  if (isLoading) {
+    return (
+      <Card className="p-8 rounded-3xl shadow-sm bg-white">
+        <div className="text-center py-8">Chargement...</div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-8 rounded-3xl shadow-sm bg-white">
@@ -76,37 +70,37 @@ export default function CompetencesTabContent() {
         {/* Compétences Principales */}
         <SkillsSection
           title="Compétences Professionnelles"
-          skills={transformToSkillGroup(primarySkills)}
+          skills={primary}
           onAdd={() => {
-            setSkillType("primary");
+            setEditingSkill(null);
             setShowAddSkillModal(true);
           }}
-          onEdit={(id: number) => console.log("Edit skill", id)}
+          onEdit={handleEditSkill}
           onDelete={handleRemoveSkill}
         />
 
         {/* Compétences Secondaires */}
         <SkillsSection
           title="Compétences Secondaires"
-          skills={transformToSkillGroup(secondarySkills)}
+          skills={secondary}
           onAdd={() => {
-            setSkillType("secondary");
+            setEditingSkill(null);
             setShowAddSkillModal(true);
           }}
-          onEdit={(id: number) => console.log("Edit skill", id)}
+          onEdit={handleEditSkill}
           onDelete={handleRemoveSkill}
         />
 
         {/* Autres Compétences */}
-        {otherSkills.length > 0 && (
+        {other.length > 0 && (
           <SkillsSection
             title="Autres Compétences"
-            skills={transformToSkillGroup(otherSkills)}
+            skills={other}
             onAdd={() => {
-              setSkillType("secondary");
+              setEditingSkill(null);
               setShowAddSkillModal(true);
             }}
-            onEdit={(id: number) => console.log("Edit skill", id)}
+            onEdit={handleEditSkill}
             onDelete={handleRemoveSkill}
           />
         )}
@@ -115,9 +109,22 @@ export default function CompetencesTabContent() {
       {/* Modal d'ajout de compétence */}
       <AddSkillModal
         isOpen={showAddSkillModal}
-        onClose={() => setShowAddSkillModal(false)}
+        onClose={() => {
+          setShowAddSkillModal(false);
+          setEditingSkill(null);
+        }}
         onSave={handleAddSkill}
         availableSkills={availableSkills}
+        initialData={
+          editingSkill
+            ? {
+                skillId: editingSkill.skill_id,
+                skillType: editingSkill.skill_type,
+                proficiency: editingSkill.proficiency_level,
+              }
+            : undefined
+        }
+        isEditing={!!editingSkill}
       />
     </Card>
   );
@@ -149,55 +156,89 @@ function SkillsSection({ title, skills, onAdd, onEdit, onDelete }: any) {
             Aucune compétence ajoutée
           </p>
         ) : (
-          skills.map((skill: any, index: number) => (
-            <div key={skill.id}>
-              <div className="flex items-start justify-between py-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon icon="bi:star" className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900">
-                      {skill.name}
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {skill.tags.map((tag: string, tagIndex: number) => (
-                        <span
-                          key={tagIndex}
-                          className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-500"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <button
-                    onClick={() => onEdit?.(skill.id)}
-                    className="p-1.5 text-primary hover:text-primary/80 transition-colors"
-                  >
-                    <Icon
-                      icon="bx:bx-edit-alt"
-                      className="w-5 h-5 text-blue-900"
-                    />
-                  </button>
-                  <button
-                    onClick={() => onDelete?.(skill.id)}
-                    className="p-1.5 text-destructive hover:text-destructive/80 transition-colors"
-                  >
-                    <Icon icon="bi:trash" className="w-5 h-5 text-red-600" />
-                  </button>
-                </div>
-              </div>
-              {index < skills.length - 1 && (
-                <div className="border-b border-gray-200" />
-              )}
-            </div>
+          skills.map((skill: FreelancerSkill, index: number) => (
+            <SkillItem
+              key={skill.id}
+              skill={skill}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isLast={index === skills.length - 1}
+            />
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function SkillItem({ skill, onEdit, onDelete, isLast }: any) {
+  const getProficiencyLabel = (level: number) => {
+    const labels = [
+      "",
+      "Débutant",
+      "Intermédiaire",
+      "Avancé",
+      "Expert",
+      "Expert+",
+    ];
+    return labels[level] || `Niveau ${level}`;
+  };
+
+  return (
+    <div>
+      <div className="flex items-start justify-between py-4">
+        <div className="flex items-start gap-4 flex-1">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Icon icon="bi:star" className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-gray-900">
+                {skill.skill.name}
+              </h4>
+              <span className="text-sm text-blue-600 font-medium">
+                {getProficiencyLabel(skill.proficiency_level)}
+              </span>
+            </div>
+
+            {/* Barre de progression du niveau */}
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-600 rounded-full"
+                style={{ width: `${(skill.proficiency_level / 5) * 100}%` }}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className="px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700">
+                {skill.skill_type === "primary"
+                  ? "Principale"
+                  : skill.skill_type === "secondary"
+                    ? "Secondaire"
+                    : "Autre"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+          <button
+            onClick={() => onEdit(skill)}
+            className="p-1.5 text-primary hover:text-primary/80 transition-colors"
+            title="Modifier"
+          >
+            <Icon icon="bx:bx-edit-alt" className="w-5 h-5 text-blue-900" />
+          </button>
+          <button
+            onClick={() => onDelete(skill.id)}
+            className="p-1.5 text-destructive hover:text-destructive/80 transition-colors"
+            title="Supprimer"
+          >
+            <Icon icon="bi:trash" className="w-5 h-5 text-red-600" />
+          </button>
+        </div>
+      </div>
+      {!isLast && <div className="border-b border-gray-200" />}
     </div>
   );
 }

@@ -1,6 +1,13 @@
 // components/features/profile/modals/AddEducationModal.tsx
 "use client";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createEducationSchema,
+  updateEducationSchema,
+  type CreateEducationFormData,
+  type UpdateEducationFormData,
+} from "@/app/lib/validators/experience.validator";
 import { Button } from "@/app/components/ui/button";
 import {
   Dialog,
@@ -13,13 +20,16 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { CreateEducationDto } from "@/app/types/user";
+import { Education } from "@/app/types/user";
 
 interface AddEducationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: CreateEducationDto) => Promise<void>;
-  initialData?: CreateEducationDto;
+  onSave: (
+    data: CreateEducationFormData | UpdateEducationFormData,
+  ) => Promise<void>;
+  initialData?: Education;
+  isLoading?: boolean;
 }
 
 export function AddEducationModal({
@@ -27,53 +37,81 @@ export function AddEducationModal({
   onClose,
   onSave,
   initialData,
+  isLoading = false,
 }: AddEducationModalProps) {
-  const [formData, setFormData] = useState<CreateEducationDto>(
-    initialData || {
-      school: "",
-      degree: "",
-      field_of_study: "",
-      description: "",
-      start_date: "",
-      end_date: "",
-      is_current: false,
-      grade: "",
-    },
-  );
-  const [loading, setLoading] = useState(false);
+  const isEditMode = !!initialData;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving education:", error);
-    } finally {
-      setLoading(false);
-    }
+  // Choisir le schéma approprié selon le mode
+  const schema = isEditMode ? updateEducationSchema : createEducationSchema;
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreateEducationFormData | UpdateEducationFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: initialData
+      ? {
+          school: initialData.school,
+          degree: initialData.degree || "",
+          field_of_study: initialData.field_of_study || "",
+          description: initialData.description || "",
+          start_date: initialData.start_date.split("T")[0],
+          end_date: initialData.end_date?.split("T")[0] || "",
+          is_current: initialData.is_current,
+          grade: initialData.grade || "",
+        }
+      : {
+          school: "",
+          degree: "",
+          field_of_study: "",
+          description: "",
+          start_date: "",
+          end_date: "",
+          is_current: false,
+          grade: "",
+        },
+  });
+
+  const isCurrent = watch("is_current");
+  const startDate = watch("start_date");
+  const endDate = watch("end_date");
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const onSubmit = async (
+    data: CreateEducationFormData | UpdateEducationFormData,
+  ) => {
+    await onSave(data);
+    reset();
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Modifier" : "Ajouter"} une formation
+            {isEditMode ? "Modifier" : "Ajouter"} une formation
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="school">Établissement *</Label>
             <Input
               id="school"
-              value={formData.school}
-              onChange={(e) =>
-                setFormData({ ...formData, school: e.target.value })
-              }
-              required
+              {...register("school")}
+              placeholder="Ex: Université de Yaoundé I"
             />
+            {errors.school && (
+              <p className="text-sm text-red-500">{errors.school.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -81,74 +119,71 @@ export function AddEducationModal({
               <Label htmlFor="degree">Diplôme</Label>
               <Input
                 id="degree"
-                value={formData.degree}
-                onChange={(e) =>
-                  setFormData({ ...formData, degree: e.target.value })
-                }
+                {...register("degree")}
+                placeholder="Ex: Licence, Master, Doctorat"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fieldOfStudy">Domaine d'étude</Label>
+              <Label htmlFor="field_of_study">Domaine d'étude</Label>
               <Input
-                id="fieldOfStudy"
-                value={formData.field_of_study}
-                onChange={(e) =>
-                  setFormData({ ...formData, field_of_study: e.target.value })
-                }
+                id="field_of_study"
+                {...register("field_of_study")}
+                placeholder="Ex: Informatique, Commerce"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Date de début *</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) =>
-                  setFormData({ ...formData, start_date: e.target.value })
-                }
-                required
-              />
+              <Label htmlFor="start_date">Date de début *</Label>
+              <Input id="start_date" type="date" {...register("start_date")} />
+              {errors.start_date && (
+                <p className="text-sm text-red-500">
+                  {errors.start_date.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">Date de fin</Label>
+              <Label htmlFor="end_date">Date de fin</Label>
               <Input
-                id="endDate"
+                id="end_date"
                 type="date"
-                value={formData.end_date}
-                onChange={(e) =>
-                  setFormData({ ...formData, end_date: e.target.value })
-                }
-                disabled={formData.is_current}
+                {...register("end_date")}
+                disabled={isCurrent}
               />
+              {errors.end_date && (
+                <p className="text-sm text-red-500">
+                  {errors.end_date.message}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
             <Checkbox
-              id="isCurrent"
-              checked={formData.is_current}
+              id="is_current"
+              checked={isCurrent}
               onCheckedChange={(checked) =>
-                setFormData({
-                  ...formData,
-                  is_current: checked as boolean,
-                  end_date: "",
-                })
+                setValue("is_current", checked as boolean)
               }
             />
-            <Label htmlFor="isCurrent">Je suis actuellement en formation</Label>
+            <Label htmlFor="is_current">En cours de formation</Label>
           </div>
+
+          {/* Message d'information sur les dates */}
+          {!isCurrent && !endDate && startDate && (
+            <p className="text-sm text-amber-600">
+              Veuillez renseigner une date de fin car la formation n'est plus en
+              cours.
+            </p>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="grade">Mention/Grade</Label>
             <Input
               id="grade"
-              value={formData.grade}
-              onChange={(e) =>
-                setFormData({ ...formData, grade: e.target.value })
-              }
+              {...register("grade")}
+              placeholder="Ex: Très Bien, 16/20"
             />
           </div>
 
@@ -156,22 +191,20 @@ export function AddEducationModal({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              {...register("description")}
+              placeholder="Description de la formation..."
               rows={3}
             />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={handleClose}>
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading
+            <Button type="submit" disabled={isLoading || isSubmitting}>
+              {isLoading || isSubmitting
                 ? "Enregistrement..."
-                : initialData
+                : isEditMode
                   ? "Modifier"
                   : "Ajouter"}
             </Button>

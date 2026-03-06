@@ -1,6 +1,8 @@
 // components/features/profile/modals/EditProfileModal.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/app/components/ui/button";
 import {
   Dialog,
@@ -21,12 +23,19 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { FreelancerFullProfile } from "@/app/types/user";
-import { UpdateFreelancerProfileData } from "@/app/types/user";
+import {
+  updateFreelancerProfileSchema,
+  locationSchema,
+  type UpdateFreelancerProfileFormData,
+  type LocationFormData,
+} from "@/app/lib/validators/user.validator";
+
+type FormData = UpdateFreelancerProfileFormData & LocationFormData;
 
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: UpdateFreelancerProfileData) => Promise<void>;
+  onSave: (data: FormData) => Promise<void>;
   initialData: FreelancerFullProfile;
   section: "professional" | "location" | null;
 }
@@ -38,84 +47,98 @@ export function EditProfileModal({
   initialData,
   section,
 }: EditProfileModalProps) {
-  const [formData, setFormData] = useState<UpdateFreelancerProfileData>({});
-  const [loading, setLoading] = useState(false);
+  // Choisir le schéma approprié selon la section
+  const schema =
+    section === "professional" ? updateFreelancerProfileSchema : locationSchema;
 
-  // Initialiser le formulaire quand la modal s'ouvre
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting, isValid },
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    defaultValues:
+      section === "professional"
+        ? {
+            study_level: initialData.study_level || undefined,
+            last_diploma: initialData.last_diploma || undefined,
+            primary_skill: initialData.primary_skill || undefined,
+            secondary_skill: initialData.secondary_skill || undefined,
+            other_skills: initialData.other_skills || undefined,
+            years_experience: initialData.years_experience || 0,
+            hourly_rate: initialData.hourly_rate || 0,
+            summary: initialData.summary || undefined,
+            nationality: initialData.nationality || undefined,
+            gender: initialData.gender as
+              | "homme"
+              | "femme"
+              | "autre"
+              | undefined,
+            age: initialData.age || undefined,
+            is_available: initialData.is_available,
+            phone_number: initialData.user?.phone_number || undefined,
+          }
+        : {
+            address: initialData.address || undefined,
+            quarter: initialData.quarter || undefined,
+            city: initialData.city || undefined,
+            postal_code: initialData.postal_code || undefined,
+            country: initialData.country || undefined,
+            phone_number: initialData.user?.phone_number || undefined,
+          },
+  });
+
+  // Réinitialiser le formulaire quand la modal s'ouvre ou que la section change
   useEffect(() => {
-    if (initialData && section) {
+    if (isOpen && initialData && section) {
       if (section === "professional") {
-        setFormData({
-          study_level: initialData.study_level || null,
-          last_diploma: initialData.last_diploma || null,
-          primary_skill: initialData.primary_skill || null,
-          secondary_skill: initialData.secondary_skill || null,
-          other_skills: initialData.other_skills || null,
+        reset({
+          study_level: initialData.study_level || undefined,
+          last_diploma: initialData.last_diploma || undefined,
+          primary_skill: initialData.primary_skill || undefined,
+          secondary_skill: initialData.secondary_skill || undefined,
+          other_skills: initialData.other_skills || undefined,
           years_experience: initialData.years_experience || 0,
           hourly_rate: initialData.hourly_rate || 0,
-          summary: initialData.summary || null,
-          nationality: initialData.nationality || null,
-          gender: initialData.gender || null,
-          age: initialData.age || null,
+          summary: initialData.summary || undefined,
+          nationality: initialData.nationality || undefined,
+          gender: initialData.gender as "homme" | "femme" | "autre" | undefined,
+          age: initialData.age || undefined,
           is_available: initialData.is_available,
-          // Also include location fields if they exist in professional section
-          address: initialData.address || null,
-          quarter: initialData.quarter || null,
-          city: initialData.city || null,
-          postal_code: initialData.postal_code || null,
-          country: initialData.country || null,
-          phone_number: initialData.user?.phone_number || null,
+          phone_number: initialData.user?.phone_number || undefined,
         });
-      } else if (section === "location") {
-        setFormData({
-          address: initialData.address || null,
-          quarter: initialData.quarter || null,
-          city: initialData.city || null,
-          postal_code: initialData.postal_code || null,
-          country: initialData.country || null,
-          phone_number: initialData.user?.phone_number || null,
-          // Keep existing professional data
-          study_level: initialData.study_level || null,
-          last_diploma: initialData.last_diploma || null,
-          primary_skill: initialData.primary_skill || null,
-          secondary_skill: initialData.secondary_skill || null,
-          other_skills: initialData.other_skills || null,
-          years_experience: initialData.years_experience || 0,
-          hourly_rate: initialData.hourly_rate || 0,
-          summary: initialData.summary || null,
-          nationality: initialData.country || null,
-          gender: initialData.gender || null,
-          age: initialData.age || null,
-          is_available: initialData.is_available,
+      } else {
+        reset({
+          address: initialData.address || undefined,
+          quarter: initialData.quarter || undefined,
+          city: initialData.city || undefined,
+          postal_code: initialData.postal_code || undefined,
+          country: initialData.country || undefined,
+          phone_number: initialData.user?.phone_number || undefined,
         });
       }
     }
-  }, [initialData, section, isOpen]);
+  }, [isOpen, initialData, section, reset]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      // Filter out null values and only send fields that have been changed
-      const dataToSend = Object.fromEntries(
-        Object.entries(formData).filter(
-          ([_, value]) => value !== null && value !== undefined,
-        ),
-      );
-      await onSave(dataToSend);
-      onClose(); // Close modal after successful save
-    } catch (error) {
-      console.error("Error saving profile:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleClose = () => {
+    reset();
+    onClose();
   };
 
-  const handleChange = (
-    field: keyof UpdateFreelancerProfileData,
-    value: any,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const onSubmit = async (data: FormData) => {
+    // Filtrer les champs vides/undefined
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== undefined && value !== null && value !== "",
+      ),
+    );
+    await onSave(cleanData);
+    reset();
+    onClose();
   };
 
   const getTitle = () => {
@@ -128,25 +151,37 @@ export function EditProfileModal({
 
   if (!section) return null;
 
+  const isLocationSection = section === "location";
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-gray-800">{getTitle()}</DialogTitle>
+          <DialogTitle className="text-gray-800 text-xl font-semibold">
+            {getTitle()}
+          </DialogTitle>
+          <p className="text-sm text-gray-500 mt-1">
+            Remplissez les informations à modifier
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          {section === "professional" && (
-            <>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
+          {!isLocationSection ? (
+            // Section Professionnelle
+            <div className="space-y-4">
               {/* Niveau d'étude */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="study_level">
+                <Label
+                  htmlFor="study_level"
+                  className="text-gray-800 font-medium"
+                >
                   Niveau d'étude
                 </Label>
                 <Select
-                  value={formData.study_level || ""}
-                  onValueChange={(value) => handleChange("study_level", value)}
+                  value={watch("study_level") || ""}
+                  onValueChange={(value) => setValue("study_level", value)}
                 >
-                  <SelectTrigger className="bg-white text-gray-800 active:ring-0 active:outline-0 focus:ring-0 focus:outline-0">
+                  <SelectTrigger className="bg-white text-gray-800">
                     <SelectValue placeholder="Sélectionnez votre niveau" />
                   </SelectTrigger>
                   <SelectContent>
@@ -160,26 +195,41 @@ export function EditProfileModal({
                     <SelectItem value="autre">Autre</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.study_level && (
+                  <p className="text-sm text-red-500">
+                    {errors.study_level.message}
+                  </p>
+                )}
               </div>
 
               {/* Dernier diplôme */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="last_diploma">
+                <Label
+                  htmlFor="last_diploma"
+                  className="text-gray-800 font-medium"
+                >
                   Dernier diplôme
                 </Label>
                 <Input
                   id="last_diploma"
                   className="bg-white"
-                  value={formData.last_diploma || ""}
-                  onChange={(e) => handleChange("last_diploma", e.target.value)}
+                  {...register("last_diploma")}
                   placeholder="Ex: Master en Informatique"
                 />
+                {errors.last_diploma && (
+                  <p className="text-sm text-red-500">
+                    {errors.last_diploma.message}
+                  </p>
+                )}
               </div>
 
               {/* Années d'expérience et Tarif horaire */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="years_experience">
+                  <Label
+                    htmlFor="years_experience"
+                    className="text-gray-800 font-medium"
+                  >
                     Années d'expérience
                   </Label>
                   <Input
@@ -187,17 +237,19 @@ export function EditProfileModal({
                     className="bg-white"
                     type="number"
                     min="0"
-                    value={formData.years_experience || 0}
-                    onChange={(e) =>
-                      handleChange(
-                        "years_experience",
-                        parseInt(e.target.value) || 0,
-                      )
-                    }
+                    {...register("years_experience", { valueAsNumber: true })}
                   />
+                  {errors.years_experience && (
+                    <p className="text-sm text-red-500">
+                      {errors.years_experience.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="hourly_rate">
+                  <Label
+                    htmlFor="hourly_rate"
+                    className="text-gray-800 font-medium"
+                  >
                     Tarif horaire (FCFA)
                   </Label>
                   <Input
@@ -206,59 +258,60 @@ export function EditProfileModal({
                     type="number"
                     min="0"
                     step="100"
-                    value={formData.hourly_rate || 0}
-                    onChange={(e) =>
-                      handleChange(
-                        "hourly_rate",
-                        parseFloat(e.target.value) || 0,
-                      )
-                    }
+                    {...register("hourly_rate", { valueAsNumber: true })}
                   />
+                  {errors.hourly_rate && (
+                    <p className="text-sm text-red-500">
+                      {errors.hourly_rate.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Compétence principale */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="primary_skill">
+                <Label
+                  htmlFor="primary_skill"
+                  className="text-gray-800 font-medium"
+                >
                   Compétence principale
                 </Label>
                 <Input
                   id="primary_skill"
                   className="bg-white"
-                  value={formData.primary_skill || ""}
-                  onChange={(e) =>
-                    handleChange("primary_skill", e.target.value)
-                  }
+                  {...register("primary_skill")}
                   placeholder="Ex: Développement Web"
                 />
               </div>
 
               {/* Compétence secondaire */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="secondary_skill">
+                <Label
+                  htmlFor="secondary_skill"
+                  className="text-gray-800 font-medium"
+                >
                   Compétence secondaire
                 </Label>
                 <Input
                   id="secondary_skill"
                   className="bg-white"
-                  value={formData.secondary_skill || ""}
-                  onChange={(e) =>
-                    handleChange("secondary_skill", e.target.value)
-                  }
+                  {...register("secondary_skill")}
                   placeholder="Ex: Design UI/UX"
                 />
               </div>
 
               {/* Autres compétences */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="other_skills">
+                <Label
+                  htmlFor="other_skills"
+                  className="text-gray-800 font-medium"
+                >
                   Autres compétences
                 </Label>
                 <Textarea
                   id="other_skills"
                   className="bg-white"
-                  value={formData.other_skills || ""}
-                  onChange={(e) => handleChange("other_skills", e.target.value)}
+                  {...register("other_skills")}
                   placeholder="Séparez les compétences par des virgules"
                   rows={3}
                 />
@@ -266,36 +319,40 @@ export function EditProfileModal({
 
               {/* Bio / Résumé */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="summary">
+                <Label htmlFor="summary" className="text-gray-800 font-medium">
                   Bio / Résumé
                 </Label>
                 <Textarea
                   id="summary"
                   className="bg-white"
-                  value={formData.summary || ""}
-                  onChange={(e) => handleChange("summary", e.target.value)}
+                  {...register("summary")}
                   placeholder="Présentez-vous en quelques phrases..."
                   rows={4}
                 />
+                {errors.summary && (
+                  <p className="text-sm text-red-500">
+                    {errors.summary.message}
+                  </p>
+                )}
               </div>
 
               {/* Nationalité et Âge */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="nationality">
+                  <Label
+                    htmlFor="nationality"
+                    className="text-gray-800 font-medium"
+                  >
                     Nationalité
                   </Label>
                   <Input
                     id="nationality"
                     className="bg-white"
-                    value={formData.nationality || ""}
-                    onChange={(e) =>
-                      handleChange("nationality", e.target.value)
-                    }
+                    {...register("nationality")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="age">
+                  <Label htmlFor="age" className="text-gray-800 font-medium">
                     Âge
                   </Label>
                   <Input
@@ -303,22 +360,24 @@ export function EditProfileModal({
                     className="bg-white"
                     type="number"
                     min="18"
-                    value={formData.age || ""}
-                    onChange={(e) =>
-                      handleChange("age", parseInt(e.target.value) || null)
-                    }
+                    {...register("age", { valueAsNumber: true })}
                   />
+                  {errors.age && (
+                    <p className="text-sm text-red-500">{errors.age.message}</p>
+                  )}
                 </div>
               </div>
 
               {/* Genre */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="gender">
+                <Label htmlFor="gender" className="text-gray-800 font-medium">
                   Genre
                 </Label>
                 <Select
-                  value={formData.gender || ""}
-                  onValueChange={(value) => handleChange("gender", value)}
+                  value={watch("gender") || ""}
+                  onValueChange={(value: "homme" | "femme" | "autre") =>
+                    setValue("gender", value)
+                  }
                 >
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Sélectionnez" />
@@ -333,16 +392,23 @@ export function EditProfileModal({
 
               {/* Téléphone */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="phone_number">
+                <Label
+                  htmlFor="phone_number"
+                  className="text-gray-800 font-medium"
+                >
                   Téléphone
                 </Label>
                 <Input
                   id="phone_number"
                   className="bg-white"
-                  value={formData.phone_number || ""}
-                  onChange={(e) => handleChange("phone_number", e.target.value)}
+                  {...register("phone_number")}
                   placeholder="Ex: +237 655 31 60 13"
                 />
+                {errors.phone_number && (
+                  <p className="text-sm text-red-500">
+                    {errors.phone_number.message}
+                  </p>
+                )}
               </div>
 
               {/* Disponibilité */}
@@ -350,44 +416,49 @@ export function EditProfileModal({
                 <Checkbox
                   id="is_available"
                   className="bg-white text-gray-800"
-                  checked={formData.is_available || false}
+                  checked={watch("is_available") || false}
                   onCheckedChange={(checked) =>
-                    handleChange("is_available", checked)
+                    setValue("is_available", checked as boolean)
                   }
                 />
-                <Label className="text-gray-800" htmlFor="is_available">
+                <Label
+                  htmlFor="is_available"
+                  className="text-gray-800 cursor-pointer"
+                >
                   Disponible pour de nouvelles missions
                 </Label>
               </div>
-            </>
-          )}
-
-          {section === "location" && (
-            <>
+            </div>
+          ) : (
+            // Section Localisation
+            <div className="space-y-4">
               {/* Adresse */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="address">
+                <Label htmlFor="address" className="text-gray-800 font-medium">
                   Adresse de résidence
                 </Label>
                 <Input
                   id="address"
                   className="bg-white"
-                  value={formData.address || ""}
-                  onChange={(e) => handleChange("address", e.target.value)}
+                  {...register("address")}
                   placeholder="Ex: 123 Rue Principale"
                 />
+                {errors.address && (
+                  <p className="text-sm text-red-500">
+                    {errors.address.message}
+                  </p>
+                )}
               </div>
 
               {/* Quartier */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="quarter">
+                <Label htmlFor="quarter" className="text-gray-800 font-medium">
                   Quartier
                 </Label>
                 <Input
                   id="quarter"
                   className="bg-white"
-                  value={formData.quarter || ""}
-                  onChange={(e) => handleChange("quarter", e.target.value)}
+                  {...register("quarter")}
                   placeholder="Ex: Akwa, Bonanjo, etc."
                 />
               </div>
@@ -395,73 +466,100 @@ export function EditProfileModal({
               {/* Ville et Code postal */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="city">
+                  <Label htmlFor="city" className="text-gray-800 font-medium">
                     Ville
                   </Label>
                   <Input
                     id="city"
                     className="bg-white"
-                    value={formData.city || ""}
-                    onChange={(e) => handleChange("city", e.target.value)}
+                    {...register("city")}
                     placeholder="Ex: Douala"
                   />
+                  {errors.city && (
+                    <p className="text-sm text-red-500">
+                      {errors.city.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-800" htmlFor="postal_code">
+                  <Label
+                    htmlFor="postal_code"
+                    className="text-gray-800 font-medium"
+                  >
                     Code postal
                   </Label>
                   <Input
                     id="postal_code"
                     className="bg-white"
-                    value={formData.postal_code || ""}
-                    onChange={(e) =>
-                      handleChange("postal_code", e.target.value)
-                    }
+                    {...register("postal_code")}
                     placeholder="Ex: 00000"
                   />
+                  {errors.postal_code && (
+                    <p className="text-sm text-red-500">
+                      {errors.postal_code.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Pays */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="country">
+                <Label htmlFor="country" className="text-gray-800 font-medium">
                   Pays
                 </Label>
                 <Input
                   id="country"
                   className="bg-white"
-                  value={formData.country || ""}
-                  onChange={(e) => handleChange("country", e.target.value)}
+                  {...register("country")}
                   placeholder="Ex: Cameroun"
                 />
+                {errors.country && (
+                  <p className="text-sm text-red-500">
+                    {errors.country.message}
+                  </p>
+                )}
               </div>
 
-              {/* Téléphone (aussi dans location) */}
+              {/* Téléphone */}
               <div className="space-y-2">
-                <Label className="text-gray-800" htmlFor="phone_number">
+                <Label
+                  htmlFor="phone_number"
+                  className="text-gray-800 font-medium"
+                >
                   Téléphone
                 </Label>
                 <Input
                   id="phone_number"
                   className="bg-white"
-                  value={formData.phone_number || ""}
-                  onChange={(e) => handleChange("phone_number", e.target.value)}
+                  {...register("phone_number")}
                   placeholder="Ex: +237 655 31 60 13"
                 />
+                {errors.phone_number && (
+                  <p className="text-sm text-red-500">
+                    {errors.phone_number.message}
+                  </p>
+                )}
               </div>
-            </>
+            </div>
           )}
 
-          <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <DialogFooter className="pt-4 border-t border-gray-200">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="rounded-full px-6"
+            >
               Annuler
             </Button>
             <Button
               type="submit"
-              disabled={loading}
-              className="bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus:ring-0 focus:outline-0"
+              disabled={isSubmitting || !isValid}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6"
             >
-              {loading ? "Enregistrement..." : "Enregistrer"}
+              {isSubmitting
+                ? "Enregistrement..."
+                : "Enregistrer les modifications"}
             </Button>
           </DialogFooter>
         </form>

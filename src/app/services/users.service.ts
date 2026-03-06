@@ -22,6 +22,7 @@ import {
   UpdateExperienceDto,
   UpdateEducationDto
 } from '@/app/types/user';
+import { CreateEducationFormData, CreateExperienceFormData, UpdateEducationFormData, UpdateExperienceFormData } from '../lib/validators';
 
 // ==================== AUTHENTIFICATION ====================
 
@@ -347,7 +348,7 @@ export async function getExperiences(): Promise<ProfessionalExperience[]> {
 /**
  * Ajouter une expérience
  */
-export async function addExperience(data: CreateExperienceDto): Promise<ProfessionalExperience> {
+export async function addExperience(data: CreateExperienceFormData): Promise<ProfessionalExperience> {
   try {
     const res = await fetch("/api/users/freelancer/experiences", {
       method: "POST",
@@ -367,7 +368,7 @@ export async function addExperience(data: CreateExperienceDto): Promise<Professi
 /**
  * Modifier une expérience
  */
-export async function updateExperience(id: number, data: UpdateExperienceDto): Promise<ProfessionalExperience> {
+export async function updateExperience(id: number, data: UpdateExperienceFormData): Promise<ProfessionalExperience> {
   try {
     const res = await fetch(`/api/users/freelancer/experiences/${id}`, {
       method: "PUT",
@@ -425,7 +426,7 @@ export async function getEducation(): Promise<Education[]> {
 /**
  * Ajouter une formation
  */
-export async function addEducation(data: CreateEducationDto): Promise<Education> {
+export async function addEducation(data: CreateEducationFormData): Promise<Education> {
   try {
     const res = await fetch("/api/users/freelancer/education", {
       method: "POST",
@@ -445,7 +446,7 @@ export async function addEducation(data: CreateEducationDto): Promise<Education>
 /**
  * Modifier une formation
  */
-export async function updateEducation(id: number, data: UpdateEducationDto): Promise<Education> {
+export async function updateEducation(id: number, data: UpdateEducationFormData): Promise<Education> {
   try {
     const res = await fetch(`/api/users/freelancer/education/${id}`, {
       method: "PUT",

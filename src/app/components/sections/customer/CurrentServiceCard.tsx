@@ -23,7 +23,7 @@ interface CurrentServiceCardProps {
   startTime: string;
   address: string;
   estimatedTime: string;
-  status: "en_cours" | "termine" | "en_attente";
+  status: "in_progress" | "completed" | "pending";
 }
 
 export const CurrentServiceCard = ({
@@ -39,9 +39,9 @@ export const CurrentServiceCard = ({
   status,
 }: CurrentServiceCardProps) => {
   const statusConfig = {
-    en_cours: { label: "En cours", color: "bg-emerald-500" },
-    termine: { label: "Terminé", color: "bg-primary" },
-    en_attente: { label: "En attente", color: "bg-amber-500" },
+    in_progress: { label: "En cours", color: "bg-emerald-500" },
+    completed: { label: "Terminé", color: "bg-primary" },
+    pending: { label: "En attente", color: "bg-amber-500" },
   };
 
   const currentStatus = statusConfig[status];

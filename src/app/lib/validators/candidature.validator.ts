@@ -21,7 +21,7 @@ export const candidatureSchema = z.object({
 });
 
 export const updateCandidatureStatusSchema = z.object({
-  status: z.enum(["en_attente", "acceptee", "refusee"]).refine((val) => true, {
+  status: z.enum(["pending", "accepted", "rejected"]).refine((val) => true, {
     message: "Statut de candidature invalide"
   }),
   rejection_reason: z.string()

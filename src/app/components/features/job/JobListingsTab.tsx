@@ -5,13 +5,36 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import { JobListingsContent } from "./tabs/JobListingsContent";
 import { FavoritesJobsContent } from "./tabs/FavoritesJobsContent";
 import { JobHistoryContent } from "./tabs/JobHistoriqueList";
-import { useServices } from "@/app/hooks/services/use-services";
+import { Service } from "@/app/types/services";
 
-export function JobListings() {
+interface JobListingsProps {
+  availableServices: Service[];
+  isLoading: boolean;
+  onApply: (params: {
+    serviceId: number;
+    message?: string;
+    proposedAmount?: number;
+  }) => void;
+  isApplying: boolean;
+  pagination: any;
+  applications: Service[];
+  toggleFavorite?: (id: number) => void;
+  isFavorite?: (id: number) => boolean;
+  favorites?: number[];
+}
+
+export function JobListings({
+  availableServices,
+  isLoading,
+  onApply,
+  isApplying,
+  pagination,
+  applications,
+  toggleFavorite,
+  isFavorite,
+  favorites = [],
+}: JobListingsProps) {
   const [activeTab, setActiveTab] = useState("liste");
-  const { toggleFavorite, isFavorite, favorites, services } = useServices({
-    initialFilters: { page: 1, limit: 10 },
-  });
 
   return (
     <div className="flex-1 p-6 overflow-auto">
@@ -40,7 +63,11 @@ export function JobListings() {
 
         <TabsContent value="liste" className="mt-6">
           <JobListingsContent
-            services={services}
+            services={availableServices}
+            isLoading={isLoading}
+            onApply={onApply}
+            isApplying={isApplying}
+            pagination={pagination}
             toggleFavorite={toggleFavorite}
             isFavorite={isFavorite}
           />
@@ -48,13 +75,18 @@ export function JobListings() {
 
         <TabsContent value="favorites" className="mt-6">
           <FavoritesJobsContent
+            services={availableServices}
+            isLoading={isLoading}
             toggleFavorite={toggleFavorite}
             isFavorite={isFavorite}
+            favorites={favorites}
           />
         </TabsContent>
 
         <TabsContent value="history" className="mt-6">
           <JobHistoryContent
+            services={applications}
+            isLoading={isLoading}
             toggleFavorite={toggleFavorite}
             isFavorite={isFavorite}
           />

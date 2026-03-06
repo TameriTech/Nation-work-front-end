@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { freelancerId } = await params;
-    const data = await backendFetch(`/freelancers/${freelancerId}/candidatures`);
+    const data = await backendFetch(`/services/freelancer/list`);
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error);

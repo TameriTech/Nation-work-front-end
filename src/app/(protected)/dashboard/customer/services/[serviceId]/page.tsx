@@ -60,7 +60,7 @@ const candidatureStatusConfig: Record<
   string,
   { label: string; color: string; bgColor: string }
 > = {
-  en_attente: {
+  pending: {
     label: "En attente",
     color: "text-yellow-700",
     bgColor: "bg-yellow-100",
@@ -107,7 +107,7 @@ export default function ServiceDetailPage() {
         console.log("Service Id: ", serviceId);
         setLoading(true);
         const data = await getClientServiceDetails(serviceId);
-        setService(data);
+        setService(data.service);
         setCandidates(data.candidates || []);
         setImages(data.images || []);
         console.log("Service details loaded: ", data);
@@ -392,9 +392,9 @@ export default function ServiceDetailPage() {
                   ? "border-blue-500"
                   : service.status === "assigned"
                     ? "border-purple-500"
-                    : service.status === "en_cours"
+                    : service.status === "pending"
                       ? "border-yellow-500"
-                      : service.status === "terminé"
+                      : service.status === "completed"
                         ? "border-green-500"
                         : "border-gray-500"
               }`}
@@ -404,11 +404,11 @@ export default function ServiceDetailPage() {
               </h2>
               <div className="flex items-center justify-between">
                 <span className="text-xl font-bold text-gray-900">
-                  {service.status === "published" && "Publié"}
-                  {service.status === "assigned" && "Assigné"}
-                  {service.status === "en_cours" && "En cours"}
-                  {service.status === "terminé" && "Terminé"}
-                  {service.status === "annulé" && "Annulé"}
+                  {service.status === "published"}
+                  {service.status === "assigned"}
+                  {service.status === "pending"}
+                  {service.status === "completed"}
+                  {service.status === "canceled"}
                 </span>
                 {service.freelancer ? (
                   <Badge className="bg-green-100 text-green-800">
@@ -431,14 +431,15 @@ export default function ServiceDetailPage() {
                   </p>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={service.freelancer.avatar} />
+                      <AvatarImage src={service.freelancer.profile_picture} />
                       <AvatarFallback>
-                        {service.freelancer.name?.charAt(0)}
+                        {service.freelancer.first_name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {service.freelancer.name}
+                        {service.freelancer.first_name}{" "}
+                        {service.freelancer.username}
                       </p>
                       <p className="text-sm text-gray-500">
                         Note: {service.freelancer.rating || "Nouveau"} ⭐
@@ -493,7 +494,7 @@ export default function ServiceDetailPage() {
             <div className="flex gap-2">
               <select className="px-3 py-2 border rounded-lg text-sm">
                 <option value="all">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
+                <option value="pending">En attente</option>
                 <option value="accepted">Acceptées</option>
                 <option value="rejected">Refusées</option>
               </select>
@@ -519,7 +520,7 @@ export default function ServiceDetailPage() {
               {candidates.map((candidate) => {
                 const status =
                   candidatureStatusConfig[candidate.status] ||
-                  candidatureStatusConfig.en_attente;
+                  candidatureStatusConfig.pending;
 
                 return (
                   <div
@@ -603,7 +604,7 @@ export default function ServiceDetailPage() {
                         </Button>
 
                         {service.status === "published" &&
-                          candidate.status === "en_attente" && (
+                          candidate.status === "pending" && (
                             <Button
                               size="sm"
                               onClick={() =>
