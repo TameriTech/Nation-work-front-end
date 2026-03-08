@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { FreelancerFullProfile } from "@/app/types/user";
+import { FreelancerFullProfile } from "@/app/types";
 import {
   updateFreelancerProfileSchema,
   locationSchema,

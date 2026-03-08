@@ -1,6 +1,6 @@
 // services/admin/payments.service.ts
 
-import { ApiResponse, PaginatedResponse, Payment, PaymentSummary, Payout } from '../types/admin';
+import { ApiResponse, PaginatedResponse, Payment, PaymentSummary, Payout } from "@/app/types";
 import { handleResponse } from '@/app/lib/error-handler';
 
 // ==================== RÉSUMÉ DES PAIEMENTS ====================

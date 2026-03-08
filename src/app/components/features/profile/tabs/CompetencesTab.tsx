@@ -6,7 +6,7 @@ import { Card } from "@/app/components/ui/card";
 import { Icon } from "@iconify/react";
 import { useSkills } from "@/app/hooks/profile/use-skills";
 import { AddSkillModal } from "../modals/AddSkillModal";
-import { Skill, FreelancerSkill } from "@/app/types/user";
+import { Skill, FreelancerSkill } from "@/app/types";
 
 export default function CompetencesTabContent() {
   const {

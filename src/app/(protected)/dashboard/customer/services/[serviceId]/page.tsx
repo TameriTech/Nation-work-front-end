@@ -1,5 +1,4 @@
-// ===== FILE: app/dashboard/customer/services/[id]/page.tsx =====
-
+// app/dashboard/customer/services/[id]/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,12 +7,9 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
-import {
-  getClientServiceDetails,
-  assignFreelancer,
-} from "@/app/services/service.service";
-import { Service } from "@/app/types/services";
-import { Candidature } from "@/app/types/candidatures";
+import { useClientServices } from "@/app/hooks/services/use-client-service";
+import type { Service } from "@/app/types/services";
+import type { Candidature } from "@/app/types";
 import ProgressStepper from "@/app/components/features/job-detail/ProgressStepper";
 import {
   Breadcrumb,
@@ -37,7 +33,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
+import ServiceDetailLoading from "./loading";
+import ServiceDetailError from "./error";
 
+// Types pour les candidatures
 interface CandidateDetails {
   id: number;
   freelancer_id: number;
@@ -82,47 +81,81 @@ const candidatureStatusConfig: Record<
   },
 };
 
+// Configuration des statuts de service
+const serviceStatusConfig: Record<
+  string,
+  { label: string; color: string; bgColor: string; borderColor: string }
+> = {
+  published: {
+    label: "Publié",
+    color: "text-blue-700",
+    bgColor: "bg-blue-100",
+    borderColor: "border-blue-500",
+  },
+  assigned: {
+    label: "Assigné",
+    color: "text-purple-700",
+    bgColor: "bg-purple-100",
+    borderColor: "border-purple-500",
+  },
+  in_progress: {
+    label: "En cours",
+    color: "text-yellow-700",
+    bgColor: "bg-yellow-100",
+    borderColor: "border-yellow-500",
+  },
+  completed: {
+    label: "Terminé",
+    color: "text-green-700",
+    bgColor: "bg-green-100",
+    borderColor: "border-green-500",
+  },
+  cancelled: {
+    label: "Annulé",
+    color: "text-red-700",
+    bgColor: "bg-red-100",
+    borderColor: "border-red-500",
+  },
+  disputed: {
+    label: "Litige",
+    color: "text-orange-700",
+    bgColor: "bg-orange-100",
+    borderColor: "border-orange-500",
+  },
+  draft: {
+    label: "Brouillon",
+    color: "text-gray-700",
+    bgColor: "bg-gray-100",
+    borderColor: "border-gray-500",
+  },
+};
+
 export default function ServiceDetailPage() {
   const router = useRouter();
   const params = useParams();
   const serviceId = Number(params.serviceId);
 
   // États
-  const [service, setService] = useState<Service | null>(null);
-  const [candidates, setCandidates] = useState<CandidateDetails[]>([]);
-  const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [assigningId, setAssigningId] = useState<number | null>(null);
-
-  // État pour le dialogue des détails du candidat
   const [selectedCandidate, setSelectedCandidate] =
     useState<CandidateDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [assigningId, setAssigningId] = useState<number | null>(null);
 
-  // Charger les données
-  useEffect(() => {
-    const loadServiceDetails = async () => {
-      try {
-        console.log("Service Id: ", serviceId);
-        setLoading(true);
-        const data = await getClientServiceDetails(serviceId);
-        setService(data.service);
-        setCandidates(data.candidates || []);
-        setImages(data.images || []);
-        console.log("Service details loaded: ", data);
-      } catch (err: any) {
-        setError(err.message || "Erreur lors du chargement");
-        toast.error("Impossible de charger les détails du service");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Hook personnalisé
+  const { getClientServiceDetails, assignFreelancer, isAssigning } =
+    useClientServices();
 
-    if (serviceId) {
-      loadServiceDetails();
-    }
-  }, [serviceId]);
+  const {
+    data: serviceData,
+    isLoading,
+    error,
+    refetch,
+  } = getClientServiceDetails(serviceId);
+
+  // Extraire les données
+  const service = serviceData;
+  const candidates = serviceData?.candidatures || [];
+  const images = serviceData?.service_images || [];
 
   // Assigner un freelance
   const handleAssignFreelancer = async (
@@ -137,13 +170,9 @@ export default function ServiceDetailPage() {
 
     try {
       setAssigningId(candidatureId);
-      await assignFreelancer(serviceId, freelancerId);
+      await assignFreelancer({ serviceId, freelancerId });
       toast.success("Freelance assigné avec succès !");
-
-      // Recharger les données
-      const data = await getClientServiceDetails(serviceId);
-      setService(data.service);
-      setCandidates(data.candidates || []);
+      refetch(); // Recharger les données
     } catch (err: any) {
       toast.error(err.message || "Erreur lors de l'assignation");
     } finally {
@@ -159,6 +188,7 @@ export default function ServiceDetailPage() {
 
   // Formater la date
   const formatDate = (dateString: string) => {
+    if (!dateString) return "Date non spécifiée";
     return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
@@ -168,6 +198,8 @@ export default function ServiceDetailPage() {
 
   // Calculer le temps écoulé
   const getTimeAgo = (dateString: string) => {
+    if (!dateString) return "";
+
     const diff = Date.now() - new Date(dateString).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
@@ -184,35 +216,22 @@ export default function ServiceDetailPage() {
   const labelClass = "text-sm text-gray-500";
   const valueClass = "text-gray-900 font-medium";
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Icon
-            icon="mdi:loading"
-            className="animate-spin text-4xl text-blue-600 mx-auto mb-4"
-          />
-          <p className="text-gray-600">Chargement du service...</p>
-        </div>
-      </div>
-    );
+  if (isLoading) {
+    return <ServiceDetailLoading />;
   }
 
   if (error || !service) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Icon
-            icon="mdi:alert-circle"
-            className="text-4xl text-red-500 mx-auto mb-4"
-          />
-          <p className="text-gray-800 font-medium mb-2">Erreur</p>
-          <p className="text-gray-600 mb-4">{error || "Service non trouvé"}</p>
-          <Button onClick={() => router.back()}>Retour</Button>
-        </div>
-      </div>
+      <ServiceDetailError
+        error={error}
+        serviceId={serviceId}
+        onRetry={refetch}
+      />
     );
   }
+
+  const statusConfig =
+    serviceStatusConfig[service.status] || serviceStatusConfig.draft;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -255,7 +274,7 @@ export default function ServiceDetailPage() {
             <Button
               variant="outline"
               onClick={() =>
-                router.push(`/dashboard/customer/services/${serviceId}/edit`)
+                router.push(`/dashboard/customer/services/${service.id}/edit`)
               }
               className="border-blue-600 text-blue-600 hover:bg-blue-50"
             >
@@ -265,7 +284,8 @@ export default function ServiceDetailPage() {
             <Button
               className="bg-blue-600 text-white hover:bg-blue-700"
               onClick={() => {
-                /* Partager */
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Lien copié !");
               }}
             >
               <Icon icon="mdi:share" className="mr-2 h-4 w-4" />
@@ -286,10 +306,10 @@ export default function ServiceDetailPage() {
                   {images.map((img, index) => (
                     <img
                       key={index}
-                      src={img}
+                      src={img.image_url}
                       alt={`Service ${index + 1}`}
                       className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition"
-                      onClick={() => window.open(img, "_blank")}
+                      onClick={() => window.open(img.image_url, "_blank")}
                     />
                   ))}
                 </div>
@@ -302,7 +322,8 @@ export default function ServiceDetailPage() {
               <div
                 className="prose max-w-none text-gray-600"
                 dangerouslySetInnerHTML={{
-                  __html: service.full_description || service.short_description,
+                  __html:
+                    service.full_description || service.short_description || "",
                 }}
               />
             </div>
@@ -314,7 +335,7 @@ export default function ServiceDetailPage() {
                 <div>
                   <p className={labelClass}>Date</p>
                   <p className={valueClass}>
-                    {formatDate(service.date_pratique)}
+                    {formatDate(service.date_pratique || service.created_at)}
                   </p>
                 </div>
                 <div>
@@ -346,7 +367,9 @@ export default function ServiceDetailPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <p className={labelClass}>Adresse</p>
-                  <p className={valueClass}>{service.address}</p>
+                  <p className={valueClass}>
+                    {service.address || "Non spécifiée"}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {service.city}
                     {service.postal_code ? `, ${service.postal_code}` : ""}
@@ -387,28 +410,14 @@ export default function ServiceDetailPage() {
           <div className="space-y-6">
             {/* Carte de statut */}
             <div
-              className={`${sectionClass} border-l-4 ${
-                service.status === "published"
-                  ? "border-blue-500"
-                  : service.status === "assigned"
-                    ? "border-purple-500"
-                    : service.status === "pending"
-                      ? "border-yellow-500"
-                      : service.status === "completed"
-                        ? "border-green-500"
-                        : "border-gray-500"
-              }`}
+              className={`${sectionClass} border-l-4 ${statusConfig.borderColor}`}
             >
               <h2 className="text-sm font-medium text-gray-500 mb-2">
                 Statut actuel
               </h2>
               <div className="flex items-center justify-between">
                 <span className="text-xl font-bold text-gray-900">
-                  {service.status === "published"}
-                  {service.status === "assigned"}
-                  {service.status === "pending"}
-                  {service.status === "completed"}
-                  {service.status === "canceled"}
+                  {statusConfig.label}
                 </span>
                 {service.freelancer ? (
                   <Badge className="bg-green-100 text-green-800">
@@ -431,18 +440,24 @@ export default function ServiceDetailPage() {
                   </p>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={service.freelancer.profile_picture} />
+                      <AvatarImage
+                        src={
+                          service.freelancer.avatar ||
+                          service.freelancer.profile_picture
+                        }
+                      />
                       <AvatarFallback>
-                        {service.freelancer.first_name?.charAt(0)}
+                        {service.freelancer.name?.charAt(0) ||
+                          service.freelancer.username?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {service.freelancer.first_name}{" "}
-                        {service.freelancer.username}
+                        {service.freelancer.name || service.freelancer.username}
                       </p>
                       <p className="text-sm text-gray-500">
-                        Note: {service.freelancer.rating || "Nouveau"} ⭐
+                        Note: {service.freelancer.average_rating || "Nouveau"}{" "}
+                        ⭐
                       </p>
                     </div>
                   </div>
@@ -491,14 +506,6 @@ export default function ServiceDetailPage() {
             <h2 className="text-2xl font-bold text-gray-900">
               Candidatures reçues ({candidates.length})
             </h2>
-            <div className="flex gap-2">
-              <select className="px-3 py-2 border rounded-lg text-sm">
-                <option value="all">Tous les statuts</option>
-                <option value="pending">En attente</option>
-                <option value="accepted">Acceptées</option>
-                <option value="rejected">Refusées</option>
-              </select>
-            </div>
           </div>
 
           {candidates.length === 0 ? (
@@ -517,7 +524,7 @@ export default function ServiceDetailPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {candidates.map((candidate) => {
+              {candidates.map((candidate: any) => {
                 const status =
                   candidatureStatusConfig[candidate.status] ||
                   candidatureStatusConfig.pending;
@@ -531,19 +538,30 @@ export default function ServiceDetailPage() {
                       {/* Avatar et infos principales */}
                       <div className="flex items-start gap-4 flex-1">
                         <Avatar className="h-16 w-16">
-                          <AvatarImage src={candidate.profile_picture} />
+                          <AvatarImage
+                            src={
+                              candidate.profile_picture ||
+                              candidate.freelancer_profile_picture
+                            }
+                          />
                           <AvatarFallback className="text-lg">
-                            {candidate.name?.charAt(0)}
+                            {(
+                              candidate.name ||
+                              candidate.freelancer_name ||
+                              "?"
+                            ).charAt(0)}
                           </AvatarFallback>
                         </Avatar>
 
                         <div className="flex-1">
                           <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
                             <h3 className="text-lg font-semibold text-gray-900">
-                              {candidate.name}
+                              {candidate.name ||
+                                candidate.freelancer_name ||
+                                "Candidat"}
                             </h3>
                             <Badge
-                              className={status.bgColor + " " + status.color}
+                              className={`${status.bgColor} ${status.color}`}
                             >
                               {status.label}
                             </Badge>
@@ -553,7 +571,10 @@ export default function ServiceDetailPage() {
                             <div>
                               <p className={labelClass}>Prix proposé</p>
                               <p className="font-semibold text-blue-600">
-                                {candidate.proposed_price?.toLocaleString()}{" "}
+                                {(
+                                  candidate.proposed_price ||
+                                  candidate.proposed_amount
+                                )?.toLocaleString()}{" "}
                                 FCFA
                               </p>
                             </div>
@@ -575,16 +596,19 @@ export default function ServiceDetailPage() {
                             <div>
                               <p className={labelClass}>Postulé le</p>
                               <p className="text-gray-900">
-                                {formatDate(candidate.application_date)}
+                                {formatDate(
+                                  candidate.application_date ||
+                                    candidate.created_at,
+                                )}
                               </p>
                             </div>
                           </div>
 
                           {/* Aperçu de la lettre de motivation */}
-                          {candidate.cover_letter && (
+                          {(candidate.cover_letter || candidate.message) && (
                             <div className="bg-gray-50 rounded-lg p-3">
                               <p className="text-sm text-gray-600 line-clamp-2">
-                                {candidate.cover_letter}
+                                {candidate.cover_letter || candidate.message}
                               </p>
                             </div>
                           )}
@@ -596,7 +620,36 @@ export default function ServiceDetailPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewCandidateDetails(candidate)}
+                          onClick={() =>
+                            handleViewCandidateDetails({
+                              id: candidate.id,
+                              freelancer_id: candidate.freelancer_id,
+                              name:
+                                candidate.name ||
+                                candidate.freelancer_name ||
+                                "Candidat",
+                              profile_picture:
+                                candidate.profile_picture ||
+                                candidate.freelancer_profile_picture,
+                              proposed_price:
+                                candidate.proposed_price ||
+                                candidate.proposed_amount,
+                              estimated_duration: candidate.estimated_duration,
+                              cover_letter:
+                                candidate.cover_letter ||
+                                candidate.message ||
+                                "",
+                              status: candidate.status,
+                              application_date:
+                                candidate.application_date ||
+                                candidate.created_at,
+                              rating: candidate.rating,
+                              completed_services: candidate.completed_services,
+                              email: candidate.email,
+                              phone: candidate.phone,
+                              skills: candidate.skills,
+                            })
+                          }
                           className="border-gray-300"
                         >
                           <Icon icon="mdi:eye" className="mr-2 h-4 w-4" />
@@ -613,10 +666,12 @@ export default function ServiceDetailPage() {
                                   candidate.id,
                                 )
                               }
-                              disabled={assigningId === candidate.id}
+                              disabled={
+                                assigningId === candidate.id || isAssigning
+                              }
                               className="bg-green-600 hover:bg-green-700 text-white"
                             >
-                              {assigningId === candidate.id ? (
+                              {assigningId === candidate.id || isAssigning ? (
                                 <Icon
                                   icon="mdi:loading"
                                   className="animate-spin h-4 w-4"
@@ -746,7 +801,7 @@ export default function ServiceDetailPage() {
                   </Button>
 
                   {service.status === "published" &&
-                    selectedCandidate.status === "en_attente" && (
+                    selectedCandidate.status === "pending" && (
                       <Button
                         onClick={() => {
                           handleAssignFreelancer(
@@ -756,9 +811,19 @@ export default function ServiceDetailPage() {
                           setIsDialogOpen(false);
                         }}
                         className="bg-green-600 hover:bg-green-700"
+                        disabled={isAssigning}
                       >
-                        <Icon icon="mdi:check" className="mr-2 h-4 w-4" />
-                        Assigner ce freelance
+                        {isAssigning ? (
+                          <Icon
+                            icon="mdi:loading"
+                            className="animate-spin h-4 w-4"
+                          />
+                        ) : (
+                          <>
+                            <Icon icon="mdi:check" className="mr-2 h-4 w-4" />
+                            Assigner ce freelance
+                          </>
+                        )}
                       </Button>
                     )}
                 </div>

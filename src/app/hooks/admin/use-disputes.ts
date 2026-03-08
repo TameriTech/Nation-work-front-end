@@ -4,12 +4,8 @@ import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tansta
 import { useToast } from '@/app/components/ui/use-toast';
 import * as disputeService from '@/app/services/disputes.service';
 import type { 
-  Dispute, 
-  DisputeStats, 
-  DisputeHistoryEntry,
-  PaginatedResponse,
   RejectData 
-} from '@/app/types/admin';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 

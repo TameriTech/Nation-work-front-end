@@ -20,7 +20,7 @@ import {
 } from "@/app/components/ui/select";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { DocumentType } from "@/app/types/user";
+import { CreateDocumentDto, DocumentType } from "@/app/types";
 import { Icon } from "@iconify/react";
 import {
   createDocumentSchema,

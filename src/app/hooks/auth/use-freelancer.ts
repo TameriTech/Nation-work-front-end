@@ -4,16 +4,9 @@ import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tansta
 import { useToast } from '@/app/components/ui/use-toast';
 import * as userService from '@/app/services/users.service';
 import type { 
-  FreelancerFullProfile,
   UpdateFreelancerProfileData,
-  UpdateFreelancerProfileDto,
-  FreelancerSkill,
-  ProfessionalExperience,
-  Education,
-  DocumentDisplay,
-  KYCStatus,
-  FreelancerProfileUpdate
-} from '@/app/types/user';
+  UpdateFreelancerProfileDto
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -87,7 +80,7 @@ export const useFreelancer = (freelancerId?: number) => {
   /**
    * Mettre à jour des champs spécifiques du profil
    */
-  const updateProfileFields = (fields: FreelancerProfileUpdate) => {
+  const updateProfileFields = (fields: UpdateFreelancerProfileDto) => {
     const currentProfile = freelancerId ? publicProfileQuery.data : myProfileQuery.data;
     if (!currentProfile) return;
 

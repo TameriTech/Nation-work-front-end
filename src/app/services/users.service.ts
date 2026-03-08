@@ -20,9 +20,15 @@ import {
   KYCStatus,
   CreateDocumentDto,
   UpdateExperienceDto,
-  UpdateEducationDto
-} from '@/app/types/user';
-import { CreateEducationFormData, CreateExperienceFormData, UpdateEducationFormData, UpdateExperienceFormData } from '../lib/validators';
+  UpdateEducationDto,
+  PendingVerification,
+  VerificationStats
+} from "@/app/types";
+import { CreateEducationFormData, CreateExperienceFormData, SuspendFormData, UnblockFormData, UpdateEducationFormData, UpdateExperienceFormData } from '../lib/validators';
+import {
+  createDocumentSchema,
+  type CreateDocumentFormData,
+} from "@/app/lib/validators/document.validator";
 
 // ==================== AUTHENTIFICATION ====================
 
@@ -264,7 +270,7 @@ export async function getDocumentUrl(documentId: number): Promise<string> {
 /**
  * Soumettre un nouveau document pour vérification KYC
  */
-export async function uploadDocument(document: CreateDocumentDto): Promise<DocumentDisplay> {
+export async function uploadDocument(document: CreateDocumentFormData): Promise<DocumentDisplay> {
   try {
     const formData = new FormData();
     formData.append('document_type', document.document_type);
@@ -303,6 +309,100 @@ export async function resubmitDocument(documentId: number, file: File): Promise<
     return await handleResponse<DocumentDisplay>(res);
   } catch (error) {
     console.error("Erreur resubmitDocument:", error);
+    throw error;
+  }
+}
+
+/**
+ * Modifier les métadonnées d'un document
+ */
+export async function updateDocumentMetadata(documentId: number, data: Partial<CreateDocumentDto>): Promise<DocumentDisplay> {
+  try {
+    const res = await fetch(`/api/users/freelancer/documents/${documentId}/metadata`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await handleResponse<DocumentDisplay>(res);
+  } catch (error) {
+    console.error("Erreur updateDocumentMetadata:", error);
+    throw error;
+  }
+}
+
+// ==================== ADMIN ====================
+/**
+ * Valider un document pour vérification KYC
+ */
+export async function validateDocument(documentId: number, isValid: boolean, reason?: string): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/users/admin/documents/${documentId}/validate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ is_valid: isValid, reason }),
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error("Erreur validateDocument:", error);
+    throw error;
+  }
+}
+
+/**
+ * Rejeter un document pour vérification KYC
+ */
+export async function rejectDocument(documentId: number, reason: string): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/users/admin/documents/${documentId}/reject`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason }),
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error("Erreur rejectDocument:", error);
+    throw error;
+  }
+}
+
+export async function getVerifications(status: string): Promise<PendingVerification[]> {
+  try {
+    const queryParams = new URLSearchParams();
+    if (status) queryParams.append('status', status);
+    
+    const res = await fetch(`/api/admin/users/verifications?${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse<PendingVerification[]>(res);
+  } catch (error) {
+    console.error("Erreur getPendingVerifications:", error);
+    throw error;
+  }
+}
+
+export async function getVerificationStats(): Promise<VerificationStats> {
+  try {
+    const res = await fetch("/api/admin/users/verifications/stats", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await handleResponse<VerificationStats>(res);
+  } catch (error) {
+    console.error("Erreur getVerificationStats:", error);
     throw error;
   }
 }
@@ -754,14 +854,14 @@ export async function adminCreateUser(userData: any): Promise<User> {
 /**
  * Bloquer/débloquer un utilisateur (admin)
  */
-export async function blockUser(userId: number, isActive: boolean, reason?: string): Promise<User> {
+export async function blockUser(userId: number, data: SuspendFormData): Promise<User> {
   try {
-    const res = await fetch(`/api/users/admin/users/${userId}/block`, {
-      method: "PUT",
+    const res = await fetch(`/api/admin/users/${userId}/suspend`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ is_active: isActive, reason }),
+      body: JSON.stringify(data),
     });
 
     return await handleResponse<User>(res);
@@ -771,13 +871,33 @@ export async function blockUser(userId: number, isActive: boolean, reason?: stri
   }
 }
 
+export async function unblockUser(userId: number, data: UnblockFormData): Promise<User> {
+  try {
+    console.log("To unblock: ", data);
+    const res = await fetch(`/api/admin/users/${userId}/unblock`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log("Unblocked: ", res);
+
+    return await handleResponse<User>(res);
+  } catch (error) {
+    console.error("Erreur unblockUser:", error);
+    throw error;
+  }
+}
+
 /**
  * Changer le rôle d'un utilisateur (super admin)
  */
 export async function changeUserRole(userId: number, role: string): Promise<User> {
   try {
-    const res = await fetch(`/api/users/admin/users/${userId}/role`, {
-      method: "PUT",
+    const res = await fetch(`/api/admin/users/${userId}/role`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -799,6 +919,8 @@ export async function getAllUsers(params?: {
   is_active?: boolean;
   skip?: number;
   limit?: number;
+  search?: string;
+  status?: 'active' | 'suspended';
 }): Promise<User[]> {
   try {
     const queryParams = new URLSearchParams();
@@ -806,10 +928,12 @@ export async function getAllUsers(params?: {
     if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
     if (params?.skip) queryParams.append('skip', params.skip.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status) queryParams.append('status', params.status);
     
     const url = queryParams.toString() 
-      ? `/api/users/admin/users?${queryParams}`
-      : "/api/users/admin/users";
+      ? `/api/admin/users?${queryParams}`
+      : "/api/admin/users";
     
     const res = await fetch(url, {
       method: "GET",
@@ -865,4 +989,168 @@ export async function getUserStats(userId: number): Promise<any>{
 
 export async function getUserHistory(userId: number, filters: any): Promise<any>{
   
+}
+
+export async function sendUserEmail(userId: number, data:{subject: string, message: string}): Promise<{ message: string }>{
+  try {
+    const res = await fetch(`/api/admin/users/${userId}/email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error("Erreur sendUserEmail:", error);
+    throw error;
+  }
+}
+
+export async function deleteUser(userId: number) {
+  try {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error("Erreur deleteUser:", error);
+    throw error;
+  }
+}
+
+export async function getUserServicesHistory(userId: number, filters?: any): Promise<any>{
+  try{
+    const res = await fetch(`/api/admin/users/${userId}/services/history`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur getUserServicesHistory:", error);
+    throw error;
+  }
+}
+
+
+export async function getUserPaymentsHistory(userId: number){
+  try{
+    const res = await fetch(`/api/admin/users/${userId}/payments/history`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur getUserPaymentsHistory:", error);
+    throw error;
+  }
+}
+
+export async function getUserDisputesHistory(userId: number){
+  try{
+    const res = await fetch(`/api/admin/users/${userId}/disputes/history`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur getUserDisputesHistory:", error);
+    throw error;
+  }
+}
+
+export async function getUserActivityLogs(userId: number){
+  try{
+    const res = await fetch(`/api/admin/users/${userId}/logs`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur getUserActivityLogs:", error);
+    throw error;
+  }
+}
+
+export async function verifyUser(userId: number){
+  try{
+    const res = await fetch(`/api/admin/users/${userId}/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur verifyUser:", error);
+    throw error;
+  }
+}
+
+export async function getUsersStats(){
+  try{
+    const res = await fetch(`/api/admin/users/stats`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleResponse<any>(res);
+  } catch (error) {
+    console.error("Erreur getUsersStats:", error);
+    throw error;
+  }
+}
+
+export async function exportUsers (format: string){
+  try{
+    const res = await fetch(`/api/admin/users/export?format=${encodeURIComponent(format)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await handleResponse<{ url: string }>(res);
+    return data.url;
+  } catch (error) {
+    console.error("Erreur exportUsers:", error);
+    throw error;
+  }
+}
+
+export async function updateUserProfile(userId: number, data: UpdateFreelancerProfileData): Promise<User>{
+  try {
+    const res = await fetch(`/api/admin/users/${userId}/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await handleResponse<User>(res);
+  } catch (error) {
+    console.error("Erreur updateUserProfile:", error);
+    throw error;
+  }
 }

@@ -20,7 +20,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { ProfessionalExperience } from "@/app/types/user";
+import { ProfessionalExperience } from "@/app/types";
 
 interface AddExperienceModalProps {
   isOpen: boolean;

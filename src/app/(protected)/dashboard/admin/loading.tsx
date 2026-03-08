@@ -12,6 +12,7 @@ import {
   Clock,
   TrendingUp,
   Star,
+  DollarSignIcon,
 } from "lucide-react";
 
 export default function AdminDashboardLoading() {
@@ -63,7 +64,9 @@ export default function AdminDashboardLoading() {
                 >
                   {i === 1 && <Users className="w-6 h-6 text-white/50" />}
                   {i === 2 && <Briefcase className="w-6 h-6 text-white/50" />}
-                  {i === 3 && <DollarSign className="w-6 h-6 text-white/50" />}
+                  {i === 3 && (
+                    <DollarSignIcon className="w-6 h-6 text-white/50" />
+                  )}
                   {i === 4 && <Scale className="w-6 h-6 text-white/50" />}
                 </div>
                 <div className="w-16 h-6 bg-gray-200 dark:bg-slate-700 rounded-full animate-pulse"></div>

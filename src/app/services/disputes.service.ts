@@ -1,6 +1,6 @@
 // services/admin/disputes.service.ts
 
-import { ApiResponse, PaginatedResponse, Dispute, DisputeStats, DisputeAction, RejectData, DisputeHistoryEntry } from '../types/admin';
+import { ApiResponse, PaginatedResponse, Dispute, DisputeStats, DisputeAction, RejectData, DisputeHistoryEntry } from "@/app/types";
 import { handleResponse } from '@/app/lib/error-handler';
 
 // ==================== LISTE DES LITIGES ====================

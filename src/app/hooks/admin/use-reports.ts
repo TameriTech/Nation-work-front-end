@@ -4,16 +4,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as reportsService from '@/app/services/reports.service';
 import type { 
-  ReportStats, 
-  RevenueData, 
-  ServicesByCategory, 
-  ServicesByStatus,
-  TopFreelancer,
-  ActivityData,
-  GeographicDistribution,
-  PerformanceMetrics,
   ReportFilters
-} from '@/app/types/admin';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 

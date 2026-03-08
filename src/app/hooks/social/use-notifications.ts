@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as notificationService from '@/app/services/notifications.service';
-import type { AdminNotification, NotificationStats } from '@/app/types/admin';
+import type { AdminNotification, NotificationStats } from '@/app/types';
 import { useEffect, useState, useCallback } from 'react';
 
 // ==================== CLÉS DE QUERY ====================

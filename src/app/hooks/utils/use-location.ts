@@ -196,7 +196,7 @@ export const useLocation = () => {
       });
       
       // Ajouter la distance à chaque service
-      return services.services.map((service: any) => ({
+      return services.items.map((service: any) => ({
         ...service,
         distance: getDistance(coords, {
           latitude: service.latitude || coords.latitude,

@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid service ID" }, { status: 400 });
     }
     
-    const serviceId = parseInt(id);
+    const serviceId = Number(id);
     const data = await backendFetch(`/services/${serviceId}`);
     return NextResponse.json(data);
   } catch (error) {

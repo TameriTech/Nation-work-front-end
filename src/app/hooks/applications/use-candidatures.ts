@@ -4,11 +4,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as candidatureService from '@/app/services/candidatures.service';
 import type { 
-  Candidature, 
   CreateCandidatureDto, 
-  UpdateCandidatureStatusDto,
   CandidatureStatus 
-} from '@/app/types/candidatures';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 

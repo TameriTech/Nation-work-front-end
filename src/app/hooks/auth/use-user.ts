@@ -5,10 +5,9 @@ import { useToast } from '@/app/components/ui/use-toast';
 import * as userService from '@/app/services/users.service';
 import type { 
   User, 
-  FreelancerFullProfile, 
   UpdateFreelancerProfileData,
-  FreelancerProfileUpdate 
-} from '@/app/types/user';
+  UpdateFreelancerProfileDto 
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -231,7 +230,7 @@ export const useFreelancerProfile = (userId?: number) => {
   /**
    * Mettre à jour des champs spécifiques du profil
    */
-  const updateProfileFields = (fields: FreelancerProfileUpdate) => {
+  const updateProfileFields = (fields: UpdateFreelancerProfileDto) => {
     const currentProfile = userId ? publicProfileQuery.data : myProfileQuery.data;
     if (!currentProfile) return;
 

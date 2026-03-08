@@ -87,7 +87,12 @@ export function JobCard({
             </Avatar>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{service.title}</h3>
+            <a
+              href={`/dashboard/freelancer/jobs/${service.id}`}
+              className="font-semibold text-gray-900"
+            >
+              {service.title}
+            </a>
             <p className="text-xs text-gray-500">
               Prix [{service.proposed_amount}] - Durée [{service.duration}] -
               Type [{service.category?.name || "N/A"}]
@@ -146,18 +151,18 @@ export function JobCard({
               <span className="text-xs text-gray-700">Paiement vérifié</span>
             </div>
           )}
-          {service.client.rating ? (
+          {service.client.stats?.average_rating ? (
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Icon
                   icon={
-                    i < Math.floor(service?.client.rating || 0)
+                    i < Math.floor(service?.client.stats?.average_rating || 0)
                       ? "bi:star-fill"
                       : "bi:star"
                   }
                   key={i}
                   className={`w-4 h-4 ${
-                    i < Math.floor(service?.client.rating || 0)
+                    i < Math.floor(service?.client.stats?.average_rating || 0)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-slate-400/30"
                   }`}

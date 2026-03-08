@@ -5,16 +5,12 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import { JobListingsContent } from "./tabs/JobListingsContent";
 import { FavoritesJobsContent } from "./tabs/FavoritesJobsContent";
 import { JobHistoryContent } from "./tabs/JobHistoriqueList";
-import { Service } from "@/app/types/services";
+import { CreateCandidatureDto, Service } from "@/app/types/services";
 
 interface JobListingsProps {
   availableServices: Service[];
   isLoading: boolean;
-  onApply: (params: {
-    serviceId: number;
-    message?: string;
-    proposedAmount?: number;
-  }) => void;
+  onApply: (params: CreateCandidatureDto) => void;
   isApplying: boolean;
   pagination: any;
   applications: Service[];

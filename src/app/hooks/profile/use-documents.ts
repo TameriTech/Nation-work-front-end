@@ -4,11 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as userService from '@/app/services/users.service';
 import type { 
-  DocumentDisplay, 
-  KYCStatus, 
   CreateDocumentDto,
   DocumentType 
-} from '@/app/types/user';
+} from '@/app/types';
+import {
+  type CreateDocumentFormData,
+} from "@/app/lib/validators/document.validator";
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -85,7 +86,7 @@ export const useDocuments = () => {
    * Upload un nouveau document
    */
   const uploadDocumentMutation = useMutation({
-    mutationFn: (document: CreateDocumentDto) => userService.uploadDocument(document),
+    mutationFn: (document: CreateDocumentFormData) => userService.uploadDocument(document),
     onSuccess: () => {
       // Invalider toutes les queries liées aux documents
       queryClient.invalidateQueries({ queryKey: documentKeys.list() });

@@ -16,12 +16,12 @@ import { Icon } from "@iconify/react";
 import { useServices } from "@/app/hooks/services/use-services";
 import { useAuth } from "@/app/hooks/auth/use-auth";
 
-import { DashboardError } from "./error";
+import DashboardError from "./error";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { DashboardSkeleton } from "./candidatures/loading";
 
-export const DashboardContent = () => {
+export default function DashboardContent() {
   const router = useRouter();
   const { user } = useAuth();
 
@@ -42,7 +42,7 @@ export const DashboardContent = () => {
       (s) => s.status === "in_progress",
     ).length;
     const completed = services.filter((s) => s.status === "completed").length;
-    const cancelled = services.filter((s) => s.status === "canceled").length;
+    const cancelled = services.filter((s) => s.status === "cancelled").length;
     const total = services.length;
 
     // Calculer le prochain service
@@ -236,4 +236,4 @@ export const DashboardContent = () => {
       </div>
     </div>
   );
-};
+}

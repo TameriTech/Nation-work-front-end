@@ -2,7 +2,7 @@
 import { Button } from "@/app/components/ui/button";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import { Education, ProfessionalExperience } from "@/app/types/user";
+import { Education, ProfessionalExperience } from "@/app/types";
 import {
   CreateExperienceFormData,
   UpdateExperienceFormData,

@@ -6,9 +6,8 @@ import { useState, useEffect, useCallback } from 'react';
 import * as serviceService from '@/app/services/service.service';
 import * as userService from '@/app/services/users.service';
 import * as messageService from '@/app/services/chat.service';
-import type { PaginatedResponse, Service } from '@/app/types/services';
-import type { FreelancerFullProfile } from '@/app/types/user';
-import type { Message } from '@/app/types/admin';
+import type { FreelancerFullProfile, Message, PaginatedResponse,Service } from '@/app/types';
+
 
 // ==================== TYPES ====================
 
@@ -86,7 +85,7 @@ export const useSearch = () => {
       // Recherche de services
       if (!filters?.type || filters.type.includes('service')) {
           const services:PaginatedResponse<Service> = await serviceService.searchServices({ search: query });
-          results.push(...services.services.map((s: Service) => ({
+          results.push(...services.items.map((s: Service) => ({
             id: `service-${s.id}`,
             type: 'service' as const, // Add 'as const' to fix the type
             title: s.title,
@@ -153,7 +152,7 @@ export const useSearch = () => {
         search: query,
         ...filters 
       });
-      return result.services;
+      return result.items;
     } catch (error) {
       console.error('Erreur recherche services:', error);
       return [];

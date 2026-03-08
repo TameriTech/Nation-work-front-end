@@ -20,7 +20,7 @@ import {
 } from "@/app/components/ui/select";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
-import { Skill } from "@/app/types/user";
+import { Skill } from "@/app/types";
 import {
   skillSchema,
   type SkillFormData,

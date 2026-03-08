@@ -2,6 +2,7 @@
 import { CustomerProfileSidebar } from "@/app/components/layouts/sidebars/FreelancerProfileSidebar";
 import { ProfileTabs } from "@/app/components/features/profile/ProfileTabs";
 import { useFreelancerProfile } from "@/app/hooks/use-freelancer-profile";
+import { Skill } from "@/app/types";
 
 export default function CustomerHomePage() {
   const { profile } = useFreelancerProfile();
@@ -17,7 +18,7 @@ export default function CustomerHomePage() {
     summary: profile?.summary || "",
     // Créer un tableau de tags à partir des compétences
     tags:
-      profile?.skills?.map((skill) => skill.skill.name) ||
+      profile?.skills?.map((skill: Skill) => skill.name) ||
       (profile?.primary_skill ? [profile.primary_skill] : ["Freelancer"]),
     nationality: profile?.country || "",
     gender: profile?.gender || "",

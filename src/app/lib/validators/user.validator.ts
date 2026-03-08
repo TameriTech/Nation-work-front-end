@@ -133,8 +133,47 @@ export const updateFreelancerProfileSchema = z.object({
   phone_number: z.string().optional().nullable(),
 });
 
+// Schéma de validation pour le modal de suspension
+export const suspendSchema = z.object({
+  reason: z
+    .enum([
+      "fraud",
+      "harassment",
+      "inappropriate_content",
+      "spam",
+      "multiple_warnings",
+      "non_payment",
+      "abandoned_services",
+      "fake_reviews",
+      "terms_violation",
+      "other",
+    ])
+    .refine((val) => true, {
+      message: "Raison invalide",
+    }),
+  reason_text: z
+    .string()
+    .min(5, "La raison doit contenir au moins 5 caractères"),
+  block_until: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)").optional().nullable(),
+  notify_user: z.boolean(),
+});
+
+// Schéma de validation pour le modal de débloquage
+export const unblockSchema = z.object({
+  reason: z
+    .string()
+    .min(5, "La raison doit contenir au moins 5 caractères"),
+  notify_user: z.boolean(),
+});
+
+
+
 // Types exportés
 export type UpdateFreelancerProfileFormData = z.infer<typeof updateFreelancerProfileSchema>;
 export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
 export type LocationFormData = z.infer<typeof locationSchema>;
 export type SkillFormData = z.infer<typeof skillSchema>;
+export type SuspendFormData = z.infer<typeof suspendSchema>;
+export type UnblockFormData = z.infer<typeof unblockSchema>;

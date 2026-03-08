@@ -1,6 +1,6 @@
 // services/support.service.ts
 
-import { PaginatedResponse, SupportTicket } from '../types/admin';
+import { PaginatedResponse, SupportTicket } from "@/app/types";
 import { handleResponse } from '../lib/error-handler';
 
 /**

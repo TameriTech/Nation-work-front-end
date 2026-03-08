@@ -3,12 +3,6 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as supportService from '@/app/services/support.service';
-import type { 
-  SupportTicket, 
-  PaginatedResponse,
-  TicketStats,
-  TicketHistoryEntry
-} from '@/app/types/admin';
 
 // ==================== CLÉS DE QUERY ====================
 

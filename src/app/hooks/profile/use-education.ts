@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as userService from '@/app/services/users.service';
-import type { Education} from '@/app/types/user';
+import type { Education} from '@/app/types';
 import {
   CreateEducationFormData,
   UpdateEducationFormData,

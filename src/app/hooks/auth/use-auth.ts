@@ -5,13 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as authService from '@/app/services/auth.service';
 import * as userService from '@/app/services/users.service';
-import type { 
-  User, 
+import type {
   LoginCredentials, 
-  SignUpData, 
-  AuthResponse,
-  FreelancerFullProfile 
-} from '@/app/types/user';
+  SignUpData,
+} from '@/app/types';
 import { useEffect, useState } from 'react';
 
 // ==================== CLÉS DE QUERY ====================

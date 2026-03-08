@@ -1,7 +1,7 @@
 // services/auth.service.ts (ou dans votre fichier existant)
 
 import { handleResponse } from "@/app/lib/error-handler";
-import { LoginCredentials } from "../types/user";
+import { LoginCredentials } from "../types";
 
 
 /**

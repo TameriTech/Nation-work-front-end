@@ -1,6 +1,6 @@
 // services/admin/notifications.service.ts
 
-import { AdminNotification, NotificationStats } from '../types/admin';
+import { AdminNotification, NotificationStats } from "@/app/types";
 import { handleResponse } from '@/app/lib/error-handler';
 
 // ==================== RÉCUPÉRATION DES NOTIFICATIONS ====================

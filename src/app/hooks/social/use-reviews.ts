@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as userService from '@/app/services/users.service';
-import type { Review, CreateReviewDto } from '@/app/types/user';
+import type { Review, CreateReviewDto } from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 

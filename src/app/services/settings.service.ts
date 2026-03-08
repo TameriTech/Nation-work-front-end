@@ -9,7 +9,7 @@ import {
   ActivityLog, 
   PaginatedResponse,
   EmailTemplate
-} from '@/app/types/admin';
+} from "@/app/types";
 import { handleResponse } from '@/app/lib/error-handler';
 
 // ==================== PARAMÈTRES GÉNÉRAUX ====================
