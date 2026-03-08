@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     });
 
     const queryString = params.toString();
-    const data = await backendFetch(`/admin/services${queryString ? `?${queryString}` : ''}`);
+    const data = await backendFetch(`/services/admin/list${queryString ? `?${queryString}` : ''}`);
     
     return NextResponse.json(data);
   } catch (error) {

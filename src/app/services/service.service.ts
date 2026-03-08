@@ -8,7 +8,7 @@ import {
   ServiceStats,
   WishlistItem,
   ServiceStatus
-} from "@/app/types/services";
+} from "@/app/types";
 import { handleResponse } from "../lib/error-handler";
 
 // ==================== CLIENT ROUTES ====================
@@ -64,22 +64,16 @@ export async function getClientServices(
 /**
  * Récupérer les détails d'un service avec ses candidats (client)
  */
-export async function getClientServiceDetails(serviceId: number): Promise<{
-  service: Service;
-  candidates: any[];
-  images: string[];
-}> {
+export async function getClientServiceDetails(serviceId: number): Promise<Service> {
   try {
     const res = await fetch(`/api/services/client/${serviceId}`, {
       method: "GET",
       cache: "no-store",
     });
 
-    return await handleResponse<{
-      service: Service;
-      candidates: any[];
-      images: string[];
-    }>(res);
+    console.log("Response: ", res);
+    
+    return await handleResponse<Service>(res);
   } catch (error) {
     console.error(`Erreur getClientServiceDetails ${serviceId}:`, error);
     throw error;
@@ -363,7 +357,8 @@ export async function getServicesStats(): Promise<ServiceStats> {
 export async function updateServiceStatus(
   serviceId: number,
   status: ServiceStatus,
-  reason?: string
+  reason?: string,
+  notify?: boolean
 ): Promise<{ message: string; service: Service }> {
   try {
     const res = await fetch(`/api/admin/services/${serviceId}/status`, {

@@ -1,8 +1,8 @@
+// app/(protected)/dashboard/admin/services/[serviceId]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -37,20 +37,40 @@ import {
   Shield,
   Award,
   Clock as ClockIcon,
+  ArrowRight,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
 
-import {
-  getServiceById,
-  updateServiceStatus,
-  cancelService,
-  deleteService,
-} from "@/app/services/service.service";
-import type { Service, ServiceStatus } from "@/app/types/admin";
-import { services as mockServices } from "@/data/admin-mock-data";
+import { useServices } from "@/app/hooks/services/use-services";
+import type {
+  Service,
+  ServiceImage,
+  ServiceStatus,
+} from "@/app/types/services";
+import ServiceDetailLoading from "./loading";
+import ServiceDetailError from "./error";
+import { getAdminServiceDetails } from "@/app/services/service.service";
+
+// Schéma de validation pour l'annulation
+const cancelSchema = z.object({
+  reason: z.string().min(10, "La raison doit contenir au moins 10 caractères"),
+  notify: z.boolean().default(true),
+}) satisfies z.ZodType<{
+  reason: string;
+  notify: boolean;
+}>;
+
+type CancelFormData = z.infer<typeof cancelSchema>;
 
 // Badge de statut
-const StatusBadge = ({ status }: { status: string }) => {
-  const badges: Record<string, { color: string; icon: any; label: string }> = {
+const StatusBadge = ({ status }: { status: ServiceStatus }) => {
+  const badges: Record<
+    ServiceStatus,
+    { color: string; icon: any; label: string }
+  > = {
     published: {
       color:
         "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
@@ -88,7 +108,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       label: "Litige",
     },
   };
-  const badge = badges[status] || badges.published;
+  const badge = badges[status];
   const Icon = badge.icon;
 
   return (
@@ -156,14 +176,14 @@ const Timeline = ({ service }: { service: Service }) => {
     {
       status: "assigned",
       label: "Freelancer assigné",
-      date: service.date,
+      date: service.assigned_at,
       icon: User,
       completed: service.status !== "published",
     },
     {
       status: "in_progress",
       label: "Service en cours",
-      date: service.start_time,
+      date: service.started_at,
       icon: Loader2,
       completed: ["in_progress", "completed", "disputed"].includes(
         service.status,
@@ -228,7 +248,7 @@ const Timeline = ({ service }: { service: Service }) => {
 };
 
 // Galerie d'images
-const ImageGallery = ({ images }: { images?: string[] }) => {
+const ImageGallery = ({ images }: { images?: ServiceImage[] }) => {
   const [selectedImage, setSelectedImage] = useState(0);
 
   if (!images || images.length === 0) {
@@ -254,7 +274,7 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
       <div className="space-y-4">
         <div className="relative h-64 bg-gray-100 dark:bg-slate-700 rounded-lg overflow-hidden">
           <img
-            src={images[selectedImage]}
+            src={images[selectedImage].image_url}
             alt={`Service ${selectedImage + 1}`}
             className="w-full h-full object-contain"
           />
@@ -272,7 +292,7 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
                 }`}
               >
                 <img
-                  src={img}
+                  src={img.image_url}
                   alt={`Miniature ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
@@ -285,59 +305,184 @@ const ImageGallery = ({ images }: { images?: string[] }) => {
   );
 };
 
+// Modal d'annulation avec React Hook Form
+const CancelModal = ({
+  isOpen,
+  onClose,
+  service,
+  onConfirm,
+  isCancelling,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  service: Service | null;
+  onConfirm: (data: CancelFormData) => Promise<void>;
+  isCancelling: boolean;
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CancelFormData>({
+    resolver: zodResolver(cancelSchema),
+    defaultValues: {
+      reason: "",
+      notify: true,
+    },
+  });
+
+  if (!isOpen || !service) return null;
+
+  const onSubmit = async (data: CancelFormData) => {
+    await onConfirm(data);
+    reset();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          Annuler le service
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Vous êtes sur le point d'annuler le service{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {service.title}
+          </span>
+        </p>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Raison de l'annulation *
+            </label>
+            <textarea
+              {...register("reason")}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              placeholder="Expliquez la raison de l'annulation..."
+              disabled={isCancelling}
+            />
+            {errors.reason && (
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.reason.message}
+              </p>
+            )}
+          </div>
+
+          <div className="mb-6">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                {...register("notify")}
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-slate-700"
+                disabled={isCancelling}
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                Notifier les utilisateurs concernés
+              </span>
+            </label>
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => {
+                reset();
+                onClose();
+              }}
+              disabled={isCancelling}
+              className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isCancelling}
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition disabled:opacity-50 flex items-center"
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Annulation...
+                </>
+              ) : (
+                "Confirmer l'annulation"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // Page principale
 export default function ServiceDetailPage() {
   const router = useRouter();
   const params = useParams();
   const serviceId = Number(params.serviceId);
 
-  const [loading, setLoading] = useState(false);
-  const [service, setService] = useState<Service | null>(null);
+  const [cancelModal, setCancelModal] = useState<{
+    isOpen: boolean;
+    service: Service | null;
+  }>({
+    isOpen: false,
+    service: null,
+  });
 
-  useEffect(() => {
-    const loadService = async () => {
-      try {
-        setLoading(true);
-        // Utiliser les mock data
-        const foundService = mockServices.list.find(
-          (s) => s.id === serviceId,
-        ) as Service;
-        setService(foundService || null);
-      } catch (error) {
-        console.error("Erreur chargement service:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Hook personnalisé
+  const {
+    getAdminServiceDetails,
+    changeStatus,
+    isChangingStatus,
+    deleteService,
+    isDeleting,
+  } = useServices();
+  const {
+    data: service,
+    isLoading,
+    error,
+    refetch,
+  } = getAdminServiceDetails(serviceId);
 
-    if (serviceId) {
-      loadService();
-    }
-  }, [serviceId]);
+  console.log("Service: ", service);
 
   const handleUpdateStatus = async (newStatus: ServiceStatus) => {
     if (!service) return;
     if (service.status === newStatus) return;
 
     if (newStatus === "cancelled") {
-      const reason = prompt("Raison de l'annulation:");
-      if (reason) {
-        try {
-          await cancelService(service.id, reason, true);
-          // Recharger le service
-        } catch (error) {
-          console.error("Erreur annulation:", error);
-        }
+      setCancelModal({ isOpen: true, service });
+      return;
+    }
+
+    if (confirm(`Changer le statut en ${newStatus} ?`)) {
+      try {
+        await changeStatus({ id: service.id, status: newStatus });
+        toast.success(`Statut changé en ${newStatus}`);
+        refetch();
+      } catch (error) {
+        toast.error("Erreur lors du changement de statut");
       }
-    } else {
-      if (confirm(`Changer le statut en ${newStatus} ?`)) {
-        try {
-          await updateServiceStatus(service.id, newStatus);
-          // Recharger le service
-        } catch (error) {
-          console.error("Erreur changement statut:", error);
-        }
-      }
+    }
+  };
+
+  const handleCancel = async (data: CancelFormData) => {
+    if (!cancelModal.service) return;
+    try {
+      await changeStatus({
+        id: cancelModal.service.id,
+        status: "cancelled",
+        reason: data.reason,
+        notify: data.notify,
+      });
+      toast.success("Service annulé avec succès");
+      refetch();
+    } catch (error) {
+      toast.error("Erreur lors de l'annulation");
     }
   };
 
@@ -350,11 +495,22 @@ export default function ServiceDetailPage() {
     ) {
       try {
         await deleteService(service.id);
+        toast.success("Service supprimé avec succès");
         router.push("/dashboard/admin/services");
       } catch (error) {
-        console.error("Erreur suppression:", error);
+        toast.error("Erreur lors de la suppression");
       }
     }
+  };
+
+  const handleOpenChat = () => {
+    if (!service) return;
+    router.push(`/dashboard/admin/messages?service=${service.id}`);
+  };
+
+  const handleEdit = () => {
+    if (!service) return;
+    router.push(`/dashboard/admin/services/${service.id}/edit`);
   };
 
   const formatCurrency = (amount: number) => {
@@ -364,59 +520,44 @@ export default function ServiceDetailPage() {
     }).format(amount);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      </div>
-    );
+  if (isLoading) {
+    return <ServiceDetailLoading />;
   }
 
-  if (!service) {
+  if (error || !service) {
     return (
-      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-100 mb-2">
-            Service non trouvé
-          </h2>
-          <p className="text-gray-400 mb-4">
-            Le service avec l'ID {serviceId} n'existe pas
-          </p>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Retour
-          </button>
-        </div>
-      </div>
+      <ServiceDetailError
+        error={error as Error}
+        serviceId={serviceId}
+        onRetry={refetch}
+      />
     );
   }
 
   return (
-    <div className="min-h-screen dark:bg-slate-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* Barre de navigation */}
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center text-gray-400 hover:text-gray-200 transition"
+            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la liste
           </button>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => {
-                /* Ouvrir chat */
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
+              onClick={handleOpenChat}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition disabled:opacity-50"
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Voir la conversation
             </button>
-            <button className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-slate-800 text-gray-300 hover:text-white flex items-center transition">
+            <button
+              onClick={handleEdit}
+              className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center transition"
+            >
               <Edit className="w-4 h-4 mr-2" />
               Modifier
             </button>
@@ -424,18 +565,33 @@ export default function ServiceDetailPage() {
               service.status !== "completed" && (
                 <button
                   onClick={() => handleUpdateStatus("cancelled")}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center transition"
+                  disabled={isChangingStatus}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center transition disabled:opacity-50"
                 >
-                  <Ban className="w-4 h-4 mr-2" />
+                  {isChangingStatus ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Ban className="w-4 h-4 mr-2" />
+                  )}
                   Annuler
                 </button>
               )}
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center transition"
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center transition disabled:opacity-50"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Supprimer
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Supprimer
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -467,11 +623,11 @@ export default function ServiceDetailPage() {
                 </div>
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                   <Tag className="w-4 h-4 mr-2" />
-                  {service.category}
+                  {service?.category?.name || "Catégorie inconnue"}
                 </div>
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                   <DollarSign className="w-4 h-4 mr-2" />
-                  {formatCurrency(service.budget)}
+                  {formatCurrency(service.proposed_amount)}
                 </div>
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                   <Users className="w-4 h-4 mr-2" />
@@ -510,7 +666,7 @@ export default function ServiceDetailPage() {
             )}
 
             {/* Évaluation */}
-            {service.rating && (
+            {service?.rating && (
               <InfoSection title="Évaluation" icon={Star}>
                 <div className="flex items-center mb-2">
                   <div className="flex items-center">
@@ -518,7 +674,7 @@ export default function ServiceDetailPage() {
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
-                          i < service.rating!.score
+                          i < service?.rating
                             ? "text-yellow-400 fill-current"
                             : "text-gray-300 dark:text-gray-600"
                         }`}
@@ -526,16 +682,14 @@ export default function ServiceDetailPage() {
                     ))}
                   </div>
                   <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    {service.rating.score}/5
+                    {service.rating}/5
                   </span>
                 </div>
                 <p className="text-gray-700 dark:text-gray-300 italic">
-                  "{service.rating.comment}"
+                  "{service.rating || "Aucun commentaire fourni."}"
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  {new Date(service.rating.created_at).toLocaleDateString(
-                    "fr-FR",
-                  )}
+                  {new Date(service.created_at).toLocaleDateString("fr-FR")}
                 </p>
               </InfoSection>
             )}
@@ -566,7 +720,7 @@ export default function ServiceDetailPage() {
             )}
 
             {/* Galerie d'images */}
-            <ImageGallery images={service.images} />
+            <ImageGallery images={service.service_images} />
           </div>
 
           {/* Colonne de droite - 1/3 */}
@@ -637,10 +791,10 @@ export default function ServiceDetailPage() {
                       <p className="text-lg font-medium text-gray-900 dark:text-white">
                         {service.freelancer.name}
                       </p>
-                      {service.freelancer.rating && (
+                      {service.freelancer.average_rating && (
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                           <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-                          {service.freelancer.rating}/5
+                          {service.freelancer.average_rating}/5
                         </div>
                       )}
                       <Link
@@ -666,11 +820,118 @@ export default function ServiceDetailPage() {
               )}
             </InfoSection>
 
+            <InfoSection title="Candidatures" icon={Users}>
+              {service.candidatures && service.candidatures.length > 0 ? (
+                <div className="space-y-4">
+                  {service.candidatures.map((candidature, index) => (
+                    <div
+                      key={index}
+                      className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          {/* Avatar du candidat */}
+                          <div className="flex-shrink-0 h-10 w-10">
+                            {candidature.freelancer?.avatar ? (
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={candidature.freelancer.avatar}
+                                alt={candidature.freelancer.name}
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {candidature.freelancer?.name || "Candidat"}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              {candidature.freelancer?.average_rating && (
+                                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                  <Star className="w-3 h-3 mr-1 text-yellow-400 fill-current" />
+                                  {candidature.freelancer.average_rating}/5
+                                </div>
+                              )}
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                • Postulé le{" "}
+                                {new Date(
+                                  candidature.application_date,
+                                ).toLocaleDateString("fr-FR")}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Statut de la candidature */}
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            candidature.status === "accepted"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : candidature.status === "rejected"
+                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          }`}
+                        >
+                          {candidature.status === "accepted"
+                            ? "Acceptée"
+                            : candidature.status === "rejected"
+                              ? "Refusée"
+                              : "En attente"}
+                        </span>
+                      </div>
+
+                      {/* Prix proposé */}
+                      {candidature.proposed_amount && (
+                        <div className="mt-3 flex items-center text-sm">
+                          <DollarSign className="w-4 h-4 mr-1 text-gray-400" />
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {candidature.proposed_amount.toLocaleString()} FCFA
+                          </span>
+                          <span className="text-xs text-gray-500 ml-2">
+                            (vs {service.proposed_amount.toLocaleString()} FCFA
+                            proposé)
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Lettre de motivation (tronquée) */}
+                      {candidature.cover_letter && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {candidature.cover_letter}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Bouton d'action */}
+                      <div className="mt-3 flex justify-end">
+                        <Link
+                          href={`/dashboard/admin/users/${candidature.freelancer_id}`}
+                          className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                        >
+                          Voir le profil
+                          <ArrowRight className="w-3 h-3 ml-1" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                  Aucune candidature pour ce service
+                </p>
+              )}
+            </InfoSection>
+
             {/* Détails pratiques */}
             <InfoSection title="Détails pratiques" icon={MapPin}>
               <InfoRow
                 label="Date et heure"
-                value={`${new Date(service.date).toLocaleDateString("fr-FR")} ${
+                value={`${new Date(service.date_pratique).toLocaleDateString("fr-FR")} ${
                   service.start_time ? `à ${service.start_time}` : ""
                 }`}
                 icon={Calendar}
@@ -688,7 +949,7 @@ export default function ServiceDetailPage() {
             <InfoSection title="Paiement" icon={DollarSign}>
               <InfoRow
                 label="Budget proposé"
-                value={formatCurrency(service.budget)}
+                value={formatCurrency(service.proposed_amount)}
               />
               {service.accepted_amount && (
                 <InfoRow
@@ -698,10 +959,12 @@ export default function ServiceDetailPage() {
               )}
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  Frais plateforme (10%): {formatCurrency(service.budget * 0.1)}
+                  Frais plateforme (10%):{" "}
+                  {formatCurrency(service.proposed_amount * 0.1)}
                 </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  Net freelancer: {formatCurrency(service.budget * 0.9)}
+                  Net freelancer:{" "}
+                  {formatCurrency(service.proposed_amount * 0.9)}
                 </p>
               </div>
             </InfoSection>
@@ -711,6 +974,15 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal d'annulation */}
+      <CancelModal
+        isOpen={cancelModal.isOpen}
+        onClose={() => setCancelModal({ isOpen: false, service: null })}
+        service={cancelModal.service}
+        onConfirm={handleCancel}
+        isCancelling={isChangingStatus}
+      />
     </div>
   );
 }

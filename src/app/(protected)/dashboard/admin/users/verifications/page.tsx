@@ -1,6 +1,7 @@
+// app/(protected)/dashboard/admin/verifications/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -26,31 +27,64 @@ import {
   FileX,
   MessageSquare,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-import {
-  getPendingVerifications,
-  approveVerification,
-  rejectVerification,
-} from "@/app/services/users.service";
-import type { PendingVerification } from "@/app/types/admin";
-import { users as mockUsers } from "@/data/admin-mock-data";
+import { useAdminVerifications } from "@/app/hooks/admin/use-verification";
+import type { PendingVerification } from "@/app/types";
+import VerificationsLoading from "./loading";
+import AdminVerificationsError from "./error";
 
-// Composant de carte de vérification
+// Schéma de validation pour le rejet
+const rejectSchema = z.object({
+  reason: z.string().min(10, "La raison doit contenir au moins 10 caractères"),
+});
+
+type RejectFormData = z.infer<typeof rejectSchema>;
+
+// Schéma pour les notes d'approbation
+const approveSchema = z.object({
+  notes: z.string().optional(),
+});
+
+type ApproveFormData = z.infer<typeof approveSchema>;
+
+// Composant de carte de vérification (identique à votre code)
 const VerificationCard = ({
   verification,
   onApprove,
   onReject,
   onViewDocument,
+  isApproving,
+  isRejecting,
 }: {
   verification: PendingVerification;
   onApprove: (id: number, notes?: string) => void;
   onReject: (id: number, reason: string) => void;
   onViewDocument: (url: string) => void;
+  isApproving: boolean;
+  isRejecting: boolean;
 }) => {
   const [showActions, setShowActions] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
-  const [notes, setNotes] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
+
+  const {
+    register: registerReject,
+    handleSubmit: handleRejectSubmit,
+    formState: { errors: rejectErrors },
+    reset: resetReject,
+  } = useForm<RejectFormData>({
+    resolver: zodResolver(rejectSchema),
+  });
+
+  const {
+    register: registerApprove,
+    handleSubmit: handleApproveSubmit,
+    reset: resetApprove,
+  } = useForm<ApproveFormData>({
+    resolver: zodResolver(approveSchema),
+  });
 
   const getDocumentIcon = (type: string) => {
     const icons: Record<string, any> = {
@@ -73,6 +107,18 @@ const VerificationCard = ({
     return labels[type] || type;
   };
 
+  const onApproveSubmit = (data: ApproveFormData) => {
+    onApprove(verification.id, data.notes);
+    setShowActions(false);
+    resetApprove();
+  };
+
+  const onRejectSubmit = (data: RejectFormData) => {
+    onReject(verification.id, data.reason);
+    setShowRejectForm(false);
+    resetReject();
+  };
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition border border-gray-200 dark:border-slate-700">
       <div className="p-6">
@@ -82,7 +128,7 @@ const VerificationCard = ({
               {getDocumentIcon(verification.document_type)}
             </div>
             <div className="ml-4">
-              <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                 {verification.user_name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -119,7 +165,8 @@ const VerificationCard = ({
         <div className="flex space-x-2 mb-4">
           <button
             onClick={() => onViewDocument(verification.front_image)}
-            className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition"
+            disabled={isApproving || isRejecting}
+            className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
           >
             <Eye className="w-4 h-4 mr-2" />
             Voir recto
@@ -127,7 +174,8 @@ const VerificationCard = ({
           {verification.back_image && (
             <button
               onClick={() => onViewDocument(verification.back_image!)}
-              className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition"
+              disabled={isApproving || isRejecting}
+              className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
             >
               <Eye className="w-4 h-4 mr-2" />
               Voir verso
@@ -139,78 +187,108 @@ const VerificationCard = ({
           <div className="flex space-x-2">
             <button
               onClick={() => setShowActions(!showActions)}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center transition"
+              disabled={isApproving || isRejecting}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center transition disabled:opacity-50"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               Actions
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <textarea
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Raison du rejet..."
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:focus:border-red-400"
-            />
+          <form
+            onSubmit={handleRejectSubmit(onRejectSubmit)}
+            className="space-y-3"
+          >
+            <div>
+              <textarea
+                {...registerReject("reason")}
+                placeholder="Raison du rejet..."
+                rows={3}
+                disabled={isRejecting}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:focus:border-red-400 disabled:opacity-50"
+              />
+              {rejectErrors.reason && (
+                <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                  {rejectErrors.reason.message}
+                </p>
+              )}
+            </div>
             <div className="flex space-x-2">
               <button
-                onClick={() => {
-                  onReject(verification.id, rejectReason);
-                  setShowRejectForm(false);
-                  setRejectReason("");
-                }}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                type="submit"
+                disabled={isRejecting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center"
               >
-                Confirmer le rejet
+                {isRejecting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Rejet...
+                  </>
+                ) : (
+                  "Confirmer le rejet"
+                )}
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setShowRejectForm(false);
-                  setRejectReason("");
+                  resetReject();
                 }}
-                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
+                disabled={isRejecting}
+                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
               >
                 Annuler
               </button>
             </div>
-          </div>
+          </form>
         )}
 
         {showActions && !showRejectForm && (
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 space-y-3">
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notes (optionnel)..."
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400"
-            />
+          <form
+            onSubmit={handleApproveSubmit(onApproveSubmit)}
+            className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 space-y-3"
+          >
+            <div>
+              <textarea
+                {...registerApprove("notes")}
+                placeholder="Notes (optionnel)..."
+                rows={2}
+                disabled={isApproving}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 disabled:opacity-50"
+              />
+            </div>
             <div className="flex space-x-2">
               <button
-                onClick={() => {
-                  onApprove(verification.id, notes);
-                  setShowActions(false);
-                  setNotes("");
-                }}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center transition"
+                type="submit"
+                disabled={isApproving}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center transition disabled:opacity-50"
               >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approuver
+                {isApproving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Approbation...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approuver
+                  </>
+                )}
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setShowRejectForm(true);
                   setShowActions(false);
                 }}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center transition"
+                disabled={isApproving}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center transition disabled:opacity-50"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Rejeter
               </button>
             </div>
-          </div>
+          </form>
         )}
       </div>
     </div>
@@ -249,13 +327,13 @@ const DocumentViewer = ({
 };
 
 // Statistiques
-const StatsCard = ({ icon: Icon, title, value, color }: any) => (
+const StatsCard = ({ icon: Icon, title, value, color, loading }: any) => (
   <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
         <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          {value}
+          {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : value}
         </p>
       </div>
       <div
@@ -269,139 +347,162 @@ const StatsCard = ({ icon: Icon, title, value, color }: any) => (
 
 export default function VerificationsPage() {
   const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-  const [verifications, setVerifications] = useState<PendingVerification[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  const [stats, setStats] = useState({
-    pending: 0,
-    approved: 0,
-    rejected: 0,
+  const [filter, setFilter] = useState<{ status?: string }>({
+    status: "pending",
   });
 
-  // Charger les données
-  useEffect(() => {
-    const loadVerifications = async () => {
-      try {
-        setLoading(true);
-        // Utiliser les mock data
-        setVerifications(
-          mockUsers.pending_verifications as PendingVerification[],
-        );
-        setStats({
-          pending: mockUsers.pending_verifications.length,
-          approved: 0,
-          rejected: 0,
-        });
+  // Hook personnalisé - maintenant avec un objet filter
+  const {
+    verifications,
+    isLoading,
+    error,
+    stats,
+    statsLoading,
+    approveVerification,
+    isApproving,
+    rejectVerification,
+    isRejecting,
+    refetch,
+  } = useAdminVerifications(filter.status);
 
-        // Version API
-        // const data = await getPendingVerifications();
-        // setVerifications(data);
-      } catch (error) {
-        console.error("Erreur chargement vérifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadVerifications();
-  }, []);
-
-  const handleApprove = async (id: number, notes?: string) => {
-    try {
-      await approveVerification(id, notes);
-      // Recharger la liste
-      setVerifications(verifications.filter((v) => v.id !== id));
-      setStats((prev) => ({
-        ...prev,
-        pending: prev.pending - 1,
-        approved: prev.approved + 1,
-      }));
-    } catch (error) {
-      console.error("Erreur approbation:", error);
+  // Fonction pour changer le filtre
+  const handleFilterChange = (status: string | null) => {
+    if (status) {
+      setFilter({ status });
+    } else {
+      setFilter({});
     }
   };
 
+  const handleApprove = async (id: number, notes?: string) => {
+    await approveVerification({ id, notes });
+  };
+
   const handleReject = async (id: number, reason: string) => {
-    if (!reason) {
-      alert("Veuillez fournir une raison de rejet");
-      return;
-    }
-    try {
-      await rejectVerification(id, reason);
-      // Recharger la liste
-      setVerifications(verifications.filter((v) => v.id !== id));
-      setStats((prev) => ({
-        ...prev,
-        pending: prev.pending - 1,
-        rejected: prev.rejected + 1,
-      }));
-    } catch (error) {
-      console.error("Erreur rejet:", error);
-    }
+    await rejectVerification({ id, reason });
   };
 
   const handleViewDocument = (url: string) => {
     setSelectedDocument(url);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      </div>
-    );
+  if (isLoading) {
+    return <VerificationsLoading />;
+  }
+
+  if (error) {
+    return <AdminVerificationsError error={error} onRetry={refetch} />;
   }
 
   return (
-    <div className="min-h-screen dark:bg-slate-950">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
+      <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
-            <Shield className="w-6 h-6 mr-2 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
             Vérifications en attente
           </h1>
-          <p className="text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Gérez les documents soumis par les utilisateurs pour vérification
           </p>
         </div>
 
-        {/* Statistiques */}
+        {/* Statistiques - Note: backend retourne "verified" pas "approved" */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <StatsCard
             icon={Clock}
             title="En attente"
-            value={stats.pending}
+            value={stats?.pending || 0}
             color="bg-yellow-500"
+            loading={statsLoading}
           />
           <StatsCard
             icon={CheckCircle}
-            title="Approuvées"
-            value={stats.approved}
+            title="Vérifiées"
+            value={stats?.approved || 0}
             color="bg-green-500"
+            loading={statsLoading}
           />
           <StatsCard
             icon={XCircle}
             title="Rejetées"
-            value={stats.rejected}
+            value={stats?.rejected || 0}
             color="bg-red-500"
+            loading={statsLoading}
           />
+        </div>
+
+        {/* Filtres (optionnel) */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleFilterChange("pending")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filter.status === "pending"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              }`}
+            >
+              En attente
+            </button>
+            <button
+              onClick={() => handleFilterChange("verified")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filter.status === "verified"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              }`}
+            >
+              Vérifiées
+            </button>
+            <button
+              onClick={() => handleFilterChange("rejected")}
+              className={`px-4 py-2 rounded-lg transition ${
+                filter.status === "rejected"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              }`}
+            >
+              Rejetées
+            </button>
+            <button
+              onClick={() => handleFilterChange(null)}
+              className={`px-4 py-2 rounded-lg transition ${
+                !filter.status
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              }`}
+            >
+              Toutes
+            </button>
+          </div>
         </div>
 
         {/* Actions */}
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex justify-between items-center border border-gray-200 dark:border-slate-700">
           <div className="flex space-x-2">
             <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition disabled:opacity-50"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
               Actualiser
             </button>
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {stats.pending} document{stats.pending > 1 ? "s" : ""} en attente
+            {verifications.length} document{verifications.length > 1 ? "s" : ""}{" "}
+            {filter.status === "pending"
+              ? "en attente"
+              : filter.status === "verified"
+                ? "vérifiés"
+                : filter.status === "rejected"
+                  ? "rejetés"
+                  : "total"}
           </div>
         </div>
 
@@ -410,7 +511,8 @@ export default function VerificationsPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-12 text-center border border-gray-200 dark:border-slate-700">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              Aucune vérification en attente
+              Aucune vérification{" "}
+              {filter.status === "pending" ? "en attente" : ""}
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Tous les documents ont été traités
@@ -425,6 +527,8 @@ export default function VerificationsPage() {
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onViewDocument={handleViewDocument}
+                isApproving={isApproving}
+                isRejecting={isRejecting}
               />
             ))}
           </div>

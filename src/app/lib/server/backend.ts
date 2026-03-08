@@ -63,7 +63,6 @@ export async function backendFetch<T = any>(
         errorData.field
       );
     }
-
     return response.json();
   } catch (error) {
     console.error('💥 Erreur backendFetch:', error);

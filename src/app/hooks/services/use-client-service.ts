@@ -8,7 +8,7 @@ import type {
   CreateServiceDto, 
   ServiceFilters,
   PaginatedResponse 
-} from '@/app/types/services';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -176,7 +176,7 @@ export const useClientServices = (filters?: ServiceFilters) => {
 
   return {
     // Données
-    services: clientServicesQuery.data?.services || [],
+    services: clientServicesQuery.data?.items || [],
     pagination: clientServicesQuery.data ? {
       total: clientServicesQuery.data.total,
       page: clientServicesQuery.data.page,

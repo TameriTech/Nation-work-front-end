@@ -8,7 +8,7 @@ import type {
   Message, 
   ConversationFilters,
   TypingIndicator 
-} from '@/app/types/admin';
+} from '@/app/types';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
 // ==================== CLÉS DE QUERY ====================

@@ -12,7 +12,7 @@ import type {
   ActivityLog,
   EmailTemplate,
   PaginatedResponse
-} from '@/app/types/admin';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 

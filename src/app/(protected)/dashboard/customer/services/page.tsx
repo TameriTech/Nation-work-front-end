@@ -66,6 +66,8 @@ export default function CustomerServicesPage() {
     refetch,
   } = useClientServices(filters);
 
+  console.log("Services:", services);
+
   // Debounce pour la recherche
   const handleSearch = (value: string) => {
     setSearchInput(value);

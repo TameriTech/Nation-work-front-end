@@ -10,7 +10,7 @@ import type {
   GeographicDistribution,
   PerformanceMetrics,
   ReportFilters,
-} from "@/app/types/admin";
+} from "@/app/types";
 import { handleResponse } from "@/app/lib/error-handler";
 
 // ==================== STATISTIQUES GÉNÉRALES ====================

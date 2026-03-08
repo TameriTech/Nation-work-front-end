@@ -32,18 +32,18 @@ const LoginPage = () => {
     setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    // defaultValues: {
-    //   email: "admin@example.com",
-    //   password: "Admin123!",
-    // },
-    // defaultValues: {
-    //   email: "cto@techstartup.io",
-    //   password: "Startup123!",
-    // },
+    //defaultValues: {
+    //  email: "admin@example.com",
+    //  password: "Admin123!",
+    //},
     defaultValues: {
-      email: "web.dev@freelance.fr",
-      password: "Dev12345!",
+      email: "cto@techstartup.io",
+      password: "Startup123!",
     },
+    //defaultValues: {
+    //  email: "web.dev@freelance.fr",
+    //  password: "Dev12345!",
+    //},
   });
 
   const onSubmit = async (data: LoginFormData) => {

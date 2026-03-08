@@ -7,9 +7,13 @@ import { Button } from "@/app/components/ui/button";
 import { Icon } from "@iconify/react";
 import { useDocuments } from "@/app/hooks/profile/use-documents";
 import { UploadDocumentModal } from "../modals/UploadDocumentModal";
-import { DocumentDisplay, DocumentType } from "@/app/types/user";
+import { CreateDocumentDto, DocumentDisplay, DocumentType } from "@/app/types";
 import { DocumentsSkeleton } from "./loading";
 import { DocumentsError } from "./error";
+import {
+  createDocumentSchema,
+  type CreateDocumentFormData,
+} from "@/app/lib/validators/document.validator";
 
 export default function DocumentsTabContent() {
   const {
@@ -32,14 +36,7 @@ export default function DocumentsTabContent() {
 
   const { validated, inProgress, rejected, pending } = getDocumentsByStatus();
 
-  const handleUpload = async (data: {
-    document_type: DocumentType;
-    file: File;
-    document_number?: string;
-    issue_date?: string;
-    expiry_date?: string;
-    issuing_country?: string;
-  }) => {
+  const handleUpload = async (data: CreateDocumentFormData) => {
     if (selectedDocument) {
       // Mode resoumission
       await resubmitDocument({
@@ -89,7 +86,7 @@ export default function DocumentsTabContent() {
                 Vérification KYC
               </h2>
               <p className="text-sm text-gray-500">
-                {progress?.verified_count} sur {progress?.total} documents
+                {progress?.verified} sur {progress?.total.length} documents
                 validés
               </p>
             </div>

@@ -82,7 +82,7 @@ export function JobHistoryContent({
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {filteredServices.map((job) => (
+              {filteredServices?.map((job) => (
                 <JobCard
                   key={job.id}
                   service={job}

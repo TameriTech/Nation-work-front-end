@@ -1,6 +1,5 @@
 // services/candidatures.service.ts
-
-import { Candidature, CreateCandidatureDto, UpdateCandidatureStatusDto } from "@/app/types/candidatures";
+import { Candidature, CandidatureStatus, CreateCandidatureDto, UpdateCandidatureStatusDto } from "../types";
 import { handleResponse } from "@/app/lib/error-handler";
 
 // ==================== RÉCUPÉRATION ====================
@@ -102,7 +101,7 @@ export async function createCandidature(
  */
 export async function updateCandidatureStatus(
   candidatureId: number,
-  status: UpdateCandidatureStatusDto["status"],
+  status: CandidatureStatus,
   options?: {
     rejection_reason?: string;
     message?: string;

@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as candidatureService from '@/app/services/candidatures.service';
-import type { Candidature, UpdateCandidatureStatusDto } from '@/app/types/candidatures';
+import type { Candidature, CandidatureStatus, UpdateCandidatureStatusDto } from '@/app/types';
 
 export const useServiceCandidatures = (serviceId: number) => {
   const queryClient = useQueryClient();
@@ -17,7 +17,7 @@ export const useServiceCandidatures = (serviceId: number) => {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: UpdateCandidatureStatusDto['status'] }) =>
+    mutationFn: ({ id, status }: { id: number; status: CandidatureStatus }) =>
       candidatureService.updateCandidatureStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['service-candidatures', serviceId] });

@@ -10,7 +10,7 @@ export async function POST(
     const { userId } = await params;
     const body = await req.json();
 
-    const data = await backendFetch(`/admin/users/${userId}/suspend`, {
+    const data = await backendFetch(`/admin/users/${userId}/block`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

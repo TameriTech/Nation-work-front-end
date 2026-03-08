@@ -153,13 +153,13 @@ export const useStats = (userId?: number) => {
         const applications = await userService.getFreelancerReviews(freelancerId || userId!, 0, 1000);
         
         // Calculer les stats
-        const totalServices = services.services.length;
-        const published = services.services.filter(s => s.status === 'published').length;
-        const inProgress = services.services.filter(s => s.status === 'in_progress').length;
-        const completed = services.services.filter(s => s.status === 'completed').length;
-        const canceled = services.services.filter(s => s.status === 'canceled').length;
+        const totalServices = services.items.length;
+        const published = services.items.filter(s => s.status === 'published').length;
+        const inProgress = services.items.filter(s => s.status === 'in_progress').length;
+        const completed = services.items.filter(s => s.status === 'completed').length;
+        const canceled = services.items.filter(s => s.status === 'cancelled').length;
         
-        const totalEarnings = services.services
+        const totalEarnings = services.items
           .filter(s => s.status === 'completed')
           .reduce((sum, s) => sum + (s.accepted_amount || s.proposed_amount), 0);
         
@@ -187,7 +187,7 @@ export const useStats = (userId?: number) => {
           totalEarnings,
           monthlyEarnings: totalEarnings / 12, // Approximation
           averageEarningsPerService: completed > 0 ? totalEarnings / completed : 0,
-          pendingPayments: services.services
+          pendingPayments: services.items
             .filter(s => s.status === 'completed' && !s.accepted_amount /** Changer accepted_amount par paid*/)
             .reduce((sum, s) => sum + (s.accepted_amount || s.proposed_amount), 0),
           
@@ -199,7 +199,7 @@ export const useStats = (userId?: number) => {
           completionRate: completed > 0 ? (completed / totalServices) * 100 : 0,
           
           // Clients
-          uniqueClients: new Set(services.services.map(s => s.client_id)).size,
+          uniqueClients: new Set(services.items.map(s => s.client_id)).size,
           repeatClients: 0, // À calculer
           clientSatisfaction: averageRating * 20, // Conversion en pourcentage
         };
@@ -222,23 +222,23 @@ export const useStats = (userId?: number) => {
           //client_id: clientId || userId 
         });
         
-        const totalServices = services.services.length;
-        const completed = services.services.filter(s => s.status === 'completed').length;
-        const canceled = services.services.filter(s => s.status === 'canceled').length;
+        const totalServices = services.items.length;
+        const completed = services.items.filter(s => s.status === 'completed').length;
+        const canceled = services.items.filter(s => s.status === 'cancelled').length;
         
-        const totalSpent = services.services
+        const totalSpent = services.items
           .filter(s => s.status === 'completed')
           .reduce((sum, s) => sum + (s.accepted_amount || s.proposed_amount), 0);
         
         const uniqueFreelancers = new Set(
-          services.services
+          services.items
             .filter(s => s.assigned_freelancer_id)
             .map(s => s.assigned_freelancer_id)
         ).size;
         
         return {
           totalServices,
-          publishedServices: services.services.filter(s => s.status === 'published').length,
+          publishedServices: services.items.filter(s => s.status === 'published').length,
           completedServices: completed,
           canceledServices: canceled,
           
@@ -273,7 +273,7 @@ export const useStats = (userId?: number) => {
           //status: 'completed'
         });
         
-        const earnings = services.services.map(s => s.accepted_amount || s.proposed_amount);
+        const earnings = services.items.map(s => s.accepted_amount || s.proposed_amount);
         const total = earnings.reduce((sum, a) => sum + a, 0);
         
         // Trier pour la médiane
@@ -349,8 +349,8 @@ export const useStats = (userId?: number) => {
         });
         const reviews = await userService.getFreelancerReviews(userId!, 0, 1000);
         
-        const completed = services.services.filter(s => s.status === 'completed').length;
-        const total = services.services.length;
+        const completed = services.items.filter(s => s.status === 'completed').length;
+        const total = services.items.length;
         
         const positiveReviews = reviews.filter(r => r.rating >= 4).length;
         const negativeReviews = reviews.filter(r => r.rating <= 2).length;

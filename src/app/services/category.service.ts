@@ -1,20 +1,13 @@
-import { CategoryFilters, PaginatedResponse, Category } from "../types/admin";
-import { CreateCategoryDTO, Category as UserCategory} from "../types/category";
+import { CategoryFilters, PaginatedResponse, Category, CreateCategoryDTO, CategoryStats } from "@/app/types";
+import { CategoryFormData } from "../lib/validators";
 
 /**
  * Récupère toutes les catégories
  */
-export async function getCategories(filters?: CategoryFilters ): Promise<UserCategory[]> {
+export async function getCategories(): Promise<Category[]> {
   try {
-    const params = new URLSearchParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params.append(key, String(value));
-        }
-      });
-    }
-    const res = await fetch(`/api/categories?${params.toString()}`, {
+    
+    const res = await fetch('/api/categories', {
       method: 'GET',
       cache: 'no-store',
     });
@@ -32,7 +25,7 @@ export async function getCategories(filters?: CategoryFilters ): Promise<UserCat
   }
 }
 
-export async function getCategoryStats(): Promise<{ category: string; count: number }[]> {
+export async function getCategoryStats(): Promise<CategoryStats> {
   try {
     const res = await fetch('/api/categories/stats', {
       method: 'GET',
@@ -134,7 +127,7 @@ export async function createCategory(data: CreateCategoryDTO): Promise<Category>
  */
 export async function updateCategory(
   categoryId: number,
-  data: Partial<Category>
+  data: CategoryFormData
 ): Promise<Category> {
   try {
     const res = await fetch(`/api/admin/services/categories/${categoryId}`, {

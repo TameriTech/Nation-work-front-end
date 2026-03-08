@@ -8,8 +8,9 @@ import * as candidatureService from '@/app/services/candidatures.service';
 import type { 
   Service, 
   ServiceFilters,
-  PaginatedResponse 
-} from '@/app/types/services';
+  PaginatedResponse, 
+  CreateCandidatureDto
+} from '@/app/types';
 import { serviceKeys } from './use-services';
 import { wishlistKeys } from './use-wishlist';
 
@@ -22,12 +23,74 @@ export const freelancerServiceKeys = {
   applications: (filters: any) => [...freelancerServiceKeys.all, 'applications', filters] as const,
 };
 
+// hooks/services/use-freelancer-service.ts
+
 export const useServiceDetails = (serviceId: number) => {
   return useQuery({
     queryKey: serviceKeys.detail(serviceId),
-    queryFn: () => serviceService.getServiceDetails(serviceId),
+    queryFn: async () => {
+      console.log("========== DEBUG: useServiceDetails ==========");
+      console.log("🔍 Récupération du service avec l'ID:", serviceId);
+      
+      try {
+        const data = await serviceService.getServiceDetails(serviceId);
+        
+        console.log("✅ Données reçues avec succès!");
+        console.log("📦 Type de données:", typeof data);
+        console.log("📦 Est-ce un tableau?", Array.isArray(data));
+        console.log("📦 Structure des données:", data);
+        
+        // Afficher toutes les clés de l'objet
+        if (data && typeof data === 'object') {
+          console.log("🔑 Clés disponibles:", Object.keys(data));
+          
+          // Afficher chaque propriété individuellement
+          Object.entries(data).forEach(([key, value]) => {
+            console.log(`   - ${key}:`, value);
+          });
+        }
+        
+        // Format JSON complet pour copier
+        console.log("📋 JSON complet:", JSON.stringify(data, null, 2));
+        
+        // Vérifications spécifiques selon votre structure
+        if (data) {
+          console.log("🆔 ID du service:", data.id);
+          console.log("📝 Titre:", data.title);
+          console.log("💰 Budget:", data.proposed_amount );
+          console.log("📊 Statut:", data.status);
+          
+          // Vérifier si les candidatures existent
+          if (data.candidatures_count !== undefined) {
+            console.log("👥 Nombre de candidatures:", data.candidatures_count);
+          }
+          
+          // Vérifier les informations du client
+          if (data.client) {
+            console.log("👤 Client:", data.client);
+          }
+          
+          // Vérifier les informations du freelancer
+          if (data.freelancer) {
+            console.log("👨‍💼 Freelancer assigné:", data.freelancer);
+          }
+        }
+        
+        console.log("=============================================");
+        
+        return data;
+      } catch (error: any) {
+        console.error("❌ ERREUR dans useServiceDetails:");
+        console.error("   ID du service:", serviceId);
+        console.error("   Message:", error.message);
+        console.error("   Stack:", error.stack);
+        console.error("=============================================");
+        throw error;
+      }
+    },
     enabled: !!serviceId,
     staleTime: 5 * 60 * 1000,
+
   });
 };
 
@@ -225,14 +288,10 @@ export const useFreelancerServices = ({ initialFilters = {} }: UseFreelancerServ
    * Postuler à un service
    */
   const applyToServiceMutation = useMutation({
-    mutationFn: ({ serviceId, message, proposedAmount }: { 
-      serviceId: number; 
-      message?: string; 
-      proposedAmount?: number;
-    }) => candidatureService.createCandidature({
-      service_id: serviceId,
-      cover_letter: message || '',
-      proposed_amount: proposedAmount || undefined,
+    mutationFn: (data: CreateCandidatureDto ) => candidatureService.createCandidature({
+      service_id: data.service_id,
+      cover_letter: data.message || '',
+      proposed_amount: data.proposed_amount || undefined,
     }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ 
@@ -344,7 +403,7 @@ export const useFreelancerServices = ({ initialFilters = {} }: UseFreelancerServ
   // ==================== STATISTIQUES ====================
 
   const getStats = () => {
-    const assigned = assignedServicesQuery.data?.services || [];
+    const assigned = assignedServicesQuery.data?.items || [];
     const applications = applicationsQuery.data || [];
 
     return {
@@ -361,7 +420,7 @@ export const useFreelancerServices = ({ initialFilters = {} }: UseFreelancerServ
 
   return {
     // Données principales
-    assignedServices: assignedServicesQuery.data?.services || [],
+    assignedServices: assignedServicesQuery.data?.items || [],
     assignedPagination: assignedServicesQuery.data ? {
       total: assignedServicesQuery.data.total,
       page: assignedServicesQuery.data.page,
@@ -370,7 +429,7 @@ export const useFreelancerServices = ({ initialFilters = {} }: UseFreelancerServ
     } : null,
     isLoadingAssigned: assignedServicesQuery.isLoading,
 
-    availableServices: availableServicesQuery.data?.services || [],
+    availableServices: availableServicesQuery.data?.items || [],
     availablePagination: availableServicesQuery.data ? {
       total: availableServicesQuery.data.total,
       page: availableServicesQuery.data.page,

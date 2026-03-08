@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { serviceId } = await params;
 
-    const data = await backendFetch(`/admin/services/${serviceId}`);
+    const data = await backendFetch(`/services/admin/${serviceId}`);
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error);

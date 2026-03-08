@@ -12,17 +12,13 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { useCategories } from "@/app/hooks/use-categories";
-import { Service } from "@/app/types/services";
+import { CreateCandidatureDto, Service } from "@/app/types";
 import { Pagination } from "@/app/components/ui/pagination";
 
 interface JobListingsContentProps {
   services: Service[];
   isLoading: boolean;
-  onApply: (params: {
-    serviceId: number;
-    message?: string;
-    proposedAmount?: number;
-  }) => void;
+  onApply: (params: CreateCandidatureDto) => void;
   isApplying: boolean;
   pagination?: {
     total: number;
@@ -60,9 +56,10 @@ export function JobListingsContent({
   const handleApplySubmit = () => {
     if (selectedService) {
       onApply({
-        serviceId: selectedService,
-        message: applyMessage,
-        proposedAmount: applyAmount,
+        service_id: selectedService,
+        //freelancer_id: 0, // À remplacer par l'ID réel du freelancer connecté
+        cover_letter: applyMessage,
+        proposed_amount: applyAmount,
       });
       setShowApplyModal(false);
       setApplyMessage("");

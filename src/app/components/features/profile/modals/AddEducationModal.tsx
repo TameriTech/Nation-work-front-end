@@ -20,7 +20,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { Education } from "@/app/types/user";
+import { Education } from "@/app/types";
 
 interface AddEducationModalProps {
   isOpen: boolean;

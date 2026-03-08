@@ -15,6 +15,7 @@ export async function GET(
     
     const serviceIdNumber = Number(serviceId);
     const data = await backendFetch(`/services/client/${serviceIdNumber}`);
+    console.log("Service data: ", data);
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error);

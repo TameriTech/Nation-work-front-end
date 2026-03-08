@@ -1,6 +1,6 @@
 // services/admin/dashboard.service.ts
 
-import { ApiResponse, DashboardStats, RecentActivity, ChartData, DashboardSummary } from '../types/admin';
+import { ApiResponse, DashboardStats, RecentActivity, ChartData, DashboardSummary } from "@/app/types";
 import { handleResponse } from '@/app/lib/error-handler';
 
 // ==================== STATISTIQUES ====================

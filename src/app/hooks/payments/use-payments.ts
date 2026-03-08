@@ -3,12 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/components/ui/use-toast';
 import * as paymentService from '@/app/services/payments.service';
-import type { 
-  Payment, 
-  PaymentSummary, 
-  Payout,
-  PaginatedResponse 
-} from '@/app/types/admin';
 
 // ==================== CLÉS DE QUERY ====================
 

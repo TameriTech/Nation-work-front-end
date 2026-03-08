@@ -10,7 +10,7 @@ import type {
   ServiceFilters,
   PaginatedResponse,
   ServiceStatus
-} from '@/app/types/services';
+} from '@/app/types';
 
 // ==================== CLÉS DE QUERY ====================
 
@@ -48,7 +48,7 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
       } else if (mode === 'freelancer') {
         return serviceService.getFreelancerServices(filters);
       }
-      return serviceService.searchServices(filters);
+      return serviceService.getAdminServices(filters);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -65,20 +65,32 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
     });
   };
 
+  /**
+   * Récupère un service par son ID
+   */
+  const getAdminServiceDetails = (id: number) => {
+    return useQuery({
+      queryKey: serviceKeys.detail(id),
+      queryFn: () => serviceService.getAdminServiceDetails(id),
+      enabled: !!id,
+      staleTime: 5 * 60 * 1000,
+    });
+  };
+
   // ==================== STATISTIQUES ====================
 
   /**
    * Statistiques globales calculées à partir des services
    */
   const stats = useMemo(() => {
-    const services = servicesQuery.data?.services || [];
+    const services = servicesQuery.data?.items || [];
     
     const published = services.filter(s => s.status === 'published').length;
     const inProgress = services.filter(s => s.status === 'in_progress').length;
     const assigned = services.filter(s => s.status === 'assigned').length;
     const completed = services.filter(s => s.status === 'completed').length;
-    const canceled = services.filter(s => s.status === 'canceled').length;
-    const draft = services.filter(s => s.status === 'draft').length;
+    const canceled = services.filter(s => s.status === 'disputed').length;
+    const draft = services.filter(s => s.status === 'cancelled').length;
     const total = services.length;
 
     // Montants totaux
@@ -168,7 +180,7 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
    * Récupère les statistiques d'un service spécifique
    */
   const getServiceStats = (serviceId: number) => {
-    const service = servicesQuery.data?.services.find(s => s.id === serviceId);
+    const service = servicesQuery.data?.items.find(s => s.id === serviceId);
     if (!service) return null;
 
     return {
@@ -261,8 +273,8 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
    * Change le statut d'un service
    */
   const changeStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: ServiceStatus }) =>
-      serviceService.updateServiceStatus(id, status),
+    mutationFn: ({ id, status, reason, notify }: { id: number; status: ServiceStatus; reason?: string; notify?: boolean }) =>
+      serviceService.updateServiceStatus(id, status, reason, notify),
     onSuccess: (updatedService) => {
       queryClient.invalidateQueries({ queryKey: serviceKeys.lists() });
       queryClient.setQueryData(serviceKeys.detail(updatedService.service.id), updatedService);
@@ -322,7 +334,7 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
 
   return {
     // Données
-    services: servicesQuery.data?.services || [],
+    services: servicesQuery.data?.items || [],
     pagination: servicesQuery.data ? {
       total: servicesQuery.data.total,
       page: servicesQuery.data.page,
@@ -340,6 +352,9 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
     // Récupération par ID
     getServiceById,
 
+    // Recupereration par ID (admin)
+    getAdminServiceDetails,
+
     // Mutations
     createService: createServiceMutation.mutate,
     isCreating: createServiceMutation.isPending,
@@ -355,7 +370,7 @@ export const useServices = ({ filters, mode = 'all' }: UseServicesProps = {}) =>
 
     // Recherche
     search,
-    searchResults: searchInfiniteQuery.data?.pages.flatMap(p => p.services) || [],
+    searchResults: searchInfiniteQuery.data?.pages.flatMap(p => p.items) || [],
     hasMore: searchInfiniteQuery.hasNextPage,
     loadMore: searchInfiniteQuery.fetchNextPage,
     isSearching: searchInfiniteQuery.isFetching,

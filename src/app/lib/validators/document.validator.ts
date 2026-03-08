@@ -11,7 +11,7 @@ const fileSchema = z.instanceof(File)
   }, "Type de fichier non autorisé. Formats acceptés: PDF, JPEG, PNG");
 
 // lib/validators/document.validator.ts
-import { DocumentType } from '@/app/types/user';
+import { DocumentType } from '@/app/types';
 
 export const createDocumentSchema = z.object({
   document_type: z.nativeEnum(DocumentType), // ✅ Utilise l'enum directement

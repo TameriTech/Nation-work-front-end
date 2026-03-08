@@ -7,7 +7,7 @@ import type {
   PaginatedResponse,
   ConversationStats,
   TypingIndicator
-} from "@/app/types/admin";
+} from "@/app/types";
 import { handleResponse } from "@/app/lib/error-handler";
 
 // ==================== CONVERSATIONS ====================

@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { Sidebar } from "@/app/components/layouts/sidebars/AdminSidebar";
 import { Header } from "@/app/components/layouts/headers/AdminHeader";
 import { cn } from "@/app/lib/utils";
-import type { AdminLayoutProps, NavItem } from "@/app/types/admin";
+import type { AdminLayoutProps, NavItem } from "@/app/types";
 import {
   BarChart3,
   FileText,
@@ -61,7 +61,7 @@ export default function AdminLayout({
       children: [
         {
           title: "Users List",
-          href: "/dashboard/admin/users/all_users",
+          href: "/dashboard/admin/users/all-users",
           icon: FileText,
         },
         {
