@@ -21,6 +21,19 @@ import {
   Group,
 } from "lucide-react";
 import "@/app/globals.css";
+import { AuthProvider } from "@/app/providers/AuthProvider";
+import { ChatProvider } from "@/app/contexts/ChatContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export default function AdminLayout({
   children,
@@ -146,33 +159,41 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-100 dark:bg-slate-950">
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={toggleSidebar}
-        navItems={navItems}
-        logo={logo}
-        collapsed={collapsed}
-        onCollapse={toggleCollapse}
-      />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ChatProvider>
+          <div className="flex min-h-screen w-full bg-slate-100 dark:bg-slate-950">
+            <Sidebar
+              isOpen={sidebarOpen}
+              onToggle={toggleSidebar}
+              navItems={navItems}
+              logo={logo}
+              collapsed={collapsed}
+              onCollapse={toggleCollapse}
+            />
 
-      <div
-        className={cn(
-          "flex flex-1 flex-col transition-all duration-300",
-          collapsed ? "lg:pl-0" : "lg:pl-0",
-        )}
-      >
-        <Header
-          onMenuClick={toggleSidebar}
-          user={user}
-          breadcrumbConfig={breadcrumbConfig}
-          notificationCount={3}
-        />
+            <div
+              className={cn(
+                "flex flex-1 flex-col transition-all duration-300",
+                collapsed ? "lg:pl-0" : "lg:pl-0",
+              )}
+            >
+              <Header
+                onMenuClick={toggleSidebar}
+                user={user}
+                breadcrumbConfig={breadcrumbConfig}
+                notificationCount={3}
+              />
 
-        <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
-          <div className="mx-auto max-w-5xl overflow-x-scroll">{children}</div>
-        </main>
-      </div>
-    </div>
+              <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
+                <div className="mx-auto max-w-5xl overflow-x-scroll">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </div>
+        </ChatProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
