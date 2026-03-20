@@ -5,6 +5,7 @@ import { Sidebar } from "@/app/components/layouts/sidebars/CustomerSidebar";
 import { Header } from "@/app/components/layouts/headers/CustomerHeader";
 import "@/app/globals.css";
 import { AuthProvider } from "@/app/providers/AuthProvider";
+import { ChatProvider } from "@/app/contexts/ChatContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -28,35 +29,40 @@ export default function CustomerLayout({
   return (
     <html>
       <body>
-        <div className="min-h-screen bg-linear-to-b from-[#DCEFFF] to-white">
-          {/* Mobile overlay */}
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
+        <AuthProvider>
+          <ChatProvider>
+            <div className="min-h-screen bg-linear-to-b from-[#DCEFFF] to-white">
+              {/* Mobile overlay */}
+              {sidebarOpen && (
+                <div
+                  className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+                  onClick={() => setSidebarOpen(false)}
+                />
+              )}
 
-          <div className="flex gap-2 p-4">
-            {/* Sidebar */}
-            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+              <div className="flex gap-2 p-4">
+                {/* Sidebar */}
+                <Sidebar
+                  open={sidebarOpen}
+                  onClose={() => setSidebarOpen(false)}
+                />
 
-            {/* Main content */}
-            <div className="flex-1 flex flex-col">
-              <Header
-                title={title}
-                //date={date}
-                userName={userName}
-                userRole={userRole}
-                userAvatar={userAvatar}
-                onMenuClick={() => setSidebarOpen(true)}
-              />
-              <main className="flex-1 mt-4">
-                <AuthProvider>{children}</AuthProvider>
-              </main>
+                {/* Main content */}
+                <div className="flex-1 flex flex-col">
+                  <Header
+                    title={title}
+                    //date={date}
+                    userName={userName}
+                    userRole={userRole}
+                    userAvatar={userAvatar}
+                    onMenuClick={() => setSidebarOpen(true)}
+                  />
+                  <main className="flex-1 mt-4">{children}</main>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </ChatProvider>
+        </AuthProvider>
       </body>
     </html>
   );
