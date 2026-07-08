@@ -1,45 +1,39 @@
-import { providersByCategory } from "@/data/constants";
-
-// ============================================================================
-// TYPES POUR LES CATÉGORIES
-// ============================================================================
-
-export type ProviderCategory = keyof typeof providersByCategory;
+// src/app/types/categories/index.ts
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
-  description?: string;
-  icon?: string;
-  color?: string;
+  slug: string;
+  icon?: string | null;
+  parent_id?: string | null;
   is_active: boolean;
-  parent_id?: number;
-  services_count?: number;
-  freelancers_count?: number;
-  average_price?: number;
+  is_featured: boolean;
+  children_count: number;
+  mission_count: number;
+  provider_count: number;
   created_at: string;
-  updated_at?: string;
-}
-
-export interface CategoryStats {
-  total_categories: number;
-  active_categories: number;
-  inactive_categories: number;
-  total_services: number;
+  updated_at?: string | null;
 }
 
 export interface CategoryFilters {
-  name?: string;
-  is_active?: boolean;
-  search?: string;
   page?: number;
   per_page?: number;
+  is_active?: boolean;
+  search?: string;
+  parent_id?: string | null;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
 }
 
-export interface CreateCategoryDTO {
+
+export interface CategoryTreeItem {
+  id: number;
   name: string;
-  description?: string;
+  slug: string;
   icon?: string;
+  icon_url?: string;
   color?: string;
-  is_active: boolean;
+  total_services: number;
+  total_providers: number;
+  children: CategoryTreeItem[];
 }

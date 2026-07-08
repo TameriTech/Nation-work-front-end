@@ -82,22 +82,27 @@ export default function AdminLayout({
           href: "/dashboard/admin/users/verifications",
           icon: CheckCircle,
         },
+        {
+          title: "Skills",
+          href: "/dashboard/admin/users/skills",
+          icon: UsersIcon,
+        },
       ],
     },
 
     {
-      title: "Services",
-      href: "/dashboard/admin/services",
+      title: "Missions",
+      href: "/dashboard/admin/missions",
       icon: HelpCircleIcon,
       children: [
         {
           title: "All Services",
-          href: "/dashboard/admin/services/all_services",
+          href: "/dashboard/admin/missions/all_missions",
           icon: HelpCircleIcon,
         },
         {
           title: "Categories",
-          href: "/dashboard/admin/services/categories",
+          href: "/dashboard/admin/missions/categories",
           icon: Group,
         },
       ],
@@ -186,7 +191,7 @@ export default function AdminLayout({
               />
 
               <main className="flex-1 overflow-auto max-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8">
-                <div className="mx-auto max-w-5xl overflow-x-scroll">
+                <div className="mx-auto overflow-x-scroll">
                   {children}
                 </div>
               </main>

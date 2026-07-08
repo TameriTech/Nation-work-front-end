@@ -14,7 +14,7 @@ export * from "./auth";
 export * from "./users";
 
 // Services
-export * from "./services";
+export * from "./missions";
 
 // Categories
 export * from "./categories";
@@ -24,6 +24,9 @@ export * from "./payments";
 
 // Chat
 export * from "./chat";
+
+// Enumerations
+export * from "./enums";
 
 // Disputes
 export * from "./disputes";
@@ -54,3 +57,6 @@ export * from "./email";
 
 // Calendar
 export * from "./calendar";
+
+// Reviews
+export * from "./reviews";

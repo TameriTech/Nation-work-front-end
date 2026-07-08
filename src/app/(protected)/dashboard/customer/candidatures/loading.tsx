@@ -1,5 +1,5 @@
 // app/dashboard/customer/loading.tsx
-export function DashboardSkeleton() {
+export default function DashboardSkeleton() {
   return (
     <div className="space-y-8 animate-pulse">
       {/* Header skeleton */}

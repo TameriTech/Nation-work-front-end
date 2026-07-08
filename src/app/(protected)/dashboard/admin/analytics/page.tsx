@@ -34,7 +34,7 @@ import {
   getRevenueData,
   getServicesByCategory,
   getServicesByStatus,
-  getTopFreelancers,
+  getTopproviders,
   getActivityData,
   getGeographicDistribution,
   getPerformanceMetrics,
@@ -45,12 +45,12 @@ import type {
   RevenueData,
   ServicesByCategory,
   ServicesByStatus,
-  TopFreelancer,
+  Topprovider,
   ActivityData,
   GeographicDistribution,
   PerformanceMetrics,
   ReportFilters,
-} from "@/app/types/admin";
+} from "@/app/types";
 import { reports as mockReports } from "@/data/admin-mock-data";
 
 // Composant de carte de statistique
@@ -263,11 +263,11 @@ const PieChartComponent = ({
   );
 };
 
-// Composant du tableau des top freelancers
-const TopFreelancersTable = ({
-  freelancers,
+// Composant du tableau des top providers
+const TopprovidersTable = ({
+  providers,
 }: {
-  freelancers: TopFreelancer[];
+  providers: Topprovider[];
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("fr-FR", {
@@ -281,23 +281,23 @@ const TopFreelancersTable = ({
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
         <Award className="w-5 h-5 mr-2 text-yellow-500 dark:text-yellow-400" />
-        Top Freelancers
+        Top providers
       </h3>
 
       <div className="space-y-4">
-        {freelancers.map((freelancer, index) => (
+        {providers.map((provider, index) => (
           <div
-            key={freelancer.id}
+            key={provider.id}
             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition"
           >
             <div className="flex items-center">
               <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400 font-bold mr-3">
                 #{index + 1}
               </div>
-              {freelancer.avatar ? (
+              {provider.avatar ? (
                 <img
-                  src={freelancer.avatar}
-                  alt={freelancer.name}
+                  src={provider.avatar}
+                  alt={provider.name}
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />
               ) : (
@@ -307,20 +307,20 @@ const TopFreelancersTable = ({
               )}
               <div>
                 <p className="font-medium text-gray-800 dark:text-gray-100">
-                  {freelancer.name}
+                  {provider.name}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {freelancer.services_completed} services • ⭐{" "}
-                  {freelancer.average_rating}
+                  {provider.services_completed} services • ⭐{" "}
+                  {provider.average_rating}
                 </p>
               </div>
             </div>
             <div className="text-right">
               <p className="font-bold text-gray-800 dark:text-gray-100">
-                {formatCurrency(freelancer.total_earned)}
+                {formatCurrency(provider.total_earned)}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {freelancer.response_rate}% de réponse
+                {provider.response_rate}% de réponse
               </p>
             </div>
           </div>
@@ -501,7 +501,7 @@ export default function ReportsPage() {
   const [servicesByStatus, setServicesByStatus] = useState<ServicesByStatus[]>(
     [],
   );
-  const [topFreelancers, setTopFreelancers] = useState<TopFreelancer[]>([]);
+  const [topproviders, setTopproviders] = useState<Topprovider[]>([]);
   const [activityData, setActivityData] = useState<ActivityData[]>([]);
   const [geographicData, setGeographicData] = useState<
     GeographicDistribution[]
@@ -521,7 +521,7 @@ export default function ReportsPage() {
         setRevenueData(mockReports.revenueData);
         setServicesByCategory(mockReports.servicesByCategory);
         setServicesByStatus(mockReports.servicesByStatus);
-        setTopFreelancers(mockReports.topFreelancers);
+        setTopproviders(mockReports.topproviders);
         setActivityData(mockReports.activityData);
         setGeographicData(mockReports.geographicDistribution);
         setPerformanceMetrics(mockReports.performanceMetrics);
@@ -699,10 +699,10 @@ export default function ReportsPage() {
             </div>
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Freelancers
+                providers
               </p>
               <p className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                {stats.total_freelancers}
+                {stats.total_providers}
               </p>
             </div>
           </div>
@@ -742,11 +742,11 @@ export default function ReportsPage() {
           )}
         </div>
 
-        {/* Top freelancers et performance */}
+        {/* Top providers et performance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Top freelancers */}
-          {topFreelancers.length > 0 && (
-            <TopFreelancersTable freelancers={topFreelancers} />
+          {/* Top providers */}
+          {topproviders.length > 0 && (
+            <TopprovidersTable providers={topproviders} />
           )}
 
           {/* Indicateurs de performance */}

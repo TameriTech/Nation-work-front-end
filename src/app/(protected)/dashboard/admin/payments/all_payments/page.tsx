@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -51,8 +51,13 @@ import type {
   PaymentFilters,
   PaginatedResponse,
   PaymentSummary,
-} from "@/app/types/admin";
-import { payments as mockPayments } from "@/data/admin-mock-data";
+  PaymentStats,
+} from "@/app/types";
+// Mock data - commenté pour utilisation future ou fallback
+// import { payments as mockPayments } from "@/data/admin-mock-data";
+
+// Import du hook usePayments
+import { usePayments } from "@/app/hooks/payments/use-payments";
 
 // Composant de statistiques
 const StatsCard = ({
@@ -111,19 +116,41 @@ const PaymentFilters = ({
   filters,
   onFilterChange,
   onSearch,
+  isSearching,
 }: {
   filters: PaymentFilters;
   onFilterChange: (filters: PaymentFilters) => void;
   onSearch: () => void;
+  isSearching: boolean;
 }) => {
   const [localSearch, setLocalSearch] = useState(filters.search || "");
+    
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onFilterChange({ ...filters, search: localSearch });
-      onSearch();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalSearch(newValue);
+    
+    // Debounced search
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    
+    timeoutRef.current = setTimeout(() => {
+      onFilterChange({ ...filters, search: newValue });
+      onSearch();
+    }, 500);
   };
+  
+  useEffect(() => {
+    if (!isSearching && inputRef.current) {
+      inputRef.current.focus();
+      const length = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(length, length);
+    }
+  }, [isSearching])
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
@@ -138,8 +165,7 @@ const PaymentFilters = ({
             <input
               type="text"
               value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={handleInputChange}
               placeholder="ID transaction, service, client..."
               className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
@@ -445,11 +471,11 @@ const PaymentTable = ({
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
-                onClick={() => onSort("freelancer")}
+                onClick={() => onSort("provider")}
               >
                 <div className="flex items-center">
-                  Freelancer
-                  <SortIcon field="freelancer" />
+                  provider
+                  <SortIcon field="provider" />
                 </div>
               </th>
               <th
@@ -510,11 +536,8 @@ const PaymentTable = ({
                   className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {payment.id}
-                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {payment.transaction_id || "N/A"}
+                      # {payment.invoice_number || "N/A"}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -527,13 +550,13 @@ const PaymentTable = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900 dark:text-gray-100">
-                      {payment.client.name}
+                      {payment.client_name}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {payment.freelancer ? (
+                    {payment.provider_name ? (
                       <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {payment.freelancer.name}
+                        {payment.provider_name}
                       </div>
                     ) : (
                       <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -668,11 +691,24 @@ const Pagination = ({
 // Page principale
 export default function PaymentsPage() {
   const router = useRouter();
+  
+  // Utilisation du hook usePayments avec isAdmin=true pour les fonctionnalités admin
+  const {
+    summary,
+    isLoadingSummary,
+    transactions: transactionsQuery,
+    isLoadingTransactions,
+    formatAmount,
+    generateInvoice,
+    exportTransactions,
+    refetchTransactions,
+    stats,
+  } = usePayments(true); // true pour mode admin
+
+  const statistics: PaymentStats = stats.data;
 
   // États
-  const [loading, setLoading] = useState(true);
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [summary, setSummary] = useState<PaymentSummary | null>(null);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -686,12 +722,33 @@ export default function PaymentsPage() {
     sort_order: "desc",
   });
 
-  // Charger les données
-  const loadPayments = async () => {
+  // Récupérer les transactions via le hook
+  const { data: transactionsData, isLoading: transactionsLoading, refetch } = transactionsQuery(filters);
+
+
+  // Charger les données quand les filtres changent
+  useEffect(() => {
+    if (transactionsData) {
+      setPayments(transactionsData || []);
+      setPagination({
+        total: transactionsData.total || 0,
+        page: transactionsData.page || 1,
+        per_page: transactionsData.per_page || 10,
+        total_pages: transactionsData.total_pages || 1,
+      });
+    }
+  }, [transactionsData]);
+
+  // Recharger quand les filtres changent
+  useEffect(() => {
+    refetch();
+  }, [filters.page, filters.per_page, filters.sort_by, filters.sort_order, filters.search, filters.status, filters.method, filters.date_from, filters.date_to, filters.min_amount, filters.max_amount]);
+
+  // Fallback avec mock data si nécessaire (optionnel)
+  /*
+  const loadMockData = async () => {
     try {
       setLoading(true);
-
-      // Utiliser les mock data
       const mockResponse = {
         items: mockPayments.transactions as Payment[],
         total: mockPayments.transactions.length,
@@ -710,10 +767,7 @@ export default function PaymentsPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadPayments();
-  }, [filters.page, filters.per_page, filters.sort_by, filters.sort_order]);
+  */
 
   // Gestionnaires d'événements
   const handleFilterChange = (newFilters: PaymentFilters) => {
@@ -721,7 +775,7 @@ export default function PaymentsPage() {
   };
 
   const handleSearch = () => {
-    loadPayments();
+    refetch();
   };
 
   const handleSort = (field: string) => {
@@ -737,27 +791,17 @@ export default function PaymentsPage() {
   };
 
   const handleViewPayment = (payment: Payment) => {
-    router.push(`/dashboard/admin/payments/${payment.id}`);
+    router.push(`/dashboard/admin/payments/${payment.invoice_number}`);
   };
 
   const handleExport = async (payment?: Payment) => {
     try {
       if (payment) {
         // Exporter une seule facture
-        const blob = await generateInvoice(payment.id);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `facture-${payment.id}.pdf`;
-        a.click();
+        await generateInvoice(payment.id);
       } else {
         // Exporter toutes les transactions
-        const blob = await exportTransactions(filters);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `transactions-${new Date().toISOString().split("T")[0]}.csv`;
-        a.click();
+        await exportTransactions("csv", filters);
       }
     } catch (error) {
       console.error("Erreur export:", error);
@@ -775,6 +819,8 @@ export default function PaymentsPage() {
     return new Intl.NumberFormat("fr-FR").format(num);
   };
 
+  const loading = transactionsLoading || isLoadingSummary;
+
   return (
     <div className="min-h-screen dark:bg-slate-950">
       <div className="container mx-auto">
@@ -790,36 +836,36 @@ export default function PaymentsPage() {
         </div>
 
         {/* Cartes de statistiques */}
-        {summary && (
+        {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <StatsCard
               title="Chiffre d'affaires"
-              value={formatCurrency(summary.total_revenue)}
-              subValue={`+${formatCurrency(summary.monthly_revenue)} ce mois`}
+              value={formatCurrency(statistics?.total_amount)}
+              subValue={`+${formatCurrency(statistics?.monthly_totals[Object.keys(statistics.monthly_totals)[0]])} ce mois`}
               icon={DollarSign}
               color="bg-green-500"
-              trend={summary.monthly_growth}
+              trend={statistics.monthly_growth}
             />
             <StatsCard
               title="Frais plateforme"
-              value={formatCurrency(summary.platform_fees)}
+              value={formatCurrency(statistics.total_platform_fees)}
               subValue="Commission 10%"
               icon={Percent}
               color="bg-blue-500"
             />
             <StatsCard
               title="En attente de paiement"
-              value={formatCurrency(summary.pending_payouts)}
-              subValue={`${summary.by_status.pending} transactions`}
+              value={formatCurrency(statistics.by_status.pending.amount)}
+              subValue={`${statistics.by_status?.pending.count || 0} transactions`}
               icon={Clock}
               color="bg-yellow-500"
             />
             <StatsCard
               title="Transactions"
               value={formatNumber(
-                summary.by_status.paid + summary.by_status.pending,
+                (statistics.total_payments || 0),
               )}
-              subValue={`${summary.by_status.paid} payées, ${summary.by_status.escrow} séquestre`}
+              subValue={`${statistics.by_status?.paid.count || 0} payées, ${statistics.by_status?.on_hold.count || 0} séquestre`}
               icon={CreditCard}
               color="bg-purple-500"
             />
@@ -830,7 +876,7 @@ export default function PaymentsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={loadPayments}
+              onClick={() => refetch()}
               className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
@@ -845,19 +891,19 @@ export default function PaymentsPage() {
             </button>
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span>Total: {formatCurrency(summary?.total_revenue || 0)}</span>
+            <span>Total: {formatCurrency(statistics?.total_amount || 0)}</span>
             <span className="hidden sm:inline">|</span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
-              Payés: {summary?.by_status.paid || 0}
+              Payés: {statistics?.by_status.paid.count || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1"></div>
-              En attente: {summary?.by_status.pending || 0}
+              En attente: {statistics?.by_status?.pending.count || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-blue-500 mr-1"></div>
-              Séquestre: {summary?.by_status.escrow || 0}
+              Séquestre: {statistics?.by_status?.on_hold.count || 0}
             </span>
           </div>
         </div>
@@ -867,6 +913,7 @@ export default function PaymentsPage() {
           filters={filters}
           onFilterChange={handleFilterChange}
           onSearch={handleSearch}
+          isSearching={isLoadingTransactions}
         />
 
         {/* Tableau */}
@@ -881,13 +928,15 @@ export default function PaymentsPage() {
         />
 
         {/* Pagination */}
-        <Pagination
-          currentPage={pagination.page}
-          totalPages={pagination.total_pages}
-          totalItems={pagination.total}
-          perPage={pagination.per_page}
-          onPageChange={handlePageChange}
-        />
+        {pagination.total_pages > 1 && (
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.total_pages}
+            totalItems={pagination.total}
+            perPage={pagination.per_page}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
     </div>
   );

@@ -22,16 +22,17 @@ import { formatDate } from "@/app/lib/utils";
 import { ReviewsSkeleton } from "./loading";
 import { ReviewsError } from "./error";
 import { useState } from "react";
+import type { Review, ReviewStats } from "@/app/lib/validators/review.validator";
 
 export default function EvaluationsTabContent() {
   const params = useParams();
-  const freelancerId = params.freelancerId
-    ? Number(params.freelancerId)
+  const providerId = params.providerId
+    ? Number(params.providerId)
     : undefined;
   const { user } = useAuth();
 
-  // Déterminer si on affiche les évaluations du freelancer connecté ou d'un autre
-  const targetId = freelancerId || user?.id;
+  // Déterminer si on affiche les évaluations du provider connecté ou d'un autre
+  const targetId = providerId || user?.id;
 
   const {
     reviews,
@@ -86,12 +87,14 @@ export default function EvaluationsTabContent() {
 
 // ==================== COMPOSANTS ====================
 
-function RatingOverviewCard({ stats }: { stats: any }) {
-  const averageRating = stats?.average || 0;
-  const totalReviews = stats?.total || 0;
+function RatingOverviewCard({ stats }: { stats: ReviewStats | null | undefined }) {
+  // Valeurs par défaut si stats est undefined ou null
+  const averageRating = stats?.average_rating || 0;
+  const totalReviews = stats?.total_reviews || 0;
+  const distribution = stats?.rating_distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
   // Générer les données du graphique (simulées ou réelles)
-  const chartData = generateChartData(stats?.distribution);
+  const chartData = generateChartData();
 
   return (
     <div className="rounded-3xl bg-white p-6 mb-6 border border-gray-100 shadow-sm">
@@ -182,31 +185,29 @@ function RatingOverviewCard({ stats }: { stats: any }) {
       </div>
 
       {/* Distribution des notes */}
-      {stats?.distribution && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">
-            Distribution des notes
-          </h3>
-          <div className="space-y-2">
-            {[5, 4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 w-8">{rating} ★</span>
-                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-400 rounded-full"
-                    style={{
-                      width: `${((stats.distribution[rating] || 0) / totalReviews) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500 w-12">
-                  {stats.distribution[rating] || 0}
-                </span>
+      <div className="mt-6 pt-6 border-t border-gray-100">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">
+          Distribution des notes
+        </h3>
+        <div className="space-y-2">
+          {[5, 4, 3, 2, 1].map((rating) => (
+            <div key={rating} className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 w-8">{rating} ★</span>
+              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-400 rounded-full"
+                  style={{
+                    width: `${((distribution[rating as keyof typeof distribution] || 0) / (totalReviews || 1)) * 100}%`,
+                  }}
+                />
               </div>
-            ))}
-          </div>
+              <span className="text-xs text-gray-500 w-12">
+                {distribution[rating as keyof typeof distribution] || 0}
+              </span>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -251,7 +252,7 @@ function CommentsSection({
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {reviews.map((review: any) => (
+            {reviews.map((review: Review) => (
               <CommentCard
                 key={review.id}
                 review={review}
@@ -298,31 +299,31 @@ function CommentCard({
   isResponding,
 }: any) {
   const [showResponseInput, setShowResponseInput] = useState(false);
-  const isOwner = currentUserId === review.freelancer_id;
+  const isOwner = currentUserId === review.provider_id;
 
   return (
     <div className="rounded-2xl bg-gray-50 hover:bg-white border border-gray-100 hover:shadow-md transition-all p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <Avatar className="w-12 h-12 border-2 border-white shadow-sm">
-          <AvatarImage src={review.client?.avatar} alt={review.client?.name} />
+          <AvatarImage src={review.client_avatar} alt={review.client_name} />
           <AvatarFallback className="bg-blue-900/10 text-blue-900">
-            {review.client?.name?.charAt(0) || "C"}
+            {review.client_name?.charAt(0) || "C"}
           </AvatarFallback>
         </Avatar>
         <div>
           <h4 className="font-semibold text-gray-900">
-            {review.client?.name || "Client"}
+            {review.client_name || "Client"}
           </h4>
           <p className="text-xs text-gray-500">
-            {review.client?.totalReviews || 0} avis
+            {/* Total reviews would need to be added to the Review type */}
           </p>
         </div>
       </div>
 
       {/* Service info */}
       <p className="text-xs text-gray-400 mb-2">
-        Pour: {review.service?.title || "Service"}
+        Pour: {review.service_title || "Service"}
       </p>
 
       {/* Comment */}
@@ -338,13 +339,13 @@ function CommentCard({
         </span>
       </div>
 
-      {/* Freelancer Response */}
-      {review.freelancer_response && (
+      {/* provider Response */}
+      {review.provider_response && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
           <p className="text-xs font-medium text-blue-800 mb-1">Réponse:</p>
-          <p className="text-sm text-blue-700">{review.freelancer_response}</p>
+          <p className="text-sm text-blue-700">{review.provider_response}</p>
           <p className="text-xs text-blue-400 mt-1">
-            {formatDate(review.response_date)}
+            {formatDate(review.response_date || "")}
           </p>
         </div>
       )}
@@ -359,7 +360,7 @@ function CommentCard({
           Utile ({review.helpful_count || 0})
         </button>
 
-        {isOwner && !review.freelancer_response && !showResponseInput && (
+        {isOwner && !review.provider_response && !showResponseInput && (
           <button
             onClick={() => setShowResponseInput(true)}
             className="text-xs text-blue-600 hover:text-blue-800"
@@ -419,7 +420,7 @@ function StarRating({ rating, size = 24 }: { rating: number; size?: number }) {
 }
 
 // Fonction utilitaire pour générer les données du graphique
-function generateChartData(distribution?: any) {
+function generateChartData() {
   const months = [
     "Jan",
     "Fév",
@@ -438,9 +439,6 @@ function generateChartData(distribution?: any) {
 
   return months.map((month, index) => ({
     month,
-    rating:
-      index <= currentMonth
-        ? distribution?.[index + 1] || 3 + Math.random()
-        : null,
+    rating: index <= currentMonth ? 3 + Math.random() * 2 : null,
   }));
 }

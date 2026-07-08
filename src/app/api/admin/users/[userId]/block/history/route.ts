@@ -1,0 +1,18 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  try {
+    const { userId } = await params;
+
+    const data = await backendFetch(`/admin/users/${userId}/block-history`);
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+

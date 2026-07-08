@@ -14,7 +14,7 @@ export function SidebarProCard() {
         <span className="font-semibold text-sidebar-card-foreground">Pro</span>
       </div>
       <p className="mb-3 text-sm text-sidebar-card-foreground/80">
-        Essayer Nation Work Premium – 1 mois offert
+        Essayer Tameri Work Premium – 1 mois offert
       </p>
       <Button
         variant={"outline"}

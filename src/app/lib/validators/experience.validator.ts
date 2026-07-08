@@ -1,184 +1,127 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { EmploymentType, LocationType } from "../../types/enums";
 
-// ==================== EXPÉRIENCE PROFESSIONNELLE ====================
+/**
+ * Utils
+ */
 
-export const createExperienceSchema = z.object({
-  position: z.string()
-    .min(2, "L'intitulé du poste est requis")
-    .max(200, "Intitulé trop long"),
-  company: z.string()
-    .min(2, "Le nom de l'entreprise est requis")
-    .max(200, "Nom de l'entreprise trop long"),
-  description: z.string()
-    .max(1000, "La description ne doit pas dépasser 1000 caractères")
+// Transforme "" → undefined
+const emptyToUndefined = (val: unknown) => {
+  if (typeof val !== "string") return val;
+  const trimmed = val.trim();
+  return trimmed === "" ? undefined : trimmed;
+};
+
+// Regex ISO stricte (YYYY-MM-DD)
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+// Champ date optionnel robuste
+const optionalDate = z.preprocess(
+  emptyToUndefined,
+  z
+    .string()
+    .regex(ISO_DATE_REGEX, "Invalid date format. Use YYYY-MM-DD")
     .optional()
-    .nullable(),
-  start_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)"),
-  end_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional()
-    .nullable(),
-  is_current: z.boolean(),
-  location: z.string()
-    .max(200, "Localisation trop longue")
-    .optional()
-    .nullable(),
-}).refine((data) => {
-  if (!data.is_current && !data.end_date) {
-    return false;
-  }
+);
+
+// Champ date requis robuste
+const requiredDate = z.preprocess(
+  emptyToUndefined,
+  z
+    .string()
+    .min(1, "Start date is required")
+    .regex(ISO_DATE_REGEX, "Invalid date format. Use YYYY-MM-DD")
+);
+
+/**
+ * Validation métier des dates
+ */
+const validateDates = (data: {
+  start_date?: string;
+  end_date?: string;
+  is_current?: boolean;
+}) => {
+  const { start_date, end_date, is_current } = data;
+
+  // Si dates présentes → validation réelle
+  const start = start_date ? new Date(start_date) : null;
+  const end = end_date ? new Date(end_date) : null;
+
+  // Dates invalides (ex: 2024-13-40)
+  if (start && isNaN(start.getTime())) return false;
+  if (end && isNaN(end.getTime())) return false;
+
+  // Ordre logique
+  if (start && end && end < start) return false;
+
+  // Expérience en cours ne doit pas avoir de date de fin
+  if (is_current && end) return false;
+
   return true;
-}, {
-  message: "La date de fin est requise si l'expérience n'est pas en cours",
-  path: ["end_date"],
-}).refine((data) => {
-  if (data.end_date && new Date(data.start_date) > new Date(data.end_date)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin doit être postérieure à la date de début",
+};
+
+/**
+ * Base commune
+ */
+const ExperienceBaseCore = z.object({
+  position: z.string().min(2).max(200),
+
+  employment_type: z.nativeEnum(EmploymentType),
+
+  company: z.string().min(2).max(200),
+  company_description: z.string().max(1000).optional(),
+  company_website: z.string().url().optional(),
+
+  location: z.string().max(200).optional(),
+
+  country: z.string().optional(),
+  city: z.string().optional(),
+
+  description: z.string().max(2000).optional(),
+
+  achievements: z.array(z.string()).default([]),
+  responsibilities: z.array(z.string()).default([]),
+  technologies_used: z.array(z.string()).default([]),
+
+  is_current: z.boolean().default(false),
+  is_public: z.boolean().default(true),
+});
+
+/**
+ * CREATE
+ * start_date requis
+ */
+export const ProfessionalExperienceSchema = ExperienceBaseCore.extend({
+  start_date: requiredDate,
+  end_date: optionalDate,
+}).refine(validateDates, {
+  message:
+    "Dates invalides : la date de fin doit être ≥ à la date de début et une expérience en cours ne peut pas avoir de date de fin",
   path: ["end_date"],
 });
 
-export const updateExperienceSchema = z.object({
-  position: z.string()
-    .max(200, "Intitulé trop long")
-    .optional(),
-  company: z.string()
-    .max(200, "Nom de l'entreprise trop long")
-    .optional(),
-  description: z.string()
-    .max(1000, "La description ne doit pas dépasser 1000 caractères")
-    .optional()
-    .nullable(),
-  start_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional(),
-  end_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional()
-    .nullable(),
-  is_current: z.boolean().optional(),
-  location: z.string()
-    .max(200, "Localisation trop longue")
-    .optional()
-    .nullable(),
-}).refine((data) => {
-  // Si is_current est false et end_date n'est pas fourni, c'est une erreur
-  if (data.is_current === false && !data.end_date) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin est requise si l'expérience n'est pas en cours",
-  path: ["end_date"],
-}).refine((data) => {
-  if (data.start_date && data.end_date && new Date(data.start_date) > new Date(data.end_date)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin doit être postérieure à la date de début",
-  path: ["end_date"],
-});
+/**
+ * UPDATE
+ * tout optionnel
+ */
+export const UpdateExperienceSchema = ExperienceBaseCore.partial()
+  .extend({
+    start_date: optionalDate,
+    end_date: optionalDate,
+  })
+  .refine(validateDates, {
+    message:
+      "Dates invalides : la date de fin doit être ≥ à la date de début et une expérience en cours ne peut pas avoir de date de fin",
+    path: ["end_date"],
+  });
 
-// ==================== FORMATION ====================
+/**
+ * TYPES
+ */
+export type CreateExperienceFormData = z.infer<
+  typeof ProfessionalExperienceSchema
+>;
 
-export const createEducationSchema = z.object({
-  school: z.string()
-    .min(2, "Le nom de l'établissement est requis")
-    .max(200, "Nom de l'établissement trop long"),
-  degree: z.string()
-    .max(200, "Intitulé du diplôme trop long")
-    .optional()
-    .nullable(),
-  field_of_study: z.string()
-    .max(200, "Domaine d'étude trop long")
-    .optional()
-    .nullable(),
-  description: z.string()
-    .max(1000, "La description ne doit pas dépasser 1000 caractères")
-    .optional()
-    .nullable(),
-  start_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)"),
-  end_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional()
-    .nullable(),
-  is_current: z.boolean(),
-  grade: z.string()
-    .max(50, "Mention trop longue")
-    .optional()
-    .nullable(),
-}).refine((data) => {
-  if (!data.is_current && !data.end_date) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin est requise si la formation n'est pas en cours",
-  path: ["end_date"],
-}).refine((data) => {
-  if (data.end_date && new Date(data.start_date) > new Date(data.end_date)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin doit être postérieure à la date de début",
-  path: ["end_date"],
-});
-
-export const updateEducationSchema = z.object({
-  school: z.string()
-    .max(200, "Nom de l'établissement trop long")
-    .optional(),
-  degree: z.string()
-    .max(200, "Intitulé du diplôme trop long")
-    .optional()
-    .nullable(),
-  field_of_study: z.string()
-    .max(200, "Domaine d'étude trop long")
-    .optional()
-    .nullable(),
-  description: z.string()
-    .max(1000, "La description ne doit pas dépasser 1000 caractères")
-    .optional()
-    .nullable(),
-  start_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional(),
-  end_date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)")
-    .optional()
-    .nullable(),
-  is_current: z.boolean().optional(),
-  grade: z.string()
-    .max(50, "Mention trop longue")
-    .optional()
-    .nullable(),
-}).refine((data) => {
-  if (data.is_current === false && !data.end_date) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin est requise si la formation n'est pas en cours",
-  path: ["end_date"],
-}).refine((data) => {
-  if (data.start_date && data.end_date && new Date(data.start_date) > new Date(data.end_date)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "La date de fin doit être postérieure à la date de début",
-  path: ["end_date"],
-});
-
-// Types exportés
-export type CreateExperienceFormData = z.infer<typeof createExperienceSchema>;
-export type UpdateExperienceFormData = z.infer<typeof updateExperienceSchema>;
-export type CreateEducationFormData = z.infer<typeof createEducationSchema>;
-export type UpdateEducationFormData = z.infer<typeof updateEducationSchema>;
+export type UpdateExperienceFormData = z.infer<
+  typeof UpdateExperienceSchema
+>;

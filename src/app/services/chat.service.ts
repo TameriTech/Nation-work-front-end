@@ -1,180 +1,476 @@
 // src/app/services/messages.service.ts
 
-import type { 
-  Conversation, 
+import type {
+  ConversationListResponse,
+  ConversationDetail,
   Message, 
   ConversationFilters, 
   PaginatedResponse,
   ConversationStats,
-  TypingIndicator
+  ChatStats,
+  TypingIndicator,
+  MessageReactionResponse,
+  MessageSearchResponse,
+  UnreadCountResponse,
+  MessageCreateSimple,
+  MessageFilters,
+  MessageListResponse,
+  FileUploadResponse,
+  ConversationDetailResponse,
+  AdminConversationDetailResponse
 } from "@/app/types";
+import { 
+  ConversationCreateFormData,
+  ConversationFiltersFormData,
+  MessageCreateSimpleFormData,
+  MessageFiltersFormData,
+  MessageReactionFormData,
+  MessageSearchFormData,
+  TypingIndicatorFormData,
+  ConversationCreateSchema,
+  ConversationFiltersSchema,
+  MessageCreateSimpleSchema,
+  MessageFiltersSchema,
+  MessageReactionSchema,
+  MessageSearchSchema,
+  TypingIndicatorSchema
+} from "@/app/lib/validators/chat.validator";
 import { handleResponse } from "@/app/lib/error-handler";
 
-// ==================== CONVERSATIONS ====================
 
 /**
- * Récupère la liste des conversations avec filtres
+ * Récupère toutes les conversations pour l'admin (avec pagination)
  */
-export async function getConversations(filters?: ConversationFilters): Promise<PaginatedResponse<Conversation>> {
+export async function getAdminConversations(
+  filters?: ConversationFilters
+): Promise<PaginatedResponse<ConversationListResponse>> {
+  try {
+    const validatedFilters = filters ? filters : { page: 1, limit: 20 };
+    const params = new URLSearchParams();
+    
+    // Paramètres de pagination
+    if (validatedFilters.page) {
+      params.append('page', String(validatedFilters.page));
+    }
+    if (validatedFilters.limit) {
+      params.append('limit', String(validatedFilters.limit));
+    }
+    
+    // Paramètres de recherche et filtres
+    if (validatedFilters.search) {
+      params.append('search', validatedFilters.search);
+    }
+    if (validatedFilters.is_active !== undefined) {
+      params.append('is_active', String(validatedFilters.is_active));
+    }
+    if (validatedFilters.participant_type) {
+      params.append('participant_type', validatedFilters.participant_type);
+    }
+    if (validatedFilters.date_from) {
+      params.append('date_from', validatedFilters.date_from);
+    }
+    if (validatedFilters.date_to) {
+      params.append('date_to', validatedFilters.date_to);
+    }
+    if (validatedFilters.sort_by) {
+      params.append('sort_by', validatedFilters.sort_by);
+    }
+    if (validatedFilters.sort_order) {
+      params.append('sort_order', validatedFilters.sort_order);
+    }
+
+    const response = await fetch(`/api/admin/chat/conversations?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return await handleResponse<PaginatedResponse<ConversationListResponse>>(response);
+  } catch (error) {
+    console.error('Erreur getAdminConversations:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère les statistiques admin du chat
+ */
+export async function getAdminChatStats(): Promise<{
+  total_conversations: number;
+  active_conversations: number;
+  total_messages: number;
+  unread_count: number;
+  engagement_rate: number;
+  participants: number;
+  archived_conversations: number;
+}> {
+  try {
+    const response = await fetch('/api/admin/chat/stats', {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const data = await handleResponse<{
+      total_conversations: number;
+      active_conversations: number;
+      total_messages: number;
+      unread_messages: number;
+      engagement_rate: number;
+      participants: number;
+      archived_conversations: number;
+    }>(response);
+    
+    return {
+      total_conversations: data.total_conversations || 0,
+      active_conversations: data.active_conversations || 0,
+      total_messages: data.total_messages || 0,
+      unread_count: data.unread_messages || 0,
+      engagement_rate: data.engagement_rate || 0,
+      participants: data.participants || 0,
+      archived_conversations: data.archived_conversations || 0,
+    };
+  } catch (error) {
+    console.error('Erreur getAdminChatStats:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère une conversation spécifique par ID
+ */
+export async function adminGetConversationById(
+  conversationId: number
+): Promise<AdminConversationDetailResponse> {
+  try {
+    const response = await fetch(`/api/admin/chat/conversations/${conversationId}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return await handleResponse<AdminConversationDetailResponse>(response);
+  } catch (error) {
+    console.error('Erreur getConversationById:', error);
+    throw error;
+  }
+}
+
+export async function getConversationById(
+  conversationId: number
+): Promise<AdminConversationDetailResponse> {
+  try {
+    const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return await handleResponse<AdminConversationDetailResponse>(response);
+  } catch (error) {
+    console.error('Erreur getConversationById:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère les messages d'une conversation (avec pagination)
+ */
+export async function getConversationMessages(
+  conversationId: number,
+  filters?: { limit?: number; before_id?: number; after_id?: number }
+): Promise<MessageListResponse[]> {
   try {
     const params = new URLSearchParams();
     
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params.append(key, String(value));
-        }
-      });
+    if (filters?.limit) {
+      params.append('limit', String(filters.limit));
+    }
+    if (filters?.before_id) {
+      params.append('before_id', String(filters.before_id));
+    }
+    if (filters?.after_id) {
+      params.append('after_id', String(filters.after_id));
     }
 
-    const res = await fetch(`/api/chat/conversations?${params.toString()}`, {
-      method: "GET",
-      cache: "no-store",
+    const response = await fetch(`/api/chat/conversations/${conversationId}/messages?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
     });
 
-    return await handleResponse<PaginatedResponse<Conversation>>(res);
+    return await handleResponse<MessageListResponse[]>(response);
   } catch (error) {
-    console.error("Erreur getConversations:", error);
+    console.error('Erreur getConversationMessages:', error);
     throw error;
   }
 }
+
+
+
+/**
+ * Archive une conversation
+ */
+export async function archiveConversation(
+  conversationId: number,
+  archive: boolean
+): Promise<void> {
+  try {
+    if (archive) {
+      const response = await fetch(`/api/admin/chat/conversations/${conversationId}/archive`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      await handleResponse(response);
+    } else {
+      const response = await fetch(`/api/admin/chat/conversations/${conversationId}/restore`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      await handleResponse(response);
+    }
+  } catch (error) {
+    console.error('Erreur archiveConversation:', error);
+    throw error;
+  }
+}
+
+/**
+ * Supprime définitivement une conversation (admin)
+ */
+export async function deleteConversation(conversationId: number): Promise<void> {
+  try {
+    const response = await fetch(`/api/admin/chat/conversations/${conversationId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    await handleResponse(response);
+  } catch (error) {
+    console.error('Erreur deleteConversation:', error);
+    throw error;
+  }
+}
+
+/**
+ * Marque une conversation comme lue
+ */
+export async function markConversationAsRead(conversationId: number): Promise<{ success: boolean; count: number }> {
+  try {
+    const response = await fetch(`/api/chat/conversations/${conversationId}/read`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<{ success: boolean; count: number }>(response);
+  } catch (error) {
+    console.error('Erreur markConversationAsRead:', error);
+    throw error;
+  }
+}
+
+/**
+ * Marque un message comme lu
+ */
+export async function markMessageAsRead(messageId: number): Promise<{ success: boolean }> {
+  try {
+    const response = await fetch(`/api/chat/messages/${messageId}/read`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<{ success: boolean }>(response);
+  } catch (error) {
+    console.error('Erreur markMessageAsRead:', error);
+    throw error;
+  }
+}
+
+/**
+ * Ajoute une réaction à un message
+ */
+export async function addReaction(
+  messageId: number,
+  reaction: string
+): Promise<{ message_id: number; reactions: Record<string, number[]>; user_reaction: string }> {
+  try {
+    const response = await fetch(`/api/chat/messages/${messageId}/reactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction }),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Erreur addReaction:', error);
+    throw error;
+  }
+}
+
+/**
+ * Supprime une réaction d'un message
+ */
+export async function removeReaction(
+  messageId: number,
+  reaction: string
+): Promise<{ message_id: number; reactions: Record<string, number[]>; user_reaction: string | null }> {
+  try {
+    const response = await fetch(`/api/chat/messages/${messageId}/reactions`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction }),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Erreur removeReaction:', error);
+    throw error;
+  }
+}
+
+/**
+ * Supprime un message
+ */
+export async function deleteMessage(
+  messageId: number,
+  hardDelete: boolean = false
+): Promise<{ success: boolean }> {
+  try {
+    const params = new URLSearchParams();
+    params.append('hard_delete', String(hardDelete));
+    
+    const response = await fetch(`/api/chat/messages/${messageId}?${params.toString()}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<{ success: boolean }>(response);
+  } catch (error) {
+    console.error('Erreur deleteMessage:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère ou crée une conversation par code de service
+ */
+export async function getOrCreateConversationByServiceCode(
+  username: string,
+  serviceCode: string
+): Promise<ConversationDetailResponse> {
+  try {
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('service_code', serviceCode);
+    
+    const response = await fetch(`/api/chat/conversations/by-service?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<ConversationDetailResponse>(response);
+  } catch (error) {
+    console.error('Erreur getOrCreateConversationByServiceCode:', error);
+    throw error;
+  }
+}
+
+
 
 /**
  * Récupère les statistiques des conversations
+ * GET /api/chat/stats
  */
-export async function getConversationStats(): Promise<ConversationStats> {
+export async function getChatStats(): Promise<ChatStats> {
   try {
-    const res = await fetch("/api/chat/conversations/stats", {
+    const res = await fetch("/api/chat/stats", {
       method: "GET",
       cache: "no-store",
+      headers: { "Content-Type": "application/json" }
     });
 
-    return await handleResponse<ConversationStats>(res);
+    return await handleResponse<ChatStats>(res);
   } catch (error) {
-    console.error("Erreur getConversationStats:", error);
+    console.error("Erreur getChatStats:", error);
     throw error;
   }
 }
 
-/**
- * Récupère une conversation spécifique par son ID
- */
-export async function getConversationById(id: number): Promise<Conversation> {
+
+export async function getConversationByServiceCode(username: string, serviceCode: string): Promise<ConversationDetail> {
   try {
-    const res = await fetch(`/api/chat/conversations/${id}`, {
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('service_code', serviceCode);
+
+    // This will call the Next.js API route we just created
+    const res = await fetch(`/api/chat/conversations/by-service?${params.toString()}`, {
       method: "GET",
       cache: "no-store",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+      }
     });
 
-    return await handleResponse<Conversation>(res);
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.detail || 'Failed to get conversation');
+    }
+
+    return await res.json();
   } catch (error) {
-    console.error(`Erreur getConversationById ${id}:`, error);
+    console.error(`Erreur getConversationByServiceCode ${username}/${serviceCode}:`, error);
     throw error;
   }
 }
 
 /**
  * Crée une nouvelle conversation
+ * POST /api/chat/conversations
  */
-export async function createConversation(data: {
-  service_id: number;
-  client_id: number;
-  freelancer_id: number;
-  initial_message?: string;
-}): Promise<Conversation> {
+export async function createConversation(data: ConversationCreateFormData): Promise<ConversationDetailResponse> {
   try {
+    const validatedData = ConversationCreateSchema.parse(data);
     const res = await fetch("/api/chat/conversations", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validatedData),
     });
 
-    return await handleResponse<Conversation>(res);
+    return await handleResponse<ConversationDetailResponse>(res);
   } catch (error) {
     console.error("Erreur createConversation:", error);
     throw error;
   }
 }
 
-/**
- * Met à jour une conversation (archivage/désarchivage)
- */
-export async function updateConversation(
-  id: number, 
-  data: Partial<Conversation>
-): Promise<Conversation> {
-  try {
-    const res = await fetch(`/api/chat/conversations/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    return await handleResponse<Conversation>(res);
-  } catch (error) {
-    console.error(`Erreur updateConversation ${id}:`, error);
-    throw error;
-  }
-}
-
-/**
- * Archive ou désarchive une conversation
- */
-export async function archiveConversation(id: number, archive: boolean): Promise<Conversation> {
-  return updateConversation(id, { is_active: !archive });
-}
-
-/**
- * Supprime une conversation
- */
-export async function deleteConversation(id: number): Promise<void> {
-  try {
-    const res = await fetch(`/api/chat/conversations/${id}`, {
-      method: "DELETE",
-    });
-
-    await handleResponse<{ success: boolean }>(res);
-  } catch (error) {
-    console.error(`Erreur deleteConversation ${id}:`, error);
-    throw error;
-  }
-}
 
 // ==================== MESSAGES ====================
 
 /**
  * Récupère les messages d'une conversation
+ * GET /api/chat/conversations/{conversationId}/messages
  */
 export async function getMessages(
   conversationId: number,
-  params?: {
-    page?: number;
-    limit?: number;
-    before?: string;
-    after?: string;
-  }
-): Promise<PaginatedResponse<Message>> {
+  filters?: MessageFiltersFormData
+): Promise<MessageListResponse[]> {
   try {
-    const queryParams = new URLSearchParams();
+    const validatedFilters = filters ? MessageFiltersSchema.parse(filters) : { 
+      limit: 50, 
+      include_system: true 
+    };
     
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
+    const params = new URLSearchParams();
+    
+    if (validatedFilters.limit) params.append('limit', String(validatedFilters.limit));
+    if (validatedFilters.before_id) params.append('before_id', String(validatedFilters.before_id));
+    if (validatedFilters.after_id) params.append('after_id', String(validatedFilters.after_id));
+    if (validatedFilters.message_type) params.append('message_type', validatedFilters.message_type);
+    if (validatedFilters.include_system !== undefined) params.append('include_system', String(validatedFilters.include_system));
 
-    const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${queryParams.toString()}`, {
+    const res = await fetch(`/api/chat/conversations/${conversationId}/messages?${params.toString()}`, {
       method: "GET",
       cache: "no-store",
+      headers: { "Content-Type": "application/json" }
     });
 
-    return await handleResponse<PaginatedResponse<Message>>(res);
+    return await handleResponse<MessageListResponse[]>(res);
   } catch (error) {
     console.error(`Erreur getMessages ${conversationId}:`, error);
     throw error;
@@ -183,34 +479,33 @@ export async function getMessages(
 
 /**
  * Envoie un nouveau message
+ * POST /api/chat/conversations/{conversationId}/messages
  */
-export async function sendMessage(data: {
-  conversation_id: number;
-  content?: string;
-  media?: File;
-  media_type?: string;
-}): Promise<Message> {
+export async function sendMessage(
+  conversationId: number,
+  data: MessageCreateSimpleFormData
+): Promise<MessageListResponse> {
   try {
-    const formData = new FormData();
-    formData.append("conversation_id", String(data.conversation_id));
+    const validatedData = MessageCreateSimpleSchema.parse(data);
     
-    if (data.content) {
-      formData.append("content", data.content);
-    }
+    // Ne pas envoyer images, seulement attachments
+    const payload = {
+      content: validatedData.content,
+      attachments: validatedData.attachments,
+      message_type: validatedData.message_type,
+      reply_to: validatedData.reply_to
+    };
     
-    if (data.media) {
-      formData.append("media", data.media);
-      if (data.media_type) {
-        formData.append("media_type", data.media_type);
-      }
-    }
-
-    const res = await fetch(`/api/chat/conversations/${data.conversation_id}/messages`, {
+    const res = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
       method: "POST",
-      body: formData,
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+      },
+      body: JSON.stringify(payload),
     });
 
-    return await handleResponse<Message>(res);
+    return await handleResponse<MessageListResponse>(res);
   } catch (error) {
     console.error("Erreur sendMessage:", error);
     throw error;
@@ -219,11 +514,12 @@ export async function sendMessage(data: {
 
 /**
  * Upload un fichier média pour un message
+ * POST /api/chat/conversations/{conversationId}/upload
  */
 export async function uploadMessageMedia(
   conversationId: number,
   file: File
-): Promise<{ url: string; type: string }> {
+): Promise<FileUploadResponse> {
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -233,7 +529,7 @@ export async function uploadMessageMedia(
       body: formData,
     });
 
-    return await handleResponse<{ url: string; type: string }>(res);
+    return await handleResponse<FileUploadResponse>(res);
   } catch (error) {
     console.error(`Erreur uploadMessageMedia ${conversationId}:`, error);
     throw error;
@@ -241,49 +537,82 @@ export async function uploadMessageMedia(
 }
 
 /**
- * Marque un message comme lu
+ * Marque plusieurs messages comme lus
+ * PUT /api/chat/messages/read
  */
-export async function markMessageAsRead(messageId: number): Promise<Message> {
+export async function markMultipleMessagesAsRead(messageIds: number[]): Promise<{ success: boolean; count: number; message: string }> {
   try {
-    const res = await fetch(`/api/chat/messages/${messageId}/read`, {
-      method: "POST",
+    const res = await fetch(`/api/chat/messages/read`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(messageIds),
     });
 
-    return await handleResponse<Message>(res);
+    return await handleResponse<{ success: boolean; count: number; message: string }>(res);
   } catch (error) {
-    console.error(`Erreur markMessageAsRead ${messageId}:`, error);
+    console.error("Erreur markMultipleMessagesAsRead:", error);
     throw error;
   }
 }
 
+
+// ==================== STATISTIQUES ====================
+
 /**
- * Marque tous les messages d'une conversation comme lus
+ * Récupère les statistiques d'une conversation spécifique
+ * GET /api/chat/conversations/{conversationId}/stats
  */
-export async function markConversationAsRead(conversationId: number): Promise<{ count: number }> {
+export async function getConversationStats(conversationId: number): Promise<ConversationStats> {
   try {
-    const res = await fetch(`/api/chat/conversations/${conversationId}/read`, {
-      method: "POST",
+    const res = await fetch(`/api/chat/conversations/${conversationId}/stats`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" }
     });
 
-    return await handleResponse<{ count: number }>(res);
+    return await handleResponse<ConversationStats>(res);
   } catch (error) {
-    console.error(`Erreur markConversationAsRead ${conversationId}:`, error);
+    console.error(`Erreur getConversationStats ${conversationId}:`, error);
     throw error;
   }
 }
 
+// ==================== RECHERCHE ====================
+
 /**
- * Supprime un message
+ * Recherche dans les messages
+ * GET /api/chat/search/messages
  */
-export async function deleteMessage(messageId: number): Promise<void> {
+export async function searchMessages(
+  query: string, 
+  filters?: {
+    conversation_id?: number;
+    user_id?: number;
+    date_from?: string;
+    date_to?: string;
+    limit?: number;
+  }
+): Promise<MessageSearchResponse> {
   try {
-    const res = await fetch(`/api/chat/messages/${messageId}`, {
-      method: "DELETE",
+    const validatedData = MessageSearchSchema.parse({ q: query, ...filters });
+    
+    const params = new URLSearchParams();
+    params.append('q', validatedData.q);
+    if (validatedData.limit) params.append('limit', String(validatedData.limit));
+    if (validatedData.conversation_id) params.append('conversation_id', String(validatedData.conversation_id));
+    if (validatedData.user_id) params.append('user_id', String(validatedData.user_id));
+    if (validatedData.date_from) params.append('from_date', validatedData.date_from);
+    if (validatedData.date_to) params.append('to_date', validatedData.date_to);
+
+    const res = await fetch(`/api/chat/search/messages?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" }
     });
 
-    await handleResponse<{ success: boolean }>(res);
+    return await handleResponse<MessageSearchResponse>(res);
   } catch (error) {
-    console.error(`Erreur deleteMessage ${messageId}:`, error);
+    console.error("Erreur searchMessages:", error);
     throw error;
   }
 }
@@ -292,15 +621,24 @@ export async function deleteMessage(messageId: number): Promise<void> {
 
 /**
  * Récupère le nombre de messages non lus
+ * GET /api/chat/unread/count - Note: Cet endpoint n'existe pas dans les routes, nous devons le calculer
  */
-export async function getUnreadCount(): Promise<{ total: number; by_conversation: Record<number, number> }> {
+export async function getUnreadCount(): Promise<UnreadCountResponse> {
   try {
-    const res = await fetch("/api/chat/messages/unread/count", {
-      method: "GET",
-      cache: "no-store",
+    // Récupérer toutes les conversations pour calculer les non lus
+    const conversations = await getConversations({ limit: 100, include_inactive: false });
+    
+    const by_conversation: Record<number, number> = {};
+    let total = 0;
+    
+    conversations.forEach(conv => {
+      if (conv.unreadCount > 0) {
+        by_conversation[conv.id] = conv.unreadCount;
+        total += conv.unreadCount;
+      }
     });
-
-    return await handleResponse<{ total: number; by_conversation: Record<number, number> }>(res);
+    
+    return { total, by_conversation };
   } catch (error) {
     console.error("Erreur getUnreadCount:", error);
     throw error;
@@ -310,56 +648,49 @@ export async function getUnreadCount(): Promise<{ total: number; by_conversation
 /**
  * Récupère les conversations avec messages non lus
  */
-export async function getUnreadConversations(): Promise<Conversation[]> {
-  try {
-    const res = await fetch("/api/chat/conversations/unread", {
-      method: "GET",
-      cache: "no-store",
-    });
-
-    return await handleResponse<Conversation[]>(res);
-  } catch (error) {
-    console.error("Erreur getUnreadConversations:", error);
-    throw error;
-  }
-}
-
-// ==================== RECHERCHE ====================
+// src/app/services/messages.service.ts - Version modifiée de getConversations
 
 /**
- * Recherche dans les messages
+ * Récupère la liste des conversations avec filtres
+ * GET /api/chat/conversations
  */
-export async function searchMessages(
-  query: string, 
+export async function getConversations(
   filters?: {
-    conversation_id?: number;
-    user_id?: number;
-    date_from?: string;
-    date_to?: string;
+    search?: string;
+    unread_only?: boolean;
+    limit?: number;
+    skip?: number;
+    include_inactive?: boolean;
+    sort_by?: 'last_message_at' | 'created_at' | 'message_count';
+    sort_order?: 'asc' | 'desc';
   }
-): Promise<Message[]> {
+): Promise<ConversationListResponse[]> {
   try {
-    const params = new URLSearchParams({ query });
+    // Valeurs par défaut
+    const params = new URLSearchParams();
     
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params.append(key, String(value));
-        }
-      });
-    }
+    params.append('limit', filters?.limit?.toString() || '50');
+    params.append('skip', filters?.skip?.toString() || '0');
+    params.append('include_inactive', filters?.include_inactive?.toString() || 'false');
+    params.append('sort_by', filters?.sort_by || 'last_message_at');
+    params.append('sort_order', filters?.sort_order || 'desc');
+    
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.unread_only) params.append('unread_only', String(filters.unread_only));
 
-    const res = await fetch(`/api/chat/messages/search?${params.toString()}`, {
+    const res = await fetch(`/api/chat/conversations?${params.toString()}`, {
       method: "GET",
       cache: "no-store",
+      headers: { "Content-Type": "application/json" }
     });
 
-    return await handleResponse<Message[]>(res);
+    return await handleResponse<ConversationListResponse[]>(res);
   } catch (error) {
-    console.error("Erreur searchMessages:", error);
+    console.error("Erreur getConversations:", error);
     throw error;
   }
 }
+
 
 // ==================== UTILS (PAS D'APPELS API) ====================
 
@@ -402,8 +733,8 @@ export function formatMessageDate(date: string | Date): string {
 /**
  * Groupe les messages par date pour l'affichage
  */
-export function groupMessagesByDate(messages: Message[]): Map<string, Message[]> {
-  const groups = new Map<string, Message[]>();
+export function groupMessagesByDate(messages: MessageListResponse[]): Map<string, MessageListResponse[]> {
+  const groups = new Map<string, MessageListResponse[]>();
   
   messages.forEach((message) => {
     const date = new Date(message.created_at).toLocaleDateString("fr-FR", {
@@ -422,31 +753,58 @@ export function groupMessagesByDate(messages: Message[]): Map<string, Message[]>
   return groups;
 }
 
-// ==================== WEB SOCKET (optionnel) ====================
+// ==================== WEB SOCKET ====================
 
 let socket: WebSocket | null = null;
-let messageListeners: ((message: Message) => void)[] = [];
+let messageListeners: ((message: MessageListResponse) => void)[] = [];
 let typingListeners: ((indicator: TypingIndicator) => void)[] = [];
+let reactionListeners: ((data: any) => void)[] = [];
+let readListeners: ((data: any) => void)[] = [];
 
 /**
  * Se connecte au WebSocket pour les messages en temps réel
  */
-export function connectWebSocket(token: string): WebSocket {
+export function connectWebSocket(token: string, conversationId?: number): WebSocket {
   if (socket && socket.readyState === WebSocket.OPEN) {
     return socket;
   }
 
   const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
-  socket = new WebSocket(`${wsUrl}/chat?token=${token}`);
+  const url = conversationId 
+    ? `${wsUrl}/chat/ws/${conversationId}?token=${token}`
+    : `${wsUrl}/chat?token=${token}`;
+  
+  socket = new WebSocket(url);
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
       
-      if (data.type === "new_message") {
-        messageListeners.forEach((listener) => listener(data.message));
-      } else if (data.type === "typing") {
-        typingListeners.forEach((listener) => listener(data));
+      switch (data.type) {
+        case "new_message":
+          messageListeners.forEach((listener) => listener(data.message));
+          break;
+        case "typing":
+          typingListeners.forEach((listener) => listener(data));
+          break;
+        case "reaction_added":
+        case "reaction_removed":
+        case "reaction_updated":
+          reactionListeners.forEach((listener) => listener(data));
+          break;
+        case "message_read":
+        case "messages_read":
+        case "conversation_read":
+          readListeners.forEach((listener) => listener(data));
+          break;
+        case "connection_established":
+          console.log("WebSocket connected:", data);
+          break;
+        case "unread_count":
+          // Gérer la mise à jour du compteur
+          break;
+        default:
+          console.log("WebSocket message:", data);
       }
     } catch (e) {
       console.error("Erreur WebSocket message:", e);
@@ -454,6 +812,7 @@ export function connectWebSocket(token: string): WebSocket {
   };
 
   socket.onclose = () => {
+    console.log("WebSocket disconnected");
     socket = null;
   };
 
@@ -472,12 +831,18 @@ export function disconnectWebSocket(): void {
     socket.close();
     socket = null;
   }
+  
+  // Vider les listeners
+  messageListeners = [];
+  typingListeners = [];
+  reactionListeners = [];
+  readListeners = [];
 }
 
 /**
  * Ajoute un listener pour les nouveaux messages
  */
-export function addMessageListener(listener: (message: Message) => void): () => void {
+export function addMessageListener(listener: (message: MessageListResponse) => void): () => void {
   messageListeners.push(listener);
   return () => {
     messageListeners = messageListeners.filter((l) => l !== listener);
@@ -495,13 +860,37 @@ export function addTypingListener(listener: (indicator: TypingIndicator) => void
 }
 
 /**
+ * Ajoute un listener pour les réactions
+ */
+export function addReactionListener(listener: (data: any) => void): () => void {
+  reactionListeners.push(listener);
+  return () => {
+    reactionListeners = reactionListeners.filter((l) => l !== listener);
+  };
+}
+
+/**
+ * Ajoute un listener pour les accusés de lecture
+ */
+export function addReadListener(listener: (data: any) => void): () => void {
+  readListeners.push(listener);
+  return () => {
+    readListeners = readListeners.filter((l) => l !== listener);
+  };
+}
+
+/**
  * Envoie un message via WebSocket
  */
-export function sendMessageViaWebSocket(message: Partial<Message>): void {
+export function sendMessageViaWebSocket(message: {
+  content?: string;
+  images?: string[];
+  reply_to?: number;
+}): void {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify({
-      type: "send_message",
-      message,
+      type: "message",
+      ...message
     }));
   } else {
     console.error("WebSocket not connected");
@@ -551,3 +940,40 @@ export function stopTyping(conversationId: number): void {
   }
   sendTypingIndicator(conversationId, false);
 }
+
+// ==================== ADMIN ROUTES ====================
+
+/**
+ * Récupère toutes les conversations d'un utilisateur spécifique (admin)
+ * GET /api/chat/admin/users/{userId}/conversations
+ */
+export const getUserConversationsAdmin = async (
+  userId: number, 
+  filters?: ConversationFilters
+): Promise<{
+  items: ConversationListResponse[];
+  pagination: { total: number; page: number; limit: number };
+}> => {
+  const params: Record<string, any> = {
+    skip: ((filters?.page || 1) - 1) * (filters?.limit || 20),
+    limit: filters?.limit || 20,
+  };
+  
+  if (filters?.search) params.search = filters.search;
+  if (filters?.is_active !== undefined) params.is_active = filters.is_active;
+  try {
+    const response = await fetch(`/chat/admin/users/${userId}/conversations/${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      
+    });
+    return await handleResponse<{
+      items: ConversationListResponse[];
+      pagination: { total: number; page: number; limit: number };
+    }>(response);
+  } catch (error) {
+    console.error("Erreur getUserConversationsAdmin:", error);
+    throw error;
+  }
+};

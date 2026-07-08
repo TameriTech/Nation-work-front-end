@@ -167,9 +167,9 @@ export default function ReportsLoading() {
           ))}
         </div>
 
-        {/* Top freelancers et performance skeleton */}
+        {/* Top providers et performance skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Top freelancers skeleton */}
+          {/* Top providers skeleton */}
           <div className="bg-slate-800 rounded-lg border border-slate-700 p-6 animate-pulse">
             <div className="flex items-center mb-4">
               <div className="w-5 h-5 bg-slate-700 rounded mr-2"></div>

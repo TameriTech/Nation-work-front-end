@@ -1,121 +1,145 @@
-import { CategoryFilters, PaginatedResponse, Category, CreateCategoryDTO, CategoryStats } from "@/app/types";
-import { CategoryFormData } from "../lib/validators";
+// services/category.service.ts
+
+import { handleResponse } from '@/app/lib/error-handler';
+import type {
+  Category,
+  CategoryTreeItem,
+  CategoryStats,
+  CategoryFilters,
+  PaginatedResponse,
+  GetDataResponse,
+} from '@/app/types';
+import {
+  CategoryCreateFormData,
+  CategoryUpdateFormData,
+  CategoryFiltersFormData,
+} from '../lib/validators/category.validator';
+
+const API_BASE = '/api';
+
+// ==================== TYPES ====================
+
+export interface CategoryOption {
+  value: string;
+  label: string;
+}
+
+// ==================== PUBLIC ROUTES ====================
 
 /**
- * Récupère toutes les catégories
+ * Récupère toutes les catégories (public)
+ * GET /api/categories
  */
-export async function getCategories(): Promise<Category[]> {
-  try {
-    
-    const res = await fetch('/api/categories', {
-      method: 'GET',
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des catégories');
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error('Erreur getCategories:', error);
-    throw error;
-  }
-}
-
-export async function getCategoryStats(): Promise<CategoryStats> {
-  try {
-    const res = await fetch('/api/categories/stats', {
-      method: 'GET',
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des statistiques');
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error('Erreur getCategoriesStats:', error);
-    throw error;
-  }
-}
-
-export async function getAllCategories(filters: CategoryFilters ): Promise<PaginatedResponse<Category>> {
+export async function getCategories(filters?: CategoryFiltersFormData): Promise<PaginatedResponse<Category>> {
   try {
     const params = new URLSearchParams();
+    
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           params.append(key, String(value));
         }
       });
     }
-    const res = await fetch(`/api/admin/services/categories?${params.toString()}`, {
+    
+    const res = await fetch(`${API_BASE}/categories?${params.toString()}`, {
       method: 'GET',
       cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement des catégories');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<PaginatedResponse<Category>>(res);
   } catch (error) {
     console.error('Erreur getCategories:', error);
     throw error;
   }
 }
 
-export async function getCategoryById(id: number): Promise<Category> {
+/**
+ * Récupère l'arborescence des catégories (public)
+ * GET /api/categories/tree
+ */
+export async function getCategoryTree(): Promise<GetDataResponse<CategoryTreeItem[]>> {
   try {
-    const res = await fetch(`/api/categories/${id}`, {
+    const res = await fetch(`${API_BASE}/categories/tree`, {
       method: 'GET',
       cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors du chargement de la catégorie');
-    }
-
-    const data = await res.json();
-    return data;
+    return await handleResponse<GetDataResponse<CategoryTreeItem[]>>(res);
   } catch (error) {
-    console.error(`Erreur getCategoryById ${id}:`, error);
+    console.error('Erreur getCategoryTree:', error);
     throw error;
   }
 }
 
 /**
- * Créer une nouvelle catégorie
+ * Récupère les options pour les sélecteurs (public)
+ * GET /api/categories/options
  */
-export async function createCategory(data: CreateCategoryDTO): Promise<Category> {
+export async function getCategoryOptions(): Promise<GetDataResponse<CategoryOption[]>> {
   try {
-    const res = await fetch('/api/admin/services/categories', {
+    const res = await fetch(`${API_BASE}/categories/options`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<GetDataResponse<CategoryOption[]>>(res);
+  } catch (error) {
+    console.error('Erreur getCategoryOptions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère les statistiques des catégories (public)
+ * GET /api/categories/stats
+ */
+export async function getCategoryStats(): Promise<GetDataResponse<CategoryStats>> {
+  try {
+    const res = await fetch(`${API_BASE}/categories/stats`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<GetDataResponse<CategoryStats>>(res);
+  } catch (error) {
+    console.error('Erreur getCategoryStats:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère une catégorie par son ID (public)
+ * GET /api/categories/{categoryId}
+ */
+export async function getCategoryById(categoryId: string): Promise<GetDataResponse<Category>> {
+  try {
+    const res = await fetch(`${API_BASE}/categories/${categoryId}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<GetDataResponse<Category>>(res);
+  } catch (error) {
+    console.error(`Erreur getCategoryById ${categoryId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== ADMIN ROUTES ====================
+
+/**
+ * Créer une catégorie (admin)
+ * POST /api/categories
+ */
+export async function createCategory(data: CategoryCreateFormData): Promise<GetDataResponse<Category>> {
+  try {
+    const res = await fetch(`${API_BASE}/categories`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la création',
-        field: responseData.field,
-      };
-    }
-
-    return responseData;
+    return await handleResponse<GetDataResponse<Category>>(res);
   } catch (error) {
     console.error('Erreur createCategory:', error);
     throw error;
@@ -123,30 +147,20 @@ export async function createCategory(data: CreateCategoryDTO): Promise<Category>
 }
 
 /**
- * Modifier une catégorie
+ * Mettre à jour une catégorie (admin)
+ * PUT /api/categories/{categoryId}
  */
 export async function updateCategory(
-  categoryId: number,
-  data: CategoryFormData
-): Promise<Category> {
+  categoryId: string,
+  data: CategoryUpdateFormData
+): Promise<GetDataResponse<Category>> {
   try {
-    const res = await fetch(`/api/admin/services/categories/${categoryId}`, {
+    const res = await fetch(`${API_BASE}/categories/${categoryId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la modification',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<GetDataResponse<Category>>(res);
   } catch (error) {
     console.error(`Erreur updateCategory ${categoryId}:`, error);
     throw error;
@@ -154,26 +168,16 @@ export async function updateCategory(
 }
 
 /**
- * Supprimer une catégorie
+ * Supprimer une catégorie (admin)
+ * DELETE /api/categories/{categoryId}
  */
-export async function deleteCategory(categoryId: number): Promise<{ message: string }> {
+export async function deleteCategory(categoryId: string): Promise<{ success: boolean; message: string }> {
   try {
-    const res = await fetch(`/api/admin/services/categories/${categoryId}`, {
+    const res = await fetch(`${API_BASE}/categories/${categoryId}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors de la suppression',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<{ success: boolean; message: string }>(res);
   } catch (error) {
     console.error(`Erreur deleteCategory ${categoryId}:`, error);
     throw error;
@@ -181,32 +185,37 @@ export async function deleteCategory(categoryId: number): Promise<{ message: str
 }
 
 /**
- * Activer/Désactiver une catégorie
+ * Activer/Désactiver une catégorie (admin)
+ * PATCH /api/categories/{categoryId}/toggle-active
  */
-export async function toggleCategoryStatus(
-  categoryId: number,
-  is_active: boolean
-): Promise<{ message: string; category: Category }> {
+export async function toggleCategoryActive(categoryId: string): Promise<GetDataResponse<Category>> {
   try {
-    const res = await fetch(`/api/admin/services/categories/${categoryId}/toggle`, {
+    const res = await fetch(`${API_BASE}/admin/missions/categories/${categoryId}/toggle-active`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ is_active }),
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw {
-        message: responseData.message || 'Erreur lors du changement de statut',
-      };
-    }
-
-    return responseData;
+    return await handleResponse<GetDataResponse<Category>>(res);
   } catch (error) {
-    console.error(`Erreur toggleCategoryStatus ${categoryId}:`, error);
+    console.error(`Erreur toggleCategoryActive ${categoryId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== PROVIDER ROUTES ====================
+
+/**
+ * Récupérer les catégories d'un provider
+ * GET /api/categories/provider/{providerId}/categories
+ */
+export async function getProviderCategories(providerId: string): Promise<GetDataResponse<Category[]>> {
+  try {
+    const res = await fetch(`${API_BASE}/categories/provider/${providerId}/categories`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return await handleResponse<GetDataResponse<Category[]>>(res);
+  } catch (error) {
+    console.error('Erreur getProviderCategories:', error);
     throw error;
   }
 }

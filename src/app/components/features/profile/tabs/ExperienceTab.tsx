@@ -1,18 +1,21 @@
+// components/features/profile/tabs/ExperienceTabContent.tsx
 "use client";
 import { Button } from "@/app/components/ui/button";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import { Education, ProfessionalExperience } from "@/app/types";
-import {
+import type { ProfessionalExperienceOut, EducationOut } from "@/app/types";
+import type {
   CreateExperienceFormData,
   UpdateExperienceFormData,
+} from "@/app/lib/validators/experience.validator";
+import type {
   CreateEducationFormData,
   UpdateEducationFormData,
-} from "@/app/lib/validators/experience.validator";
+} from "@/app/lib/validators/education.validator";
 import { AddEducationModal } from "@/app/components/features/profile/modals/AddEducationModal";
 import { AddExperienceModal } from "@/app/components/features/profile/modals/AddExperienceModal";
-import { useExperiences } from "@/app/hooks/profile/use-experience";
-import { useEducation } from "@/app/hooks/profile/use-education";
+import { useExperiences } from "@/app/hooks/provider-profile/use-experience"; // Correction import
+import { useEducation } from "@/app/hooks/provider-profile/use-education"; // Correction import
 import { ExperienceSkeleton } from "./loading";
 import ExperienceError from "./error";
 
@@ -52,8 +55,8 @@ function ExperienceItem({
   onEdit,
   onDelete,
 }: {
-  item: ProfessionalExperience;
-  onEdit: (item: ProfessionalExperience) => void;
+  item: ProfessionalExperienceOut;
+  onEdit: (item: ProfessionalExperienceOut) => void;
   onDelete: (id: number) => void;
 }) {
   const formatDate = (date: string) => {
@@ -61,6 +64,11 @@ function ExperienceItem({
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  const getDuration = () => {
+    if (item.duration_display) return item.duration_display;
+    return item.is_current ? "En cours" : `${item.duration_months || 0} mois`;
   };
 
   return (
@@ -87,6 +95,9 @@ function ExperienceItem({
               <span className="text-sm hidden md:inline text-gray-500 whitespace-nowrap">
                 {formatDate(item.start_date)} –{" "}
                 {item.is_current ? "Présent" : formatDate(item.end_date!)}
+                <span className="ml-2 text-xs text-gray-400">
+                  ({getDuration()})
+                </span>
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -115,6 +126,19 @@ function ExperienceItem({
               {item.description}
             </p>
           )}
+
+          {item.achievements && item.achievements.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-gray-600 mb-1">
+                Réalisations :
+              </p>
+              <ul className="list-disc list-inside text-xs text-gray-500 space-y-1">
+                {item.achievements.slice(0, 3).map((achievement, idx) => (
+                  <li key={idx}>{achievement}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -126,8 +150,8 @@ function EducationItem({
   onEdit,
   onDelete,
 }: {
-  item: Education;
-  onEdit: (item: Education) => void;
+  item: EducationOut;
+  onEdit: (item: EducationOut) => void;
   onDelete: (id: number) => void;
 }) {
   const formatDate = (date: string) => {
@@ -202,7 +226,6 @@ export function ExperienceTabContent() {
     deleteExperience,
     isLoading: experienceLoading,
     isAdding: isAddingExperience,
-    isDeleting: isDeletingExperience,
     isUpdating: isUpdatingExperience,
     error: experienceError,
     refetch: refetchExperiences,
@@ -219,8 +242,8 @@ export function ExperienceTabContent() {
   } = useEducation();
 
   const [selectedExperience, setSelectedExperience] =
-    useState<ProfessionalExperience | null>(null);
-  const [selectedEducation, setSelectedEducation] = useState<Education | null>(
+    useState<ProfessionalExperienceOut | null>(null);
+  const [selectedEducation, setSelectedEducation] = useState<EducationOut | null>(
     null,
   );
   const [showAddExperienceModal, setShowAddExperienceModal] = useState(false);
@@ -246,7 +269,7 @@ export function ExperienceTabContent() {
     }
   };
 
-  const handleEditExperience = (item: ProfessionalExperience) => {
+  const handleEditExperience = (item: ProfessionalExperienceOut) => {
     setSelectedExperience(item);
     setShowAddExperienceModal(true);
   };
@@ -277,7 +300,7 @@ export function ExperienceTabContent() {
     }
   };
 
-  const handleEditEducation = (item: Education) => {
+  const handleEditEducation = (item: EducationOut) => {
     setSelectedEducation(item);
     setShowAddEducationModal(true);
   };

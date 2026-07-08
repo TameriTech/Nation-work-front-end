@@ -31,10 +31,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+// FIXED: Import the correct hook
 import { useAdminVerifications } from "@/app/hooks/admin/use-verification";
-import type { PendingVerification } from "@/app/types";
+import type { DocumentDisplay, DocumentStatus, providerVerificationOut } from "@/app/types";
 import VerificationsLoading from "./loading";
 import AdminVerificationsError from "./error";
+import { DocumentFiltersFormData } from "@/app/lib/validators";
 
 // Schéma de validation pour le rejet
 const rejectSchema = z.object({
@@ -59,7 +61,7 @@ const VerificationCard = ({
   isApproving,
   isRejecting,
 }: {
-  verification: PendingVerification;
+  verification: providerVerificationOut;
   onApprove: (id: number, notes?: string) => void;
   onReject: (id: number, reason: string) => void;
   onViewDocument: (url: string) => void;
@@ -129,10 +131,10 @@ const VerificationCard = ({
             </div>
             <div className="ml-4">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                {verification.user_name}
+                {verification.provider?.user?.full_name || "Utilisateur"}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {verification.user_email}
+                {verification.provider?.user?.email || ""}
               </p>
             </div>
           </div>
@@ -158,30 +160,31 @@ const VerificationCard = ({
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
             <Clock className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" />
             <span className="font-medium mr-2">Soumis le:</span>
-            {new Date(verification.submitted_at).toLocaleDateString("fr-FR")}
+            {new Date(verification.created_at).toLocaleDateString("fr-FR")}
           </div>
         </div>
-
-        <div className="flex space-x-2 mb-4">
-          <button
-            onClick={() => onViewDocument(verification.front_image)}
-            disabled={isApproving || isRejecting}
-            className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            Voir recto
-          </button>
-          {verification.back_image && (
-            <button
-              onClick={() => onViewDocument(verification.back_image!)}
-              disabled={isApproving || isRejecting}
-              className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Voir verso
-            </button>
+          {verification.front_image_url && verification.back_image_url && (
+            <div className="flex space-x-2 mb-4">
+              <button
+                onClick={() => onViewDocument(verification.front_image_url || "")}
+                disabled={isApproving || isRejecting}
+                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Voir recto
+              </button>
+              {verification.back_image_url && (
+                <button
+                  onClick={() => onViewDocument(verification.back_image_url || "")}
+                  disabled={isApproving || isRejecting}
+                  className="flex-1 px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition disabled:opacity-50"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Voir verso
+                </button>
+              )}
+            </div>
           )}
-        </div>
 
         {!showRejectForm ? (
           <div className="flex space-x-2">
@@ -345,14 +348,26 @@ const StatsCard = ({ icon: Icon, title, value, color, loading }: any) => (
   </div>
 );
 
+// FIXED: Define proper filter type
+type VerificationFilters = {
+  status?: string;
+  document_type?: string;
+  skip?: number;
+  limit?: number;
+};
+
 export default function VerificationsPage() {
   const router = useRouter();
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  const [filter, setFilter] = useState<{ status?: string }>({
-    status: "pending",
+  
+  // FIXED: Proper filters state
+  const [filters, setFilters] = useState<DocumentFiltersFormData>({
+    status: "pending" as DocumentStatus,
+    skip: 0,
+    limit: 20,
   });
 
-  // Hook personnalisé - maintenant avec un objet filter
+  // FIXED: Hook usage - pass filters directly
   const {
     verifications,
     isLoading,
@@ -364,21 +379,23 @@ export default function VerificationsPage() {
     rejectVerification,
     isRejecting,
     refetch,
-  } = useAdminVerifications(filter.status);
+  } = useAdminVerifications(filters);
 
   // Fonction pour changer le filtre
-  const handleFilterChange = (status: string | null) => {
-    if (status) {
-      setFilter({ status });
-    } else {
-      setFilter({});
-    }
+  const handleFilterChange = (status: DocumentStatus) => {
+    setFilters({
+      ...filters,
+      status: status || undefined,
+      skip: 0, // Reset to first page
+    });
   };
 
+  // FIXED: Approve handler - matches hook signature
   const handleApprove = async (id: number, notes?: string) => {
     await approveVerification({ id, notes });
   };
 
+  // FIXED: Reject handler - matches hook signature
   const handleReject = async (id: number, reason: string) => {
     await rejectVerification({ id, reason });
   };
@@ -409,7 +426,7 @@ export default function VerificationsPage() {
           </p>
         </div>
 
-        {/* Statistiques - Note: backend retourne "verified" pas "approved" */}
+        {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <StatsCard
             icon={Clock}
@@ -421,7 +438,7 @@ export default function VerificationsPage() {
           <StatsCard
             icon={CheckCircle}
             title="Vérifiées"
-            value={stats?.approved || 0}
+            value={stats?.verified || 0}
             color="bg-green-500"
             loading={statsLoading}
           />
@@ -434,13 +451,13 @@ export default function VerificationsPage() {
           />
         </div>
 
-        {/* Filtres (optionnel) */}
+        {/* Filtres */}
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
           <div className="flex space-x-4">
             <button
-              onClick={() => handleFilterChange("pending")}
+              onClick={() => handleFilterChange("pending" as DocumentStatus)}
               className={`px-4 py-2 rounded-lg transition ${
-                filter.status === "pending"
+                filters.status === "pending"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
@@ -448,9 +465,9 @@ export default function VerificationsPage() {
               En attente
             </button>
             <button
-              onClick={() => handleFilterChange("verified")}
+              onClick={() => handleFilterChange("verified" as DocumentStatus)}
               className={`px-4 py-2 rounded-lg transition ${
-                filter.status === "verified"
+                filters.status === "verified"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
@@ -458,9 +475,9 @@ export default function VerificationsPage() {
               Vérifiées
             </button>
             <button
-              onClick={() => handleFilterChange("rejected")}
+              onClick={() => handleFilterChange("rejected" as DocumentStatus)}
               className={`px-4 py-2 rounded-lg transition ${
-                filter.status === "rejected"
+                filters.status === "rejected"
                   ? "bg-red-600 text-white"
                   : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
@@ -468,9 +485,9 @@ export default function VerificationsPage() {
               Rejetées
             </button>
             <button
-              onClick={() => handleFilterChange(null)}
+              onClick={() => handleFilterChange(null as any)}
               className={`px-4 py-2 rounded-lg transition ${
-                !filter.status
+                !filters.status
                   ? "bg-gray-600 text-white"
                   : "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
               }`}
@@ -496,11 +513,11 @@ export default function VerificationsPage() {
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {verifications.length} document{verifications.length > 1 ? "s" : ""}{" "}
-            {filter.status === "pending"
+            {filters.status === "pending"
               ? "en attente"
-              : filter.status === "verified"
+              : filters.status === "verified"
                 ? "vérifiés"
-                : filter.status === "rejected"
+                : filters.status === "rejected"
                   ? "rejetés"
                   : "total"}
           </div>
@@ -512,7 +529,7 @@ export default function VerificationsPage() {
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
               Aucune vérification{" "}
-              {filter.status === "pending" ? "en attente" : ""}
+              {filters.status === "pending" ? "en attente" : ""}
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Tous les documents ont été traités
@@ -520,7 +537,7 @@ export default function VerificationsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {verifications.map((verification) => (
+            {verifications.map((verification: DocumentDisplay) => (
               <VerificationCard
                 key={verification.id}
                 verification={verification}

@@ -1,47 +1,137 @@
 // services/candidatures.service.ts
-import { Candidature, CandidatureStatus, CreateCandidatureDto, UpdateCandidatureStatusDto } from "../types";
+import { 
+  Candidature, 
+  ClientCandidature,
+  providerCandidature,
+  CreateCandidatureDto, 
+  UpdateCandidatureStatusDto,
+  AcceptCandidatureResponse,
+  RejectCandidatureResponse,
+  WithdrawCandidatureResponse,
+  ShortlistCandidatureResponse,
+  CandidatureStats,
+  providerCandidatureStats,
+  ServiceCandidatureStats,
+  PaginatedResponse,
+  CheckCanApplyResponse,
+  CandidateDialogResponse
+} from "@/app/types";
+import { 
+  CreateCandidatureFormData,
+  UpdateCandidatureStatusFormData,
+  ShortlistCandidatureFormData,
+  RejectCandidatureFormData,
+  WithdrawCandidatureFormData,
+  AcceptCandidatureFormData,
+  CandidatureFiltersFormData,
+  CreateCandidatureSchema,
+  UpdateCandidatureStatusSchema,
+  ShortlistCandidatureSchema,
+  RejectCandidatureSchema,
+  WithdrawCandidatureSchema,
+  AcceptCandidatureSchema,
+  CandidatureFiltersSchema
+} from "../lib/validators/candidature.validator";
 import { handleResponse } from "@/app/lib/error-handler";
 
-// ==================== RÉCUPÉRATION ====================
+// ==================== APPLICATION ROUTES ====================
 
 /**
- * Récupère les candidatures d'un freelancer
+ * Postuler à un service (provider)
+ * POST /api/candidatures/apply
  */
-export async function getCandidaturesByFreelancer(
-  freelancerId: number
-): Promise<Candidature[]> {
+export async function applyForService(
+  payload: CreateCandidatureFormData
+): Promise<Candidature> {
   try {
-    const res = await fetch(
-      `/api/candidatures/freelancer`,
-      {
-        method: "GET",
-        cache: "no-store",
-      }
-    );
-
-    return await handleResponse<Candidature[]>(res);
+    const validatedData = CreateCandidatureSchema.parse(payload);
+    const res = await fetch("/api/candidatures/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validatedData),
+    });
+    return await handleResponse<Candidature>(res);
   } catch (error) {
-    console.error(`Erreur getCandidaturesByFreelancer ${freelancerId}:`, error);
+    console.error("Erreur applyForService:", error);
     throw error;
   }
 }
 
 /**
- * Récupère les candidatures pour un service spécifique
+ * Vérifier si un provider peut postuler à un service
+ * GET /api/candidatures/service/check/{service_code}
+ */
+export async function checkCanApply(serviceCode: string): Promise<CheckCanApplyResponse> {
+  try {
+    const res = await fetch(`/api/services/${serviceCode}/candidatures/check`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<CheckCanApplyResponse>(res);
+  } catch (error) {
+    console.error(`Erreur checkCanApply ${serviceCode}:`, error);
+    throw error;
+  }
+}
+
+// ==================== CLIENT ROUTES ====================
+
+/**
+ * Récupérer toutes les candidatures pour les services du client
+ * GET /api/candidatures/client
+ */
+export async function getClientCandidatures(
+  filters?: CandidatureFiltersFormData
+): Promise<PaginatedResponse<ClientCandidature>> {
+  try {
+    const validatedFilters = filters ? CandidatureFiltersSchema.parse(filters) : {};
+    const params = new URLSearchParams();
+    
+    Object.entries(validatedFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, String(value));
+      }
+    });
+    
+    const res = await fetch(`/api/candidatures/client?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<PaginatedResponse<ClientCandidature>>(res);
+  } catch (error) {
+    console.error("Erreur getClientCandidatures:", error);
+    throw error;
+  }
+}
+
+
+
+/**
+ * Récupérer les candidatures pour un service spécifique (client)
+ * GET /api/candidatures/client/service/{service_id}
  */
 export async function getServiceCandidatures(
-  serviceId: number
-): Promise<Candidature[]> {
+  serviceId: number,
+  filters?: CandidatureFiltersFormData
+): Promise<PaginatedResponse<Candidature>> {
   try {
-    const res = await fetch(
-      `/api/candidatures/service/${serviceId}`,
-      {
-        method: "GET",
-        cache: "no-store",
+    const validatedFilters = filters ? CandidatureFiltersSchema.parse(filters) : {};
+    const params = new URLSearchParams();
+    
+    Object.entries(validatedFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, String(value));
       }
-    );
-
-    return await handleResponse<Candidature[]>(res);
+    });
+    
+    const res = await fetch(`/api/candidatures/client/service/${serviceId}?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<PaginatedResponse<Candidature>>(res);
   } catch (error) {
     console.error(`Erreur getServiceCandidatures ${serviceId}:`, error);
     throw error;
@@ -49,161 +139,277 @@ export async function getServiceCandidatures(
 }
 
 /**
- * Récupère une candidature par son ID
+ * Récupérer les détails d'une candidature
+ * GET /api/candidatures/{candidature_id}
  */
-export async function getCandidatureById(
-  candidatureId: number
-): Promise<Candidature> {
+export async function getCandidatureDetails(candidatureId: number): Promise<CandidateDialogResponse> {
   try {
-    const res = await fetch(
-      `/api/candidatures/${candidatureId}`,
-      {
-        method: "GET",
-        cache: "no-store",
-      }
-    );
-
-    return await handleResponse<Candidature>(res);
-  } catch (error) {
-    console.error(`Erreur getCandidatureById ${candidatureId}:`, error);
-    throw error;
-  }
-}
-
-// ==================== CRÉATION ====================
-
-/**
- * Crée une nouvelle candidature
- */
-export async function createCandidature(
-  payload: CreateCandidatureDto
-): Promise<Candidature> {
-  try {
-    const res = await fetch("/api/candidatures", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+    const res = await fetch(`/api/candidatures/${candidatureId}/dialog`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
     });
-
-    return await handleResponse<Candidature>(res);
+    return await handleResponse<CandidateDialogResponse>(res);
   } catch (error) {
-    console.error("Erreur createCandidature:", error);
-    throw error;
-  }
-}
-
-// ==================== MISE À JOUR ====================
-
-/**
- * Met à jour le statut d'une candidature
- */
-export async function updateCandidatureStatus(
-  candidatureId: number,
-  status: CandidatureStatus,
-  options?: {
-    rejection_reason?: string;
-    message?: string;
-  }
-): Promise<Candidature> {
-  try {
-    const payload: UpdateCandidatureStatusDto = {
-      status,
-      ...options
-    };
-
-    const res = await fetch(
-      `/api/candidatures/${candidatureId}/status`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    return await handleResponse<Candidature>(res);
-  } catch (error) {
-    console.error(`Erreur updateCandidatureStatus ${candidatureId}:`, error);
+    console.error(`Erreur getCandidatureDetails ${candidatureId}:`, error);
     throw error;
   }
 }
 
 /**
- * Accepte une candidature
+ * Accepter une candidature (client)
+ * PUT /api/candidatures/{candidature_id}/accept
  */
 export async function acceptCandidature(
   candidatureId: number,
-  message?: string
-): Promise<Candidature> {
-  return updateCandidatureStatus(candidatureId, "accepted", { message });
-}
-
-/**
- * Refuse une candidature
- */
-export async function rejectCandidature(
-  candidatureId: number,
-  rejection_reason?: string
-): Promise<Candidature> {
-  return updateCandidatureStatus(candidatureId, "rejected", { rejection_reason });
-}
-
-/**
- * Met une candidature en attente
- */
-export async function pendCandidature(
-  candidatureId: number
-): Promise<Candidature> {
-  return updateCandidatureStatus(candidatureId, "pending");
-}
-
-// ==================== SUPPRESSION ====================
-
-/**
- * Supprime une candidature
- */
-export async function deleteCandidature(
-  candidatureId: number
-): Promise<void> {
+): Promise<AcceptCandidatureResponse> {
   try {
-    const res = await fetch(
-      `/api/candidatures/${candidatureId}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    await handleResponse<{ success: boolean }>(res);
+    const res = await fetch(`/api/candidatures/${candidatureId}/accept`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<AcceptCandidatureResponse>(res);
   } catch (error) {
-    console.error(`Erreur deleteCandidature ${candidatureId}:`, error);
+    console.error(`Erreur acceptCandidature ${candidatureId}:`, error);
     throw error;
   }
 }
 
-// ==================== STATISTIQUES ====================
+/**
+ * Rejeter une candidature (client)
+ * PUT /api/candidatures/{candidature_id}/reject
+ */
+export async function rejectCandidature(
+  candidatureId: number,
+  payload?: RejectCandidatureFormData
+): Promise<RejectCandidatureResponse> {
+  try {
+    const validatedData = payload ? RejectCandidatureSchema.parse(payload) : {};
+    const params = new URLSearchParams();
+    if (validatedData.rejection_reason) {
+      params.append('rejection_reason', validatedData.rejection_reason);
+    }
+    
+    const url = params.toString() 
+      ? `/api/candidatures/${candidatureId}/reject?${params.toString()}`
+      : `/api/candidatures/${candidatureId}/reject`;
+    
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<RejectCandidatureResponse>(res);
+  } catch (error) {
+    console.error(`Erreur rejectCandidature ${candidatureId}:`, error);
+    throw error;
+  }
+}
 
 /**
- * Récupère les statistiques des candidatures pour un freelancer
+ * Mettre en présélection une candidature (client)
+ * PUT /api/candidatures/{candidature_id}/shortlist
  */
-export async function getFreelancerCandidatureStats(
-  freelancerId: number
-): Promise<{
-  total: number;
-  pending: number;
-  accepted: number;
-  rejected: number;
-  taux_reussite: number;
-}> {
+export async function shortlistCandidature(
+  candidatureId: number,
+  payload?: ShortlistCandidatureFormData
+): Promise<ShortlistCandidatureResponse> {
   try {
-    const candidatures = await getCandidaturesByFreelancer(freelancerId);
+    const validatedData = payload ? ShortlistCandidatureSchema.parse(payload) : { is_shortlisted: true };
+    const params = new URLSearchParams();
+    if (validatedData.shortlist_notes) {
+      params.append('notes', validatedData.shortlist_notes);
+    }
     
-    const total = candidatures.length;
-    const pending = candidatures.filter(c => c.status === "pending").length;
-    const accepted = candidatures.filter(c => c.status === "accepted").length;
-    const rejected = candidatures.filter(c => c.status === "rejected").length;
+    const url = params.toString() 
+      ? `/api/candidatures/${candidatureId}/shortlist?${params.toString()}`
+      : `/api/candidatures/${candidatureId}/shortlist`;
+    
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<ShortlistCandidatureResponse>(res);
+  } catch (error) {
+    console.error(`Erreur shortlistCandidature ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Marquer une candidature comme vue (client)
+ * POST /api/candidatures/{candidature_id}/view
+ */
+export async function markCandidatureAsViewed(candidatureId: number): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/candidatures/${candidatureId}/view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error(`Erreur markCandidatureAsViewed ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== provider ROUTES ====================
+
+/**
+ * Récupérer les candidatures du provider connecté
+ * GET /api/candidatures/provider
+ */
+export async function getproviderCandidatures(
+  filters?: CandidatureFiltersFormData
+): Promise<PaginatedResponse<providerCandidature>> {
+  try {
+    const validatedFilters = filters ? CandidatureFiltersSchema.parse(filters) : {};
+    const params = new URLSearchParams();
+    
+    Object.entries(validatedFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, String(value));
+      }
+    });
+    
+    const res = await fetch(`/api/candidatures/provider?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<PaginatedResponse<providerCandidature>>(res);
+  } catch (error) {
+    console.error("Erreur getproviderCandidatures:", error);
+    throw error;
+  }
+}
+
+/**
+ * Retirer une candidature (provider)
+ * PUT /api/candidatures/{candidature_id}/withdraw
+ */
+export async function withdrawCandidature(
+  candidatureId: number,
+  payload?: WithdrawCandidatureFormData
+): Promise<WithdrawCandidatureResponse> {
+  try {
+    const validatedData = payload ? WithdrawCandidatureSchema.parse(payload) : {};
+    const params = new URLSearchParams();
+    if (validatedData.reason) {
+      params.append('reason', validatedData.reason);
+    }
+    
+    const url = params.toString() 
+      ? `/api/candidatures/${candidatureId}/withdraw?${params.toString()}`
+      : `/api/candidatures/${candidatureId}/withdraw`;
+    
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<WithdrawCandidatureResponse>(res);
+  } catch (error) {
+    console.error(`Erreur withdrawCandidature ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== STATS ROUTES ====================
+
+/**
+ * Récupérer les statistiques des candidatures
+ * GET /api/candidatures/stats
+ */
+export async function getCandidatureStats(
+  serviceId?: number
+): Promise<CandidatureStats> {
+  try {
+    const params = new URLSearchParams();
+    if (serviceId) params.append('service_id', serviceId.toString());
+    
+    const url = params.toString() 
+      ? `/api/candidatures/stats?${params.toString()}`
+      : "/api/candidatures/stats";
+    
+    const res = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<CandidatureStats>(res);
+  } catch (error) {
+    console.error("Erreur getCandidatureStats:", error);
+    throw error;
+  }
+}
+
+// ==================== ADMIN ROUTES ====================
+
+/**
+ * Récupérer toutes les candidatures (admin)
+ * GET /api/candidatures/admin/all
+ */
+export async function getAllCandidatures(
+  filters?: CandidatureFiltersFormData & {
+    provider_id?: number;
+  }
+): Promise<PaginatedResponse<Candidature>> {
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    const res = await fetch(`/api/candidatures/admin/all?${params.toString()}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<PaginatedResponse<Candidature>>(res);
+  } catch (error) {
+    console.error("Erreur getAllCandidatures:", error);
+    throw error;
+  }
+}
+
+/**
+ * Supprimer une candidature (super admin)
+ * DELETE /api/candidatures/admin/{candidature_id}
+ */
+export async function adminDeleteCandidature(candidatureId: number): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`/api/candidatures/admin/${candidatureId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleResponse<{ message: string }>(res);
+  } catch (error) {
+    console.error(`Erreur adminDeleteCandidature ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * Récupère les statistiques des candidatures pour un provider
+ */
+export async function getproviderCandidatureStats(
+  providerId: number
+): Promise<providerCandidatureStats> {
+  try {
+    const candidatures: PaginatedResponse<Candidature> = await getproviderCandidatures({ page: 1, per_page: 1000 });
+    
+    const total = candidatures.items.length;
+    const pending = candidatures.items.filter((c: Candidature) => c.status === "pending").length;
+    const accepted = candidatures.items.filter((c: Candidature) => c.status === "accepted").length;
+    const rejected = candidatures.items.filter((c: Candidature) => c.status === "rejected").length;
+    const withdrawn = candidatures.items.filter((c: Candidature) => c.status === "withdrawn").length;
+    const shortlisted = candidatures.items.filter((c: Candidature) => c.is_shortlisted).length;
     const taux_reussite = total > 0 ? (accepted / total) * 100 : 0;
 
     return {
@@ -211,10 +417,12 @@ export async function getFreelancerCandidatureStats(
       pending,
       accepted,
       rejected,
+      withdrawn,
+      shortlisted,
       taux_reussite
     };
   } catch (error) {
-    console.error(`Erreur getFreelancerCandidatureStats ${freelancerId}:`, error);
+    console.error(`Erreur getproviderCandidatureStats ${providerId}:`, error);
     throw error;
   }
 }
@@ -224,20 +432,16 @@ export async function getFreelancerCandidatureStats(
  */
 export async function getServiceCandidatureStats(
   serviceId: number
-): Promise<{
-  total: number;
-  pending: number;
-  accepted: number;
-  rejected: number;
-}> {
+): Promise<ServiceCandidatureStats> {
   try {
-    const candidatures = await getServiceCandidatures(serviceId);
+    const response = await getServiceCandidatures(serviceId, {page: 1, per_page: 1000 });
     
     return {
-      total: candidatures.length,
-      pending: candidatures.filter(c => c.status === "pending").length,
-      accepted: candidatures.filter(c => c.status === "accepted").length,
-      rejected: candidatures.filter(c => c.status === "rejected").length,
+      total: response.total,
+      pending: response.items.filter((c: Candidature) => c.status === "pending").length,
+      accepted: response.items.filter((c: Candidature) => c.status === "accepted").length,
+      rejected: response.items.filter((c: Candidature) => c.status === "rejected").length,
+      shortlisted: response.items.filter((c: Candidature) => c.is_shortlisted).length,
     };
   } catch (error) {
     console.error(`Erreur getServiceCandidatureStats ${serviceId}:`, error);
@@ -245,20 +449,60 @@ export async function getServiceCandidatureStats(
   }
 }
 
-// ==================== VÉRIFICATION ====================
-
 /**
- * Vérifie si un freelancer a déjà postulé à un service
+ * Vérifie si un provider a déjà postulé à un service
  */
-export async function hasFreelancerApplied(
-  freelancerId: number,
+export async function hasproviderApplied(
+  providerId: number,
   serviceId: number
 ): Promise<boolean> {
   try {
-    const candidatures = await getCandidaturesByFreelancer(freelancerId);
-    return candidatures.some(c => c.service_id === serviceId);
+    const result = await checkCanApply(serviceId);
+    return !result.can_apply && result.reason === "You have already applied";
   } catch (error) {
-    console.error(`Erreur hasFreelancerApplied:`, error);
+    console.error(`Erreur hasproviderApplied:`, error);
+    throw error;
+  }
+}
+
+export async function updateCandidatureStatus(
+  candidatureId: number,
+  payload: UpdateCandidatureStatusFormData,
+): Promise<Candidature> {
+  try {
+    const validatedData = UpdateCandidatureStatusSchema.parse(payload);
+    const res = await fetch(`/api/candidatures/${candidatureId}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validatedData),
+    });
+    return await handleResponse<Candidature>(res);
+  } catch (error) {
+    console.error(`Erreur updateCandidatureStatus ${candidatureId}:`, error);
+    throw error;
+  }
+}
+
+
+/**
+ * Récupère une candidature par son ID
+ */
+export async function getCandidatureById(
+  candidatureId: number
+): Promise<Candidature> {
+  try {
+    // Note: Il n'y a pas d'endpoint direct pour récupérer une candidature par ID
+    // On peut utiliser les endpoints admin ou filtrer les listes
+    const adminResponse = await getAllCandidatures({page: 1, per_page: 100 });
+    const candidature = adminResponse.items.find((c: Candidature) => c.id === candidatureId);
+    
+    if (!candidature) {
+      throw new Error(`Candidature ${candidatureId} not found`);
+    }
+    
+    return candidature;
+  } catch (error) {
+    console.error(`Erreur getCandidatureById ${candidatureId}:`, error);
     throw error;
   }
 }

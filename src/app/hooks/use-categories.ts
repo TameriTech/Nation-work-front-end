@@ -1,421 +1,393 @@
-// hooks/useCategories.ts
-"use client";
+// hooks/categories/use-categories.ts
 
-import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/app/components/ui/use-toast';
-import * as categoryService from '@/app/services/category.service';
-import { CategoryFilters, PaginatedResponse, Category } from '@/app/types/admin';
-import { Category as UserCategory } from '@/app/types/category';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/app/components/ui/use-toast";
+import * as categoryService from "@/app/services/category.service";
+import type {
+  CategoryFiltersFormData,
+  CategoryCreateFormData,
+  CategoryUpdateFormData,
+} from "@/app/lib/validators/category.validator";
 
-interface UseCategoriesProps {
-  initialFilters?: CategoryFilters;
-  mode?: 'admin' | 'public';
-  autoLoad?: boolean;
-}
+// ==================== QUERY KEYS ====================
 
-export const useCategories = ({ 
-  initialFilters = {}, 
-  mode = 'public',
-  autoLoad = true 
-}: UseCategoriesProps = {}) => {
-  const [categories, setCategories] = useState<UserCategory[]>([]);
-  const [adminCategories, setAdminCategories] = useState<PaginatedResponse<Category> | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [filters, setFilters] = useState<CategoryFilters>(initialFilters);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
+export const categoryKeys = {
+  all: ["categories"] as const,
+  lists: () => [...categoryKeys.all, "list"] as const,
+  list: (filters?: CategoryFiltersFormData) => [...categoryKeys.lists(), filters] as const,
+  details: () => [...categoryKeys.all, "detail"] as const,
+  detail: (id: string) => [...categoryKeys.details(), id] as const,
+  tree: () => [...categoryKeys.all, "tree"] as const,
+  options: () => [...categoryKeys.all, "options"] as const,
+  stats: () => [...categoryKeys.all, "stats"] as const,
+  providerCategories: (providerId: string) => [...categoryKeys.all, "provider", providerId] as const,
+};
+
+// ==================== HOOK PRINCIPAL ====================
+
+export const useCategories = (filters?: CategoryFiltersFormData) => {
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // ==================== CHARGEMENT DES CATÉGORIES ====================
+  // ==================== QUERIES ====================
 
-  const loadCategories = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  /**
+   * Récupérer la liste des catégories
+   */
+  const categoriesQuery = useQuery({
+    queryKey: categoryKeys.list(filters),
+    queryFn: () => categoryService.getCategories(filters),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  /**
+   * Récupérer l'arborescence des catégories
+   */
+  const treeQuery = useQuery({
+    queryKey: categoryKeys.tree(),
+    queryFn: () => categoryService.getCategoryTree(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  /**
+   * Récupérer les options pour les sélecteurs
+   */
+  const optionsQuery = useQuery({
+    queryKey: categoryKeys.options(),
+    queryFn: () => categoryService.getCategoryOptions(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  
+  // ==================== MUTATIONS ====================
+
+  /**
+   * Créer une catégorie
+   */
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: CategoryCreateFormData) => categoryService.createCategory(data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
       
-      let data: UserCategory[] | PaginatedResponse<Category>;
-      if (mode === 'admin') {
-        data = await categoryService.getAllCategories(filters);
-        setAdminCategories(data);
-        setCategories(data.items);
-      } else {
-        data = await categoryService.getCategories(filters);
-        setCategories(data);
-      }
-      
-      return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des catégories';
-      setError(errorMessage);
+      toast({
+        title: "Catégorie créée",
+        description: response.message || "La catégorie a été créée avec succès",
+      });
+    },
+    onError: (error: any) => {
       toast({
         title: "Erreur",
-        description: errorMessage,
-        variant: "destructive"
+        description: error.message || "Impossible de créer la catégorie",
+        variant: "destructive",
       });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, mode, toast]);
+    },
+  });
 
-  // Chargement initial
-  useEffect(() => {
-    if (autoLoad) {
-      loadCategories();
-    }
-  }, [loadCategories, autoLoad]);
-
-  // ==================== ACTIONS ADMIN ====================
-
-  const createCategory = useCallback(async (categoryData: {
-    name: string;
-    description: string;
-    icon: string;
-    color: string;
-    is_active: boolean;
-    parent_id?: number;
-  }) => {
-    try {
-      setLoading(true);
-      const newCategory = await categoryService.createCategory(categoryData);
-      
-      // Mettre à jour la liste
-      setAdminCategories(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          categories: [newCategory, ...prev.items],
-          total: prev.total + 1
-        };
-      });
+  /**
+   * Mettre à jour une catégorie
+   */
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CategoryUpdateFormData }) =>
+      categoryService.updateCategory(id, data),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
       
       toast({
-        title: "Succès",
-        description: "Catégorie créée avec succès"
+        title: "Catégorie mise à jour",
+        description: response.message || "La catégorie a été mise à jour avec succès",
       });
-      
-      return newCategory;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Erreur lors de la création';
+    },
+    onError: (error: any) => {
       toast({
         title: "Erreur",
-        description: errorMessage,
-        variant: "destructive"
+        description: error.message || "Impossible de mettre à jour la catégorie",
+        variant: "destructive",
       });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    },
+  });
 
-  const updateCategory = useCallback(async (categoryId: number, data: Partial<Category>) => {
-    try {
-      setLoading(true);
-      const updatedCategory = await categoryService.updateCategory(categoryId, data);
-      
-      // Mettre à jour la liste
-      setAdminCategories(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          categories: prev.items.map(cat => 
-            cat.id === categoryId ? updatedCategory : cat
-          )
-        };
-      });
-      
-      // Mettre à jour la catégorie sélectionnée si c'est la même
-      if (selectedCategory?.id === categoryId) {
-        setSelectedCategory(updatedCategory);
-      }
+  /**
+   * Supprimer une catégorie
+   */
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) => categoryService.deleteCategory(id),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
       
       toast({
-        title: "Succès",
-        description: "Catégorie mise à jour avec succès"
+        title: "Catégorie supprimée",
+        description: response.message || "La catégorie a été supprimée avec succès",
       });
-      
-      return updatedCategory;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Erreur lors de la mise à jour';
+    },
+    onError: (error: any) => {
       toast({
         title: "Erreur",
-        description: errorMessage,
-        variant: "destructive"
+        description: error.message || "Impossible de supprimer la catégorie",
+        variant: "destructive",
       });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, toast]);
+    },
+  });
 
-  const deleteCategory = useCallback(async (categoryId: number) => {
-    try {
-      setLoading(true);
-      const result = await categoryService.deleteCategory(categoryId);
-      
-      // Mettre à jour la liste
-      setAdminCategories(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          categories: prev.items.filter(cat => cat.id !== categoryId),
-          total: prev.total - 1
-        };
-      });
-      
-      // Réinitialiser la catégorie sélectionnée si c'est la même
-      if (selectedCategory?.id === categoryId) {
-        setSelectedCategory(null);
-      }
+  /**
+   * Activer/Désactiver une catégorie
+   */
+  const toggleActiveMutation = useMutation({
+    mutationFn: (id: string) => categoryService.toggleCategoryActive(id),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
       
       toast({
-        title: "Succès",
-        description: result.message || "Catégorie supprimée avec succès"
+        title: "Statut modifié",
+        description: response.message || "Le statut de la catégorie a été modifié",
       });
-      
-      return result;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Erreur lors de la suppression';
+    },
+    onError: (error: any) => {
       toast({
         title: "Erreur",
-        description: errorMessage,
-        variant: "destructive"
+        description: error.message || "Impossible de modifier le statut",
+        variant: "destructive",
       });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, toast]);
-
-  const toggleCategoryStatus = useCallback(async (categoryId: number, is_active: boolean) => {
-    try {
-      setLoading(true);
-      const result = await categoryService.toggleCategoryStatus(categoryId, is_active);
-      
-      // Mettre à jour la liste
-      setAdminCategories(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          categories: prev.items.map(cat => 
-            cat.id === categoryId ? result.category : cat
-          )
-        };
-      });
-      
-      // Mettre à jour la catégorie sélectionnée si c'est la même
-      if (selectedCategory?.id === categoryId) {
-        setSelectedCategory(result.category);
-      }
-      
-      toast({
-        title: "Succès",
-        description: result.message || `Catégorie ${is_active ? 'activée' : 'désactivée'} avec succès`
-      });
-      
-      return result;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Erreur lors du changement de statut';
-      toast({
-        title: "Erreur",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, toast]);
-
-  // ==================== GESTION DES FILTRES ====================
-
-  const updateFilters = useCallback((newFilters: Partial<CategoryFilters>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1 // Reset à la première page quand on filtre
-    }));
-  }, []);
-
-  const resetFilters = useCallback(() => {
-    setFilters({ page: 1, per_page: 10 });
-  }, []);
-
-  // ==================== PAGINATION ====================
-
-  const nextPage = useCallback(() => {
-    if (adminCategories && adminCategories.page < Math.ceil(adminCategories.total / adminCategories.per_page)) {
-      setFilters(prev => ({ ...prev, page: (prev.page || 1) + 1 }));
-    }
-  }, [adminCategories]);
-
-  const prevPage = useCallback(() => {
-    if (adminCategories && adminCategories.page > 1) {
-      setFilters(prev => ({ ...prev, page: (prev.page || 1) - 1 }));
-    }
-  }, [adminCategories]);
-
-  const goToPage = useCallback((page: number) => {
-    setFilters(prev => ({ ...prev, page }));
-  }, []);
-
-  // ==================== SÉLECTION ====================
-
-  const selectCategory = useCallback((category: Category | null) => {
-    setSelectedCategory(category);
-  }, []);
-
-  const getCategoryById = useCallback((id: number) => {
-    if (mode === 'admin' && adminCategories) {
-      return adminCategories.items.find(cat => cat.id === id);
-    }
-    return categories.find(cat => cat.id === id);
-  }, [adminCategories, categories, mode]);
-
-  // ==================== RECHERCHE ====================
-
-  const searchCategories = useCallback(async (query: string) => {
-    try {
-      setLoading(true);
-      const results = await categoryService.getCategories({ 
-        search: query,
-        per_page: 20 
-      });
-      return results;
-    } catch (err) {
-      console.error('Search categories error:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // ==================== STATISTIQUES ====================
-
-  const getStatistics = useCallback(() => {
-    if (mode === 'admin' && adminCategories) {
-        
-      return {
-        total: adminCategories.total,
-        active: adminCategories.items.filter(c => c.is_active).length,
-        inactive: adminCategories.items.filter(c => !c.is_active).length,
-        pages: Math.ceil(adminCategories.total / adminCategories.per_page),
-        currentPage: adminCategories.page,
-      };
-    }
-    
-    return {
-      total: categories.length,
-      active: categories.filter(c => c.is_active).length,
-      inactive: categories.filter(c => !c.is_active).length,
-    };
-  }, [adminCategories, categories, mode]);
-
-  // ==================== FORMULAIRES ====================
-
-  const getCategoryFormData = useCallback((category?: Partial<Category>) => {
-    return {
-      name: category?.name || '',
-      description: category?.description || '',
-      icon: category?.icon || 'bi:folder',
-      color: category?.color || '#05579B',
-      is_active: category?.is_active ?? true,
-      parent_id: category?.parent_id,
-    };
-  }, []);
+    },
+  });
 
   return {
     // Données
-    categories,
-    adminCategories: adminCategories?.items || [],
-    selectedCategory,
-    filters,
-    loading,
-    error,
-    pagination: adminCategories ? {
-      total: adminCategories.total,
-      page: adminCategories.page,
-      pages: Math.ceil(adminCategories.total / adminCategories.per_page),
-      perPage: adminCategories.per_page,
+    categories: categoriesQuery.data?.items || [],
+    pagination: categoriesQuery ? {
+      page: categoriesQuery.data?.page,
+      total: categoriesQuery.data?.total,
+      total_pages: categoriesQuery.data?.total_pages,
+      per_page: categoriesQuery.data?.per_page,
     } : null,
-    statistics: getStatistics(),
+    isLoading: categoriesQuery.isLoading,
+    isError: categoriesQuery.isError,
+    error: categoriesQuery.error,
+    refetch: categoriesQuery.refetch,
 
-    // Actions de chargement
-    loadCategories,
-    refresh: loadCategories,
+    // Arbre
+    tree: treeQuery.data?.data || [],
+    treeLoading: treeQuery.isLoading,
 
-    // Actions de filtrage
-    updateFilters,
-    resetFilters,
+    // Options
+    options: optionsQuery.data?.data || [],
+    optionsLoading: optionsQuery.isLoading,
 
-    // Pagination
-    nextPage,
-    prevPage,
-    goToPage,
+    // Mutations
+    createCategory: createCategoryMutation.mutate,
+    isCreating: createCategoryMutation.isPending,
+    createError: createCategoryMutation.error,
 
-    // Sélection
-    selectCategory,
-    getCategoryById,
+    updateCategory: updateCategoryMutation.mutate,
+    isUpdating: updateCategoryMutation.isPending,
+    updateError: updateCategoryMutation.error,
 
-    // Recherche
-    searchCategories,
+    deleteCategory: deleteCategoryMutation.mutate,
+    isDeleting: deleteCategoryMutation.isPending,
+    deleteError: deleteCategoryMutation.error,
 
-    // Actions CRUD (admin)
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    toggleCategoryStatus,
-
-    // Utilitaires
-    getCategoryFormData,
+    toggleActive: toggleActiveMutation.mutate,
+    isToggling: toggleActiveMutation.isPending,
+    toggleError: toggleActiveMutation.error,
   };
 };
 
-// ==================== HOOK POUR LA HIÉRARCHIE ====================
-/*
-export const useCategoryHierarchy = () => {
-  const { categories, loading } = useCategories({ mode: 'admin', autoLoad: true });
+// ==================== HOOK POUR UNE CATÉGORIE SPÉCIFIQUE ====================
 
-  const buildHierarchy = useCallback((parentId: number | null = null): Category[] => {
-    return categories
-      .filter(cat => cat.parent_id === parentId)
-      .map(cat => ({
-        ...cat,
-        children: buildHierarchy(cat.id)
-      }));
-  }, [categories]);
+export const useCategory = (categoryId: string) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const getRootCategories = useCallback(() => {
-    return categories.filter(cat => !cat.parent_id);
-  }, [categories]);
-
-  const getCategoryPath = useCallback((categoryId: number): Category[] => {
-    const path: Category[] = [];
-    let current = categories.find(c => c.id === categoryId);
-    
-    while (current) {
-      path.unshift(current);
-      current = categories.find(c => c.id === current?.parent_id);
-    }
-    
-    return path;
-  }, [categories]);
-
-  const getChildCategories = useCallback((parentId: number): Category[] => {
-    return categories.filter(cat => cat.parent_id === parentId);
-  }, [categories]);
-
-  const hasChildren = useCallback((categoryId: number): boolean => {
-    return categories.some(cat => cat.parent_id === categoryId);
-  }, [categories]);
+  const categoryQuery = useQuery({
+    queryKey: categoryKeys.detail(categoryId),
+    queryFn: () => categoryService.getCategoryById(categoryId),
+    enabled: !!categoryId,
+    staleTime: 5 * 60 * 1000,
+  });
 
   return {
-    hierarchy: buildHierarchy(),
-    rootCategories: getRootCategories(),
-    getCategoryPath,
-    getChildCategories,
-    hasChildren,
-    loading,
+    category: categoryQuery.data?.data || null,
+    isLoading: categoryQuery.isLoading,
+    isError: categoryQuery.isError,
+    error: categoryQuery.error,
+    refetch: categoryQuery.refetch,
   };
-};*/
+};
+
+// ==================== HOOK POUR LES CATÉGORIES D'UN PROVIDER ====================
+
+export const useProviderCategories = (providerId: string) => {
+  const queryClient = useQueryClient();
+
+  const providerCategoriesQuery = useQuery({
+    queryKey: categoryKeys.providerCategories(providerId),
+    queryFn: () => categoryService.getProviderCategories(providerId),
+    enabled: !!providerId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    categories: providerCategoriesQuery.data?.data || [],
+    isLoading: providerCategoriesQuery.isLoading,
+    isError: providerCategoriesQuery.isError,
+    error: providerCategoriesQuery.error,
+    refetch: providerCategoriesQuery.refetch,
+  };
+};
+
+// ==================== HOOK ADMIN ====================
+
+export const useAdminCategories = (filters?: CategoryFiltersFormData) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const adminCategoriesQuery = useQuery({
+    queryKey: [...categoryKeys.lists(), "admin", filters],
+    queryFn: () => categoryService.getCategories(filters),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  /**
+   * Récupérer les statistiques des catégories
+   */
+  const statsQuery = useQuery({
+    queryKey: categoryKeys.stats(),
+    queryFn: () => categoryService.getCategoryStats(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: CategoryCreateFormData) => categoryService.createCategory(data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
+      
+      toast({
+        title: "Catégorie créée",
+        description: response.message || "La catégorie a été créée avec succès",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer la catégorie",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CategoryUpdateFormData }) =>
+      categoryService.updateCategory(id, data),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      
+      toast({
+        title: "Catégorie mise à jour",
+        description: response.message || "La catégorie a été mise à jour avec succès",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de mettre à jour la catégorie",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) => categoryService.deleteCategory(id),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
+      
+      toast({
+        title: "Catégorie supprimée",
+        description: response.message || "La catégorie a été supprimée avec succès",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de supprimer la catégorie",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: (id: string) => categoryService.toggleCategoryActive(id),
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.tree() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.options() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.stats() });
+      
+      toast({
+        title: "Statut modifié",
+        description: response.message || "Le statut de la catégorie a été modifié",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de modifier le statut",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return {
+    categories: adminCategoriesQuery.data?.items || [],
+    pagination: adminCategoriesQuery ? {
+      page: adminCategoriesQuery.data?.page,
+      total: adminCategoriesQuery.data?.total,
+      total_pages: adminCategoriesQuery.data?.total_pages,
+      per_page: adminCategoriesQuery.data?.per_page,
+    } : null,
+    isLoading: adminCategoriesQuery.isLoading,
+    isError: adminCategoriesQuery.isError,
+    error: adminCategoriesQuery.error,
+    refetch: adminCategoriesQuery.refetch,
+    
+    // Statistiques
+    stats: statsQuery.data?.data || null,
+    statsLoading: statsQuery.isLoading,
+
+    createCategory: createCategoryMutation.mutate,
+    isCreating: createCategoryMutation.isPending,
+
+    updateCategory: updateCategoryMutation.mutate,
+    isUpdating: updateCategoryMutation.isPending,
+
+    deleteCategory: deleteCategoryMutation.mutate,
+    isDeleting: deleteCategoryMutation.isPending,
+
+    toggleActive: toggleActiveMutation.mutate,
+    isToggling: toggleActiveMutation.isPending,
+  };
+};

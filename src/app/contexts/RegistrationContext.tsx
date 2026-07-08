@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export type AccountType = "freelancer" | "client" | null;
+export type AccountType = "provider" | "client" | null;
 
 interface RegistrationData {
   role: AccountType;
@@ -88,7 +88,7 @@ export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getTotalSteps = () => {
-    return data.role === "freelancer" ? 3 : 2;
+    return data.role === "provider" ? 3 : 2;
   };
 
   const nextStep = () => {

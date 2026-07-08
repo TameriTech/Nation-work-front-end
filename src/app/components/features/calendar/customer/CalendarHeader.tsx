@@ -72,7 +72,7 @@ export function CalendarHeader({
             <Button className="bg-orange-500 hover:bg-orange-500/90 text-white rounded-full px-6">
               <Icon icon={"bi:plus"} className="h-4 w-4 mr-2" />
               Publier un service{" "}
-              <span className="hidden lg:block"> sur Nation Work</span>
+              <span className="hidden lg:block"> sur Tameri Work</span>
             </Button>
           )}
 

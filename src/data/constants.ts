@@ -32,7 +32,7 @@ export const navigation: NavGroup[] = [
   {
     title: "Suivi",
     items: [
-      { label: "Calendrier", href: "/dashboard/customer/calendar", icon: "bi:calendar" },
+      { label: "Calender", href: "/dashboard/customer/calendar", icon: "bi:calendar" },
       {
         label: "Services",
         href: "/dashboard/customer/services",
@@ -48,10 +48,10 @@ export const navigation: NavGroup[] = [
   {
     title: "Profil & Support",
     items: [
-      { label: "Profil", href: "/profil", icon: "bi:person" },
-      { label: "Paiements", href: "/paiements", icon: "bi:credit-card" },
-      { label: "Centre d'aide", href: "/aide", icon: "bi:help-circle" },
-      { label: "Paramètres", href: "/parametres", icon: "bi:settings" },
+      { label: "Profil", href: "/dashboard/customer/profile", icon: "bi:person" },
+      { label: "Paiements", href: "/dashboard/customer/payments", icon: "bi:credit-card" },
+      { label: "Centre d'aide", href: "/dashboard/customer/help", icon: "bi:help-circle" },
+      { label: "Paramètres", href: "/dashboard/customer/settings", icon: "bi:settings" },
     ],
   },
 ];

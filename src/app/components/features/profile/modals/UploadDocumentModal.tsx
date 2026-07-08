@@ -20,10 +20,10 @@ import {
 } from "@/app/components/ui/select";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CreateDocumentDto, DocumentType } from "@/app/types";
+import type { DocumentType } from "@/app/types";
 import { Icon } from "@iconify/react";
 import {
-  createDocumentSchema,
+  CreateDocumentSchema,
   type CreateDocumentFormData,
 } from "@/app/lib/validators/document.validator";
 
@@ -36,14 +36,14 @@ interface UploadDocumentModalProps {
 }
 
 const documentTypes = [
-  { value: DocumentType.ID_CARD, label: "Carte d'identité" },
-  { value: DocumentType.PASSPORT, label: "Passeport" },
-  { value: DocumentType.DRIVER_LICENSE, label: "Permis de conduire" },
-  { value: DocumentType.DIPLOMA, label: "Diplôme" },
-  { value: DocumentType.CERTIFICATE, label: "Certificat" },
-  { value: DocumentType.PROFESSIONAL_CARD, label: "Carte professionnelle" },
-  { value: DocumentType.RESIDENCE_PERMIT, label: "Titre de séjour" },
-  { value: DocumentType.OTHER, label: "Autre document" },
+  { value: "id_card", label: "Carte d'identité" },
+  { value: "passport", label: "Passeport" },
+  { value: "driver_license", label: "Permis de conduire" },
+  { value: "diploma", label: "Diplôme" },
+  { value: "certificate", label: "Certificat" },
+  { value: "professional_card", label: "Carte professionnelle" },
+  { value: "residence_permit", label: "Titre de séjour" },
+  { value: "other", label: "Autre document" },
 ];
 
 export function UploadDocumentModal({
@@ -63,14 +63,14 @@ export function UploadDocumentModal({
     setError,
     clearErrors,
   } = useForm<CreateDocumentFormData>({
-    resolver: zodResolver(createDocumentSchema),
+    resolver: zodResolver(CreateDocumentSchema),
     mode: "onChange",
     defaultValues: {
-      document_type: initialDocumentType || DocumentType.ID_CARD,
-      document_number: "123456789",
-      issue_date: "2020-01-01",
-      expiry_date: "2030-01-01",
-      issuing_country: "Cameroun",
+      document_type: initialDocumentType || "id_card" as DocumentType,
+      document_number: "",
+      issue_date: "",
+      expiry_date: "",
+      issuing_country: "",
     },
   });
 
@@ -80,11 +80,11 @@ export function UploadDocumentModal({
   useEffect(() => {
     if (isOpen) {
       reset({
-        document_type: initialDocumentType || DocumentType.ID_CARD,
-        document_number: "123456789",
-        issue_date: "2020-01-01",
-        expiry_date: "2030-01-01",
-        issuing_country: "Cameroun",
+        document_type: initialDocumentType || "id_card" as DocumentType,
+        document_number: "",
+        issue_date: "",
+        expiry_date: "",
+        issuing_country: "",
         file: undefined,
       });
     }

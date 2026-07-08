@@ -1,12 +1,12 @@
+// app/(protected)/dashboard/admin/messages/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   MessageSquare,
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -14,47 +14,21 @@ import {
   Eye,
   RefreshCw,
   Loader2,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   User,
   Briefcase,
-  Calendar,
   Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Send,
-  Paperclip,
-  Image as ImageIcon,
-  FileText,
-  MoreHorizontal,
-  Check,
-  Ban,
   Trash2,
   Archive,
-  Star,
-  Phone,
-  Mail,
-  MapPin,
-  Shield,
   Users,
   MessageCircle,
 } from "lucide-react";
 
-import {
-  getConversations,
-  getConversationStats,
-  archiveConversation,
-  deleteConversation,
-} from "@/app/services/chat.service";
-import type {
-  Conversation,
-  ConversationFilters,
-  PaginatedResponse,
-  ConversationStats,
-} from "@/app/types/admin";
-import { messages as mockMessages } from "@/data/admin-mock-data";
+// Import du hook admin correct
+import { useAdminChat } from "@/app/hooks/admin/use-admin-chat";
+import type { 
+  ConversationListResponse, 
+} from "@/app/types";
+import { ChatFiltersFormData } from "@/app/lib/validators/chat.validator";
 
 // Composant de carte de statistiques
 const StatsCard = ({
@@ -63,19 +37,21 @@ const StatsCard = ({
   subValue,
   icon: Icon,
   color,
+  loading = false,
 }: {
   title: string;
   value: number | string;
   subValue?: string;
   icon: any;
   color: string;
+  loading?: boolean;
 }) => (
   <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{title}</p>
         <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {value}
+          {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : value}
         </p>
         {subValue && (
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -93,23 +69,47 @@ const StatsCard = ({
 );
 
 // Composant de filtre
-const ConversationFilters = ({
+const ConversationFiltersComponent = ({
   filters,
   onFilterChange,
   onSearch,
+  isSearching,
 }: {
-  filters: ConversationFilters;
-  onFilterChange: (filters: ConversationFilters) => void;
+  filters: ChatFiltersFormData;
+  onFilterChange: (filters: ChatFiltersFormData) => void;
   onSearch: () => void;
+  isSearching: boolean;
 }) => {
   const [localSearch, setLocalSearch] = useState(filters.search || "");
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onFilterChange({ ...filters, search: localSearch });
-      onSearch();
-    }
-  };
+    
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+  
+  
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setLocalSearch(newValue);
+      
+      // Debounced search
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      timeoutRef.current = setTimeout(() => {
+        onFilterChange({ ...filters, search: newValue });
+        onSearch();
+      }, 500);
+    };
+  
+    useEffect(() => {
+      if (!isSearching && inputRef.current) {
+        inputRef.current.focus();
+        const length = inputRef.current.value.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+    }, [isSearching])
+  
+  
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
@@ -124,9 +124,9 @@ const ConversationFilters = ({
             <input
               type="text"
               value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Client, freelancer, service..."
+              ref={inputRef}
+              onChange={handleInputChange}
+              placeholder="Client, provider, service..."
               className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -165,24 +165,17 @@ const ConversationFilters = ({
             value={filters.participant_type || ""}
             onChange={(e) => {
               const value = e.target.value;
-
-              const participant =
-                value === "client" ||
-                value === "freelancer" ||
-                value === "admin"
-                  ? value
-                  : undefined;
-
+              const participant = value as "client" | "provider" | "admin" | undefined;
               onFilterChange({
                 ...filters,
-                participant_type: participant,
+                participant_type: participant || undefined,
               });
             }}
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous</option>
             <option value="client">Clients</option>
-            <option value="freelancer">Freelancers</option>
+            <option value="provider">providers</option>
             <option value="admin">Admins</option>
           </select>
         </div>
@@ -229,7 +222,7 @@ const ConversationFilters = ({
       <div className="flex justify-end mt-4 space-x-2">
         <button
           onClick={() => {
-            onFilterChange({});
+            onFilterChange({ page: 1, limit: filters.limit });
             setLocalSearch("");
             onSearch();
           }}
@@ -255,11 +248,13 @@ const ConversationCard = ({
   onView,
   onArchive,
   onDelete,
+  isArchiving = false,
 }: {
-  conversation: Conversation;
-  onView: (conversation: Conversation) => void;
-  onArchive: (conversation: Conversation) => void;
-  onDelete: (conversation: Conversation) => void;
+  conversation: ConversationListResponse;
+  onView: (conversation: ConversationListResponse) => void;
+  onArchive: (conversation: ConversationListResponse) => void;
+  onDelete: (conversation: ConversationListResponse) => void;
+  isArchiving?: boolean;
 }) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Jamais";
@@ -288,28 +283,30 @@ const ConversationCard = ({
   };
 
   const getLastMessagePreview = () => {
-    if (!conversation.last_message) return "Aucun message";
-    const content = conversation.last_message.content || "Message média";
+    if (!conversation.lastMessage) return "Aucun message";
+    const content = conversation.lastMessage.content || "Message média";
     return content.length > 50 ? content.substring(0, 50) + "..." : content;
   };
 
-  const getParticipantRole = (userId: number) => {
-    if (conversation.client_id === userId) return "Client";
-    if (conversation.freelancer_id === userId) return "Freelancer";
-    return "Admin";
+  const getClientName = () => {
+    return conversation.client_name || 
+           conversation.service?.client?.full_name || 
+           conversation.service?.client?.username || 
+           `Client #${conversation.client_id || conversation.service?.client_id}`;
   };
 
-  const getParticipantName = (userId: number) => {
-    if (conversation.client_id === userId && conversation.client) {
-      return conversation.client.name;
-    }
-    if (conversation.freelancer_id === userId && conversation.freelancer) {
-      return conversation.freelancer.name;
-    }
-    if (conversation.admin && conversation.admin.id === userId) {
-      return conversation.admin.name;
-    }
-    return `Utilisateur #${userId}`;
+  const getproviderName = () => {
+    return conversation.provider_name || 
+           conversation.provider?.full_name ||  
+           `provider #${conversation.provider_id || conversation.provider_id}`;
+  };
+
+  const getClientAvatar = () => {
+    return conversation.client_avatar || conversation.service?.client?.profile_picture;
+  };
+
+  const getproviderAvatar = () => {
+    return conversation.provider_avatar || conversation.service?.provider?.user?.profile_picture;
   };
 
   return (
@@ -327,7 +324,7 @@ const ConversationCard = ({
             href={`/dashboard/admin/services/${conversation.service_id}`}
             className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition"
           >
-            {conversation.service?.title ||
+            {conversation.service_title || conversation.service?.title ||
               `Service #${conversation.service_id}`}
           </Link>
           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -340,10 +337,10 @@ const ConversationCard = ({
         <div className="grid grid-cols-2 gap-4 mb-4">
           {/* Client */}
           <div className="flex items-center">
-            {conversation.client?.avatar ? (
+            {getClientAvatar() ? (
               <img
-                src={conversation.client.avatar}
-                alt={conversation.client.name}
+                src={getClientAvatar()}
+                alt={getClientName()}
                 className="w-10 h-10 rounded-full mr-3 object-cover"
               />
             ) : (
@@ -353,22 +350,21 @@ const ConversationCard = ({
             )}
             <div>
               <Link
-                href={`/admin/users/${conversation.client_id}`}
+                href={`/admin/users/${conversation.client_id || conversation.service?.client_id}`}
                 className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition"
               >
-                {conversation.client?.name ||
-                  `Client #${conversation.client_id}`}
+                {getClientName()}
               </Link>
               <p className="text-xs text-gray-500 dark:text-gray-400">Client</p>
             </div>
           </div>
 
-          {/* Freelancer */}
+          {/* provider */}
           <div className="flex items-center">
-            {conversation.freelancer?.avatar ? (
+            {getproviderAvatar() ? (
               <img
-                src={conversation.freelancer.avatar}
-                alt={conversation.freelancer.name}
+                src={getproviderAvatar()}
+                alt={getproviderName()}
                 className="w-10 h-10 rounded-full mr-3 object-cover"
               />
             ) : (
@@ -378,14 +374,13 @@ const ConversationCard = ({
             )}
             <div>
               <Link
-                href={`/admin/users/${conversation.freelancer_id}`}
+                href={`/admin/users/${conversation.provider_id || conversation.service?.provider_id}`}
                 className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition"
               >
-                {conversation.freelancer?.name ||
-                  `Freelancer #${conversation.freelancer_id}`}
+                {getproviderName()}
               </Link>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Freelancer
+                provider
               </p>
             </div>
           </div>
@@ -399,15 +394,15 @@ const ConversationCard = ({
               <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                 {getLastMessagePreview()}
               </p>
-              {conversation.last_message && (
+              {conversation.lastMessage && (
                 <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
                   <span className="font-medium mr-1">
-                    {getParticipantName(conversation.last_message.sender_id)}:
+                    {conversation.lastMessage?.sender_name}:
                   </span>
                   <span>
-                    {formatTime(conversation.last_message.created_at)}
+                    {formatTime(conversation.lastMessage?.created_at)}
                   </span>
-                  {!conversation.last_message.is_read && (
+                  {!conversation.lastMessage?.is_read && (
                     <span className="ml-2 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-xs">
                       Nouveau
                     </span>
@@ -423,11 +418,11 @@ const ConversationCard = ({
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-gray-500 dark:text-gray-400">
               <MessageSquare className="w-4 h-4 mr-1" />
-              <span>{conversation.message_count || 0} messages</span>
+              <span>{conversation.unreadCount || 0} non lus</span>
             </div>
             <div className="flex items-center text-gray-500 dark:text-gray-400">
               <Clock className="w-4 h-4 mr-1" />
-              <span>{formatDate(conversation.last_message_at)}</span>
+              <span>{formatDate(conversation.lastMessageTime)}</span>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -447,21 +442,28 @@ const ConversationCard = ({
         <div className="flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
           <button
             onClick={() => onView(conversation)}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
+            disabled={isArchiving}
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition disabled:opacity-50"
             title="Voir la conversation"
           >
             <Eye className="w-4 h-4" />
           </button>
           <button
             onClick={() => onArchive(conversation)}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-lg transition"
+            disabled={isArchiving}
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-lg transition disabled:opacity-50"
             title={conversation.is_active ? "Archiver" : "Désarchiver"}
           >
-            <Archive className="w-4 h-4" />
+            {isArchiving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Archive className="w-4 h-4" />
+            )}
           </button>
           <button
             onClick={() => onDelete(conversation)}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
+            disabled={isArchiving}
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition disabled:opacity-50"
             title="Supprimer"
           >
             <Trash2 className="w-4 h-4" />
@@ -479,12 +481,14 @@ const Pagination = ({
   totalItems,
   perPage,
   onPageChange,
+  loading = false,
 }: {
   currentPage: number;
   totalPages: number;
   totalItems: number;
   perPage: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
 }) => {
   const start = (currentPage - 1) * perPage + 1;
   const end = Math.min(currentPage * perPage, totalItems);
@@ -509,14 +513,14 @@ const Pagination = ({
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -526,14 +530,14 @@ const Pagination = ({
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
@@ -549,11 +553,13 @@ const DeleteConfirmModal = ({
   onClose,
   conversation,
   onConfirm,
+  isDeleting = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  conversation: Conversation | null;
+  conversation: ConversationListResponse | null;
   onConfirm: () => void;
+  isDeleting?: boolean;
 }) => {
   if (!isOpen || !conversation) return null;
 
@@ -571,26 +577,28 @@ const DeleteConfirmModal = ({
         <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 mb-4">
           <p className="text-sm text-gray-700 dark:text-gray-300">
             <span className="font-medium">Service:</span>{" "}
-            {conversation.service?.title || `#${conversation.service_id}`}
+            {conversation.service_title || `#${conversation.service_id}`}
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
             <span className="font-medium">Participants:</span>{" "}
-            {conversation.client?.name || `Client #${conversation.client_id}`} •{" "}
-            {conversation.freelancer?.name ||
-              `Freelancer #${conversation.freelancer_id}`}
+            {conversation.client_name || `Client #${conversation.client_id}`} •{" "}
+            {conversation.provider_name || `provider #${conversation.provider_id}`}
           </p>
         </div>
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
+            disabled={isDeleting}
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
           >
             Annuler
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            disabled={isDeleting}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center"
           >
+            {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Supprimer
           </button>
         </div>
@@ -603,107 +611,76 @@ const DeleteConfirmModal = ({
 export default function ConversationsPage() {
   const router = useRouter();
 
-  // États
-  const [loading, setLoading] = useState(true);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [stats, setStats] = useState<ConversationStats | null>(null);
-  const [pagination, setPagination] = useState({
-    total: 0,
+  // Filtres
+  const [filters, setFilters] = useState<ChatFiltersFormData>({
     page: 1,
-    per_page: 12,
-    total_pages: 1,
-  });
-  const [filters, setFilters] = useState<ConversationFilters>({
-    page: 1,
-    per_page: 12,
+    limit: 12,
     sort_by: "last_message_at",
     sort_order: "desc",
   });
+
+  // Use the admin hook with filters
+  const {
+    conversations,
+    pagination,
+    isLoading,
+    stats,
+    isLoadingStats,
+    archiveConversation,
+    isArchiving,
+    deleteConversation,
+    isDeleting,
+    refetch,
+  } = useAdminChat(filters);
+
   const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(null);
+    useState<ConversationListResponse | null>(null);
   const [deleteModal, setDeleteModal] = useState(false);
 
-  // Charger les données
-  const loadConversations = async () => {
-    try {
-      setLoading(true);
-
-      // Utiliser les mock data
-      const mockResponse = {
-        items: mockMessages.conversations as Conversation[],
-        total: mockMessages.conversations.length,
-        page: filters.page || 1,
-        per_page: filters.per_page || 12,
-        total_pages: Math.ceil(
-          mockMessages.conversations.length / (filters.per_page || 12),
-        ),
-      };
-      setConversations(mockResponse.items);
-      setPagination(mockResponse);
-      setStats(mockMessages.stats as ConversationStats);
-    } catch (error) {
-      console.error("Erreur chargement conversations:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadConversations();
-  }, [filters.page, filters.per_page, filters.sort_by, filters.sort_order]);
-
   // Gestionnaires d'événements
-  const handleFilterChange = (newFilters: ConversationFilters) => {
+  const handleFilterChange = (newFilters: ChatFiltersFormData) => {
     setFilters({ ...filters, ...newFilters, page: 1 });
   };
 
   const handleSearch = () => {
-    loadConversations();
+    refetch();
   };
 
   const handlePageChange = (page: number) => {
     setFilters({ ...filters, page });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleViewConversation = (conversation: Conversation) => {
+  const handleViewConversation = (conversation: ConversationListResponse) => {
     router.push(`/dashboard/admin/messages/${conversation.id}`);
   };
 
-  const handleArchive = async (conversation: Conversation) => {
-    try {
-      await archiveConversation(conversation.id, !conversation.is_active);
-      loadConversations();
-    } catch (error) {
-      console.error("Erreur archivage:", error);
-    }
+  const handleArchive = async (conversation: ConversationListResponse) => {
+    await archiveConversation(conversation.id, conversation.is_active);
   };
 
   const handleDelete = async () => {
     if (!selectedConversation) return;
-    try {
-      await deleteConversation(selectedConversation.id);
-      setDeleteModal(false);
-      setSelectedConversation(null);
-      loadConversations();
-    } catch (error) {
-      console.error("Erreur suppression:", error);
-    }
+    
+    await deleteConversation(selectedConversation.id);
+    setDeleteModal(false);
+    setSelectedConversation(null);
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number = 0) => {
     return new Intl.NumberFormat("fr-FR").format(num);
   };
 
   return (
-    <div className="min-h-screen dark:bg-slate-950">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
+      <div className=" mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
-            <MessageSquare className="w-6 h-6 mr-2 text-blue-400" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+            <MessageSquare className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
             Gestion des conversations
           </h1>
-          <p className="text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Suivez et gérez toutes les conversations entre utilisateurs
           </p>
         </div>
@@ -713,31 +690,35 @@ export default function ConversationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <StatsCard
               title="Total conversations"
-              value={formatNumber(stats.total)}
-              subValue={`${stats.active} actives`}
+              value={formatNumber(stats.total_conversations)}
+              subValue={`${stats.active_conversations} actives`}
               icon={MessageSquare}
               color="bg-blue-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Messages totaux"
               value={formatNumber(stats.total_messages)}
-              subValue={`Moy. ${stats.avg_messages_per_conversation} par conv.`}
+              subValue={`Moy. ${Math.round(stats.total_messages / stats.total_conversations)} par conv.`}
               icon={MessageCircle}
               color="bg-green-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Conversations actives"
-              value={formatNumber(stats.active)}
-              subValue={`${stats.unread} avec messages non lus`}
+              value={formatNumber(stats.active_conversations)}
+              subValue={`${stats.unread_count} avec messages non lus`}
               icon={MessageSquare}
               color="bg-yellow-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Taux d'engagement"
-              value={`${stats.engagement_rate}%`}
-              subValue={`${stats.participants} participants uniques`}
+              value={`${stats.engagement_rate || 0}%`}
+              subValue={`${stats.participants || 0} participants uniques`}
               icon={Users}
               color="bg-purple-500"
+              loading={isLoadingStats}
             />
           </div>
         )}
@@ -746,38 +727,42 @@ export default function ConversationsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={loadConversations}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition disabled:opacity-50"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
               Actualiser
             </button>
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
-              Actives: {stats?.active || 0}
+              Actives: {stats?.active_conversations || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1"></div>
-              Non lues: {stats?.unread || 0}
+              Non lues: {stats?.unread_count || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-gray-500 mr-1"></div>
-              Archivées: {stats?.archived || 0}
+              Archivées: {(stats?.total_conversations || 0) - (stats?.active_conversations || 0)}
             </span>
           </div>
         </div>
 
         {/* Filtres */}
-        <ConversationFilters
+        <ConversationFiltersComponent
           filters={filters}
           onFilterChange={handleFilterChange}
           onSearch={handleSearch}
+          isSearching={isLoading}
         />
 
         {/* Grille des conversations */}
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
@@ -794,8 +779,8 @@ export default function ConversationsPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {conversations.map((conversation) => (
+              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-6">
+                {conversations.map((conversation: ConversationListResponse) => (
                   <ConversationCard
                     key={conversation.id}
                     conversation={conversation}
@@ -805,19 +790,23 @@ export default function ConversationsPage() {
                       setSelectedConversation(conv);
                       setDeleteModal(true);
                     }}
+                    isArchiving={isArchiving}
                   />
                 ))}
               </div>
             )}
 
             {/* Pagination */}
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={pagination.total_pages}
-              totalItems={pagination.total}
-              perPage={pagination.per_page}
-              onPageChange={handlePageChange}
-            />
+            {pagination && pagination.totalPages > 1 && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                perPage={pagination.perPage}
+                onPageChange={handlePageChange}
+                loading={isLoading}
+              />
+            )}
           </>
         )}
       </div>
@@ -831,6 +820,7 @@ export default function ConversationsPage() {
         }}
         conversation={selectedConversation}
         onConfirm={handleDelete}
+        isDeleting={isDeleting}
       />
     </div>
   );

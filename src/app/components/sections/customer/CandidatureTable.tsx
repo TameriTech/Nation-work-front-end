@@ -25,7 +25,7 @@ import {
 } from "@/app/components/ui/table";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import { Candidature, CandidatureStatus } from "@/app/types/candidatures";
+import { Candidature, CandidatureStatus } from "@/app/types";
 import { formatDate } from "@/app/lib/utils";
 
 interface CandidatureTableProps {
@@ -271,7 +271,7 @@ export const CandidatureTable = ({
                                 {candidature.provider.name || "Anonyme"}
                               </p>
                               <p className="text-xs text-gray-400">
-                                ID: {candidature.freelancer_id}
+                                ID: {candidature.provider_id}
                               </p>
                             </div>
                           </div>
@@ -331,9 +331,9 @@ export const CandidatureTable = ({
                           </Badge>
                         </TableCell>
                         <TableCell className="font-medium">
+                          $
                           {candidature.service.proposed_amount?.toLocaleString() ||
                             "-"}{" "}
-                          FCFA
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">

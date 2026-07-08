@@ -1,6 +1,7 @@
+// app/(protected)/dashboard/admin/disputes/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Scale,
@@ -32,18 +33,14 @@ import {
   Info,
 } from "lucide-react";
 
-import {
-  getDisputes,
-  getDisputeStats,
-  assignDispute,
-} from "@/app/services/disputes.service";
-import type {
-  Dispute,
-  DisputeFilters,
-  PaginatedResponse,
-  DisputeStats,
-} from "@/app/types/admin";
-import { disputes as mockDisputes } from "@/data/admin-mock-data";
+// FIXED: Import the hook instead of direct service calls
+import { useDisputes } from "@/app/hooks/admin/use-disputes";
+import type { 
+  DisputeListResponse, 
+  DisputeStatus,
+  DisputePriority 
+} from "@/app/types";
+import type { AssignDisputeFormData, DisputeFiltersFormData } from "@/app/lib/validators";
 
 // Composant de carte de statistiques
 const StatsCard = ({
@@ -53,6 +50,7 @@ const StatsCard = ({
   icon: Icon,
   color,
   trend,
+  loading = false,
 }: {
   title: string;
   value: number | string;
@@ -60,13 +58,14 @@ const StatsCard = ({
   icon: any;
   color: string;
   trend?: number;
+  loading?: boolean;
 }) => (
   <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{title}</p>
         <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {value}
+          {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : value}
         </p>
         {subValue && (
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -106,19 +105,44 @@ const DisputeFilters = ({
   filters,
   onFilterChange,
   onSearch,
+  isSearching,
 }: {
-  filters: DisputeFilters;
-  onFilterChange: (filters: DisputeFilters) => void;
+  filters: DisputeFiltersFormData;
+  onFilterChange: (filters: DisputeFiltersFormData) => void;
   onSearch: () => void;
+  isSearching?: boolean;
+  
 }) => {
   const [localSearch, setLocalSearch] = useState(filters.search || "");
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onFilterChange({ ...filters, search: localSearch });
-      onSearch();
+    
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalSearch(newValue);
+    
+    // Debounced search
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    
+    timeoutRef.current = setTimeout(() => {
+      onFilterChange({ ...filters, search: newValue });
+      onSearch();
+    }, 500);
   };
+  
+  useEffect(() => {
+    if (!isSearching && inputRef.current) {
+      inputRef.current.focus();
+      const length = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(length, length);
+    }
+  }, [isSearching])
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
@@ -132,11 +156,12 @@ const DisputeFilters = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <input
               type="text"
+              ref={inputRef}
               value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="ID litige, service, client, freelancer..."
+              onChange={handleInputChange}
+              placeholder="ID litige, service, client, provider..."
               className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              disabled={isSearching}
             />
           </div>
         </div>
@@ -151,7 +176,7 @@ const DisputeFilters = ({
             onChange={(e) =>
               onFilterChange({
                 ...filters,
-                status: e.target.value || undefined,
+                status: (e.target.value as DisputeStatus) || undefined,
               })
             }
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
@@ -175,7 +200,7 @@ const DisputeFilters = ({
             onChange={(e) =>
               onFilterChange({
                 ...filters,
-                priority: e.target.value || undefined,
+                priority: (e.target.value as DisputePriority) || undefined,
               })
             }
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
@@ -236,14 +261,17 @@ const DisputeFilters = ({
             onChange={(e) =>
               onFilterChange({
                 ...filters,
-                opened_by: e.target.value || undefined,
+                opened_by: (e.target.value || undefined) as
+                  | "client"
+                  | "provider"
+                  | undefined,
               })
             }
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Tous</option>
             <option value="client">Client</option>
-            <option value="freelancer">Freelancer</option>
+            <option value="provider">provider</option>
           </select>
         </div>
       </div>
@@ -251,7 +279,7 @@ const DisputeFilters = ({
       <div className="flex justify-end mt-4 space-x-2">
         <button
           onClick={() => {
-            onFilterChange({});
+            onFilterChange({ page: 1, per_page: filters.per_page } as DisputeFiltersFormData);
             setLocalSearch("");
             onSearch();
           }}
@@ -281,12 +309,12 @@ const DisputeTable = ({
   onAssign,
   loading,
 }: {
-  disputes: Dispute[];
+  disputes: DisputeListResponse[];
   onSort: (field: string) => void;
   sortBy: string;
   sortOrder: "asc" | "desc";
-  onView: (dispute: Dispute) => void;
-  onAssign: (dispute: Dispute) => void;
+  onView: (dispute: DisputeListResponse) => void;
+  onAssign: (dispute: DisputeListResponse) => void;
   loading: boolean;
 }) => {
   const getPriorityBadge = (priority: string) => {
@@ -443,17 +471,17 @@ const DisputeTable = ({
                 onClick={() => onSort("client")}
               >
                 <div className="flex items-center">
-                  Client
+                  Raised By
                   <SortIcon field="client" />
                 </div>
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
-                onClick={() => onSort("freelancer")}
+                onClick={() => onSort("provider")}
               >
                 <div className="flex items-center">
-                  Freelancer
-                  <SortIcon field="freelancer" />
+                  Raised Against
+                  <SortIcon field="provider" />
                 </div>
               </th>
               <th
@@ -488,7 +516,7 @@ const DisputeTable = ({
                 onClick={() => onSort("assigned_to")}
               >
                 <div className="flex items-center">
-                  Assigné à
+                  Resolu par
                   <SortIcon field="assigned_to" />
                 </div>
               </th>
@@ -515,50 +543,34 @@ const DisputeTable = ({
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {dispute.id}
+                      #{dispute.code}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900 dark:text-gray-100">
-                      {dispute.service.title}
+                      {dispute.service_title || "Service inconnu"}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      #{dispute.service.id}
+                      #{dispute.service?.id}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {dispute.client.avatar ? (
-                        <img
-                          src={dispute.client.avatar}
-                          alt={dispute.client.name}
-                          className="w-6 h-6 rounded-full mr-2 object-cover"
-                        />
-                      ) : (
                         <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
                           <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </div>
-                      )}
                       <span className="text-sm text-gray-900 dark:text-gray-100">
-                        {dispute.client.name}
+                        {dispute.raised_by_name ||  "N/A"}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {dispute.freelancer.avatar ? (
-                        <img
-                          src={dispute.freelancer.avatar}
-                          alt={dispute.freelancer.name}
-                          className="w-6 h-6 rounded-full mr-2 object-cover"
-                        />
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center mr-2">
                           <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </div>
-                      )}
                       <span className="text-sm text-gray-900 dark:text-gray-100">
-                        {dispute.freelancer.name}
+                        {dispute.raised_against_name ||  "N/A"}
                       </span>
                     </div>
                   </td>
@@ -572,12 +584,12 @@ const DisputeTable = ({
                     {formatDate(dispute.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {dispute.assigned_to ? (
+                    {dispute.resolved_by ? (
                       <div className="flex items-center">
-                        {dispute.assigned_to.avatar ? (
+                        {dispute.resolved_by.profile_picture ? (
                           <img
-                            src={dispute.assigned_to.avatar}
-                            alt={dispute.assigned_to.name}
+                            src={dispute.resolved_by.profile_picture}
+                            alt={dispute.resolved_by.full_name || dispute.resolved_by.username}
                             className="w-6 h-6 rounded-full mr-2 object-cover"
                           />
                         ) : (
@@ -586,7 +598,7 @@ const DisputeTable = ({
                           </div>
                         )}
                         <span className="text-sm text-gray-900 dark:text-gray-100">
-                          {dispute.assigned_to.name}
+                          {dispute.resolved_by.full_name || dispute.resolved_by.username}
                         </span>
                       </div>
                     ) : (
@@ -604,10 +616,10 @@ const DisputeTable = ({
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      {!dispute.assigned_to && (
+                      {!dispute.resolved_by && (
                         <button
                           onClick={() => onAssign(dispute)}
-                          className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
+                          className="hidden text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition"
                           title="Assigner"
                         >
                           <User className="w-4 h-4" />
@@ -632,12 +644,14 @@ const Pagination = ({
   totalItems,
   perPage,
   onPageChange,
+  loading = false,
 }: {
   currentPage: number;
   totalPages: number;
   totalItems: number;
   perPage: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
 }) => {
   const start = (currentPage - 1) * perPage + 1;
   const end = Math.min(currentPage * perPage, totalItems);
@@ -662,14 +676,14 @@ const Pagination = ({
       <div className="flex space-x-2">
         <button
           onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -679,14 +693,14 @@ const Pagination = ({
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || loading}
           className="p-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-gray-600 dark:text-gray-400"
         >
           <ChevronsRight className="w-4 h-4" />
@@ -703,16 +717,26 @@ const AssignModal = ({
   dispute,
   admins,
   onConfirm,
+  isAssigning = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  dispute: Dispute | null;
+  dispute: DisputeListResponse | null;
   admins: Array<{ id: number; name: string; avatar?: string }>;
   onConfirm: (adminId: number, notes?: string) => void;
+  isAssigning?: boolean;
 }) => {
   const [selectedAdmin, setSelectedAdmin] = useState<number>(0);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedAdmin(0);
+      setNotes("");
+      setError("");
+    }
+  }, [isOpen]);
 
   if (!isOpen || !dispute) return null;
 
@@ -722,17 +746,13 @@ const AssignModal = ({
       return;
     }
     onConfirm(selectedAdmin, notes);
-    setSelectedAdmin(0);
-    setNotes("");
-    setError("");
-    onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
-          Assigner le litige {dispute.id}
+          Assigner le litige #{dispute.id}
         </h3>
 
         <div className="mb-4">
@@ -742,7 +762,8 @@ const AssignModal = ({
           <select
             value={selectedAdmin}
             onChange={(e) => setSelectedAdmin(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+            disabled={isAssigning}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
           >
             <option value={0}>Sélectionner un admin</option>
             {admins.map((admin) => (
@@ -766,7 +787,8 @@ const AssignModal = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+            disabled={isAssigning}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
             placeholder="Instructions ou commentaires..."
           />
         </div>
@@ -774,14 +796,17 @@ const AssignModal = ({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition"
+            disabled={isAssigning}
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            disabled={isAssigning}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center"
           >
+            {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Assigner
           </button>
         </div>
@@ -794,31 +819,34 @@ const AssignModal = ({
 export default function DisputesPage() {
   const router = useRouter();
 
-  // États
-  const [loading, setLoading] = useState(true);
-  const [disputes, setDisputes] = useState<Dispute[]>([]);
-  const [stats, setStats] = useState<DisputeStats | null>(null);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    per_page: 10,
-    total_pages: 1,
-  });
-  const [filters, setFilters] = useState<DisputeFilters>({
+  // FIXED: Use the hook with filters
+  const [filters, setFilters] = useState<DisputeFiltersFormData>({
     page: 1,
     per_page: 10,
     sort_by: "created_at",
     sort_order: "desc",
   });
+
+  // FIXED: Call the hook with filters
+  const {
+    disputes,
+    pagination,
+    isLoading,
+    stats,
+    isLoadingStats,
+    assignDispute,
+    isAssigning,
+    refetch,
+  } = useDisputes(filters);
+
   const [assignModal, setAssignModal] = useState<{
     isOpen: boolean;
-    dispute: Dispute | null;
+    dispute: DisputeListResponse | null;
   }>({
     isOpen: false,
     dispute: null,
   });
 
-  // Admins mock pour l'assignation
   const admins = [
     {
       id: 1,
@@ -837,42 +865,14 @@ export default function DisputesPage() {
     },
   ];
 
-  // Charger les données
-  const loadDisputes = async () => {
-    try {
-      setLoading(true);
-
-      // Utiliser les mock data
-      const mockResponse = {
-        items: mockDisputes.list as Dispute[],
-        total: mockDisputes.list.length,
-        page: filters.page || 1,
-        per_page: filters.per_page || 10,
-        total_pages: Math.ceil(
-          mockDisputes.list.length / (filters.per_page || 10),
-        ),
-      };
-      setDisputes(mockResponse.items);
-      setPagination(mockResponse);
-      setStats(mockDisputes.stats as DisputeStats);
-    } catch (error) {
-      console.error("Erreur chargement litiges:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadDisputes();
-  }, [filters.page, filters.per_page, filters.sort_by, filters.sort_order]);
-
   // Gestionnaires d'événements
-  const handleFilterChange = (newFilters: DisputeFilters) => {
+  const handleFilterChange = (newFilters: DisputeFiltersFormData) => {
     setFilters({ ...filters, ...newFilters, page: 1 });
   };
 
   const handleSearch = () => {
-    loadDisputes();
+    // Les filtres sont déjà appliqués via l'état, donc on refetch
+    refetch();
   };
 
   const handleSort = (field: string) => {
@@ -885,33 +885,41 @@ export default function DisputesPage() {
 
   const handlePageChange = (page: number) => {
     setFilters({ ...filters, page });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleViewDispute = (dispute: Dispute) => {
-    router.push(`/dashboard/admin/disputes/${dispute.id}`);
+  const handleViewDispute = (dispute: DisputeListResponse) => {
+    router.push(`/dashboard/admin/disputes/${dispute.code}`);
   };
 
+  // FIXED: Handle assign with correct mutation signature
   const handleAssign = async (adminId: number, notes?: string) => {
     if (!assignModal.dispute) return;
-    try {
-      await assignDispute(assignModal.dispute.id, adminId, notes);
-      loadDisputes();
-    } catch (error) {
-      console.error("Erreur assignation:", error);
-    }
+    
+    const assignData: AssignDisputeFormData = {
+      assigned_to: adminId,
+      notes: notes,
+    };
+    
+    await assignDispute({
+      disputeId: assignModal.dispute.id,
+      data: assignData,
+    });
+    
+    setAssignModal({ isOpen: false, dispute: null });
   };
 
   return (
-    <div className="min-h-screen dark:bg-slate-950">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
+      <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-100 flex items-center">
-            <Scale className="w-6 h-6 mr-2 text-blue-400" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+            <Scale className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
             Gestion des litiges
           </h1>
-          <p className="text-gray-400 mt-1">
-            Gérez les conflits entre clients et freelancers
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Gérez les conflits entre clients et providers
           </p>
         </div>
 
@@ -920,31 +928,35 @@ export default function DisputesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <StatsCard
               title="Litiges ouverts"
-              value={stats.open}
-              subValue={`${stats.in_progress} en cours`}
+              value={stats.total_disputes || 0}
+              subValue={`${stats.in_progress_disputes || 0} en cours`}
               icon={AlertCircle}
               color="bg-red-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Priorité haute/urgente"
-              value={stats.by_priority.high + stats.by_priority.urgent}
-              subValue={`${stats.by_priority.urgent} urgents`}
+              value={(stats.high_priority_count || 0) + (stats.critical_priority_count || 0)}
+              subValue={`${stats.urgent_priority_count || 0} urgents`}
               icon={AlertTriangle}
               color="bg-orange-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Résolus ce mois"
-              value={stats.resolved}
-              subValue={`Temps moyen: ${stats.avg_resolution_time}`}
+              value={stats.resolved_disputes || 0}
+              subValue={`Temps moyen: ${stats.average_resolution_time_hours || 'N/A'}`}
               icon={CheckCircle}
               color="bg-green-500"
+              loading={isLoadingStats}
             />
             <StatsCard
               title="Total litiges"
-              value={stats.total}
-              subValue={`${stats.escalated} escaladés`}
+              value={stats.total_disputes || 0}
+              subValue={`${stats.escalated_disputes || 0} escaladés`}
               icon={Scale}
               color="bg-blue-500"
+              loading={isLoadingStats}
             />
           </div>
         )}
@@ -953,25 +965,28 @@ export default function DisputesPage() {
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-slate-700">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={loadDisputes}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition disabled:opacity-50"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
               Actualiser
             </button>
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-red-500 mr-1"></div>
-              Ouverts: {stats?.open || 0}
+              Ouverts: {stats?.open_disputes || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1"></div>
-              En cours: {stats?.in_progress || 0}
+              En cours: {stats?.in_progress_disputes || 0}
             </span>
             <span className="flex items-center">
               <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
-              Résolus: {stats?.resolved || 0}
+              Résolus: {stats?.resolved_disputes || 0}
             </span>
           </div>
         </div>
@@ -981,6 +996,7 @@ export default function DisputesPage() {
           filters={filters}
           onFilterChange={handleFilterChange}
           onSearch={handleSearch}
+          isSearching={isLoading}
         />
 
         {/* Tableau */}
@@ -991,17 +1007,20 @@ export default function DisputesPage() {
           sortOrder={filters.sort_order || "desc"}
           onView={handleViewDispute}
           onAssign={(dispute) => setAssignModal({ isOpen: true, dispute })}
-          loading={loading}
+          loading={isLoading}
         />
 
         {/* Pagination */}
-        <Pagination
-          currentPage={pagination.page}
-          totalPages={pagination.total_pages}
-          totalItems={pagination.total}
-          perPage={pagination.per_page}
-          onPageChange={handlePageChange}
-        />
+        {pagination && (
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            perPage={pagination.perPage}
+            onPageChange={handlePageChange}
+            loading={isLoading}
+          />
+        )}
       </div>
 
       {/* Modal d'assignation */}
@@ -1011,6 +1030,7 @@ export default function DisputesPage() {
         dispute={assignModal.dispute}
         admins={admins}
         onConfirm={handleAssign}
+        isAssigning={isAssigning}
       />
     </div>
   );

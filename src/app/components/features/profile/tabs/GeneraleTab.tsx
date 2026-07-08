@@ -1,3 +1,4 @@
+// components/features/profile/tabs/GeneraleTabContent.tsx (Version alternative)
 "use client";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -7,9 +8,14 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
-import { useFreelancer } from "@/app/hooks/auth/use-freelancer";
-import { EditProfileModal } from "../modals/EditProfileModal";
+import { useState } from "react";
+import { useprovider } from "@/app/hooks/provider-profile/use-profile";
+import { 
+  ProfessionalEditModal, 
+  LocationEditModal, 
+  SocialEditModal 
+} from "../modals/EditProfileModal";
+import type { providerProfileUpdateFormData } from "@/app/lib/validators";
 
 interface InfoCardProps {
   icon: React.ReactNode;
@@ -64,52 +70,29 @@ function InfoCard({ icon, title, data, onEdit, loading }: InfoCardProps) {
 }
 
 export function GeneraleTabContent() {
-  const { profile, updateProfile, isLoading } = useFreelancer();
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editSection, setEditSection] = useState<
-    "professional" | "location" | null
-  >(null);
+  const { profile, updateProfile, isLoading } = useprovider();
+  const [activeModal, setActiveModal] = useState<"professional" | "location" | "social" | null>(null);
 
   // Formater les données professionnelles depuis le profil
   const getProfessionalData = () => {
     if (!profile) return [];
 
-    // Compétences combinées
     const primarySkill = profile.primary_skill || "";
     const secondarySkill = profile.secondary_skill || "";
-    const otherSkills = profile.other_skills || "";
-
+    const otherSkills = profile.skills_list?.join(", ") || "";
     const skills = [primarySkill, secondarySkill, otherSkills]
       .filter((skill) => skill)
       .join(", ");
 
     return [
-      {
-        label: "Niveau d'étude",
-        value: profile.study_level || "-",
-      },
-      {
-        label: "Dernier Diplôme",
-        value: profile.last_diploma || "-",
-      },
-      {
-        label: "Années d'expérience",
-        value: profile.years_experience
-          ? `${profile.years_experience} ans`
-          : "-",
-      },
-      {
-        label: "Tarif horaire",
-        value: profile.hourly_rate ? `${profile.hourly_rate} €/h` : "-",
-      },
-      {
-        label: "Compétences",
-        value: skills || "-",
-      },
-      {
-        label: "Disponible",
-        value: profile.is_available ? "Oui" : "Non",
-      },
+      { label: "Niveau d'étude", value: profile.study_level || "-" },
+      { label: "Dernier Diplôme", value: profile.last_diploma || "-" },
+      { label: "Années d'expérience", value: profile.years_experience ? `${profile.years_experience} ans` : "-" },
+      { label: "Tarif horaire", value: profile.hourly_rate ? `${profile.hourly_rate} €/h` : "-" },
+      { label: "Compétences", value: skills || "-" },
+      { label: "Disponible", value: profile.is_available ? "Oui" : "Non" },
+      { label: "Nationalité", value: profile.nationality || "-" },
+      { label: "Genre", value: profile.gender || "-" },
     ];
   };
 
@@ -118,55 +101,41 @@ export function GeneraleTabContent() {
     if (!profile) return [];
 
     return [
-      { label: "Adresse de Résidence", value: profile.address || "-" },
-      { label: "Quartier", value: profile.quarter || "-" },
-      { label: "Ville", value: profile.city || "-" },
-      { label: "Code Postal", value: profile.postal_code || "-" },
-      { label: "Pays", value: profile.country || "-" },
+      { label: "Adresse de Résidence", value: profile.location?.address || "-" },
+      { label: "Quartier", value: profile.location?.quarter || "-" },
+      { label: "Ville", value: profile.location?.city || "-" },
+      { label: "Code Postal", value: profile.location?.postal_code || "-" },
+      { label: "Pays", value: profile.location?.country || "-" },
+      { label: "Téléphone", value: profile.user?.phone_number || "-" },
     ];
   };
 
-  const handleEditProfessional = () => {
-    setEditSection("professional");
-    setShowEditModal(true);
+  // Formater les données de contact
+  const getContactData = () => {
+    if (!profile) return [];
+
+    return [
+      { label: "Site web", value: profile.user?.website || "-" },
+      { label: "LinkedIn", value: profile.user?.linkedin || "-" },
+      { label: "Twitter", value: profile.user?.twitter || "-" },
+      { label: "GitHub", value: profile.user?.github || "-" },
+      { label: "Behance", value: profile.user?.behance || "-" },
+      { label: "Dribbble", value: profile.user?.dribbble || "-" },
+      { label: "Téléphone", value: profile.user?.phone_number || "-" },
+    ];
   };
 
-  const handleEditLocation = () => {
-    setEditSection("location");
-    setShowEditModal(true);
-  };
-
-  const handleSaveProfile = async (data: any) => {
+  const handleSave = async (data: providerProfileUpdateFormData) => {
     await updateProfile(data);
-    setShowEditModal(false);
-    setEditSection(null);
+    setActiveModal(null);
   };
 
   if (isLoading && !profile) {
     return (
       <div className="space-y-6">
-        <InfoCard
-          icon={
-            <Icon
-              icon="bi:briefcase"
-              className="h-5 w-5 text-primary-foreground"
-            />
-          }
-          title="Informations Professionnelles"
-          data={[]}
-          loading={true}
-        />
-        <InfoCard
-          icon={
-            <Icon
-              icon="bi:geo-alt"
-              className="h-5 w-5 text-primary-foreground"
-            />
-          }
-          title="Informations de Localisation"
-          data={[]}
-          loading={true}
-        />
+        <InfoCard icon={<Icon icon="bi:briefcase" className="h-5 w-5" />} title="Informations Professionnelles" data={[]} loading={true} />
+        <InfoCard icon={<Icon icon="bi:geo-alt" className="h-5 w-5" />} title="Informations de Localisation" data={[]} loading={true} />
+        <InfoCard icon={<Icon icon="bi:share" className="h-5 w-5" />} title="Informations de contact" data={[]} loading={true} />
       </div>
     );
   }
@@ -174,37 +143,51 @@ export function GeneraleTabContent() {
   return (
     <div className="space-y-6">
       <InfoCard
-        icon={
-          <Icon
-            icon="bi:briefcase"
-            className="h-5 w-5 text-primary-foreground"
-          />
-        }
+        icon={<Icon icon="bi:briefcase" className="h-5 w-5" />}
         title="Informations Professionnelles"
         data={getProfessionalData()}
-        onEdit={handleEditProfessional}
+        onEdit={() => setActiveModal("professional")}
       />
 
       <InfoCard
-        icon={
-          <Icon icon="bi:geo-alt" className="h-5 w-5 text-primary-foreground" />
-        }
+        icon={<Icon icon="bi:geo-alt" className="h-5 w-5" />}
         title="Informations de Localisation"
         data={getLocationData()}
-        onEdit={handleEditLocation}
+        onEdit={() => setActiveModal("location")}
       />
 
-      {/* Modal d'édition */}
-      {profile && (
-        <EditProfileModal
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditSection(null);
-          }}
-          onSave={handleSaveProfile}
+      <InfoCard
+        icon={<Icon icon="bi:share" className="h-5 w-5" />}
+        title="Informations de contact"
+        data={getContactData()}
+        onEdit={() => setActiveModal("social")}
+      />
+
+      {/* Modals conditionnels */}
+      {profile && activeModal === "professional" && (
+        <ProfessionalEditModal
+          isOpen={true}
+          onClose={() => setActiveModal(null)}
+          onSave={handleSave}
           initialData={profile}
-          section={editSection}
+        />
+      )}
+
+      {profile && activeModal === "location" && (
+        <LocationEditModal
+          isOpen={true}
+          onClose={() => setActiveModal(null)}
+          onSave={handleSave}
+          initialData={profile}
+        />
+      )}
+
+      {profile && activeModal === "social" && (
+        <SocialEditModal
+          isOpen={true}
+          onClose={() => setActiveModal(null)}
+          onSave={handleSave}
+          initialData={profile}
         />
       )}
     </div>

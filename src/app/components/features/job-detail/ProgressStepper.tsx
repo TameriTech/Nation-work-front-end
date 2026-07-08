@@ -108,7 +108,7 @@ export default function ProgressStepper({
           const isPending = stepNumber > currentStep;
 
           return (
-            <div key={index} className="flex items-start gap-3">
+            <div key={index} className="flex items-center gap-3">
               {/* Indicateur d'étape */}
               <div className="relative">
                 <button
@@ -141,7 +141,7 @@ export default function ProgressStepper({
 
               {/* Contenu de l'étape */}
               <div className="flex-1 pb-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2">
                   <p
                     className={cn(
                       "font-medium",
@@ -154,7 +154,7 @@ export default function ProgressStepper({
                   </p>
                   {isCurrent && (
                     <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded-full">
-                      En cours
+                      En course
                     </span>
                   )}
                 </div>

@@ -5,7 +5,7 @@ export * from './auth.validator';
 export * from './user.validator';
 
 // Services
-export * from './service.validator';
+export * from './mission.validator';
 
 // Profile
 export * from './experience.validator';
@@ -25,3 +25,18 @@ export * from './document.validator';
 
 // Admin
 export * from './admin.validator';
+
+// Dispute validator
+export * from './dispute.validator'
+
+// Education
+export * from './education.validator'
+
+// Skills
+export * from './skill.validator';
+
+// Categories
+export * from './category.validator';
+
+// Notifications
+//export * from './notification.validator';

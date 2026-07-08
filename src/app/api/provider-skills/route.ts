@@ -1,0 +1,27 @@
+import { NextResponse } from "next/server";
+import { backendFetch } from "@/app/lib/server/backend";
+import { handleApiError } from "@/app/lib/server/errors";
+import { headers } from "next/headers";
+
+export async function GET() {
+  try {
+    const data = await backendFetch("/provider/skills");
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    console.log("Received body:", body); // Debug log
+    const data = await backendFetch("/provider/skills", { 
+      method: "POST", 
+      body: JSON.stringify(body) 
+    })
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}

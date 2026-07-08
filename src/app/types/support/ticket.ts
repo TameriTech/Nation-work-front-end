@@ -1,51 +1,66 @@
-// ============================================================================
-// TYPES POUR LE SUPPORT
-// ============================================================================
+// src/app/types/support/ticket.ts
+import { TicketStatus, TicketPriority, TicketCategory } from '../enums';
 
-export interface SupportTicket {
-  id: string;
+export interface TicketCreate {
+  title: string;
+  description: string;
+  category: TicketCategory;
+  priority?: TicketPriority;
+  attachments?: string[];
+  relatedEntityId?: number;
+  relatedEntityType?: string;
+}
+
+export interface TicketUpdate {
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  assignedTo?: number;
+  notes?: string;
+}
+
+export interface TicketResponse {
+  id: number;
+  userId: number;
+  title: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  assignedTo?: number;
+  assignedToName?: string;
+  attachments?: string[];
+  relatedEntityId?: number;
+  relatedEntityType?: string;
+  createdAt: string;
+  updatedAt?: string;
+  resolvedAt?: string;
+  closedAt?: string;
   user: {
     id: number;
-    name: string;
-    role: string;
+    username: string;
+    email: string;
   };
-  subject: string;
+}
+
+export interface TicketMessage {
+  id: number;
+  ticketId: number;
+  userId: number;
+  userName: string;
   message: string;
-  priority: 'low' | 'normal' | 'high';
-  status: 'open' | 'in_progress' | 'closed' | 'resolved';
-  created_at: string;
-  assigned_to?: string;
-  assigned_at?: string;
-  closed_at?: string;
-  resolution?: string;
-  messages?: Array<{
-    from: string;
-    message: string;
-    timestamp: string;
-  }>;
+  attachments?: string[];
+  isInternal: boolean;
+  createdAt: string;
 }
 
 export interface TicketStats {
+  total: number;
   open: number;
-  in_progress: number;
+  inProgress: number;
+  resolved: number;
   closed: number;
-  by_priority: {
-    low: number;
-    normal: number;
-    high: number;
-  };
-  by_category: Record<string, number>;
-  average_resolution_time: string;
-}
-
-export interface TicketHistoryEntry {
-  id: string;
-  action: string;
-  description: string;
-  timestamp: string;
-  user: {
-    id: number;
-    name: string;
-    role: string;
-  };
+  byCategory: Record<string, number>;
+  byPriority: Record<string, number>;
+  averageResponseTime: number;
+  averageResolutionTime: number;
 }

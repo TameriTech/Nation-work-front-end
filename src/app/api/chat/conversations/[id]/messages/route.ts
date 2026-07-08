@@ -22,6 +22,7 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await req.json();
+
     const data = await backendFetch(`/chat/conversations/${id}/messages`, {
       method: "POST",
       body: JSON.stringify(body),

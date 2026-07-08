@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     
     const params = new URLSearchParams();
-    const filters = ['status', 'priority', 'opened_by', 'date_from', 'date_to', 'assigned_to', 'page', 'per_page'];
+    const filters = ['status', 'priority', 'opened_by', 'date_from', 'date_to', 'assigned_to', 'page', 'per_page', 'search'];
     
     filters.forEach(filter => {
       const value = searchParams.get(filter);
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     });
 
     const queryString = params.toString();
-    const endpoint = `/admin/disputes${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/disputes/admin/all${queryString ? `?${queryString}` : ''}`;
 
     const data = await backendFetch(endpoint);
     return NextResponse.json(data);

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     
     const params = new URLSearchParams();
-    const filters = ['status', 'client_id', 'freelancer_id', 'date_from', 'date_to', 'page', 'per_page'];
+    const filters = ['status', 'client_id', 'provider_id', 'date_from', 'date_to', 'page', 'per_page', 'search', 'min_amount', 'max_amount'];
     
     filters.forEach(filter => {
       const value = searchParams.get(filter);
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     });
 
     const queryString = params.toString();
-    const data = await backendFetch(`/admin/payments/transactions${queryString ? `?${queryString}` : ''}`);
+    const data = await backendFetch(`/payments/admin/all${queryString ? `?${queryString}` : ''}`);
     
     return NextResponse.json(data);
   } catch (error) {

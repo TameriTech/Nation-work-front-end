@@ -1,4 +1,4 @@
-// app/dashboard/freelancer/profile/error.tsx
+// app/dashboard/provider/profile/error.tsx
 "use client";
 
 import { Icon } from "@iconify/react";

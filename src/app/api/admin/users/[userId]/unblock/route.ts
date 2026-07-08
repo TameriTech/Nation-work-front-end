@@ -8,8 +8,10 @@ export async function POST(
 ) {
   try {
     const { userId } = await params;
-    const body = req.json();
+    const body = await req.json();
 
+    console.log("Unblocking user with ID:", userId);
+    console.log("Request body:", body);
     const data = await backendFetch(`/admin/users/${userId}/unblock`, {
       method: 'POST',
       body: JSON.stringify(body),

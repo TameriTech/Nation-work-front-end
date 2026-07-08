@@ -111,7 +111,7 @@ export default function PaymentsLoading() {
                     "Transaction",
                     "Service",
                     "Client",
-                    "Freelancer",
+                    "provider",
                     "Montant",
                     "Statut",
                     "Méthode",
@@ -144,7 +144,7 @@ export default function PaymentsLoading() {
                       <div className="h-4 w-24 bg-slate-700 rounded"></div>
                     </td>
 
-                    {/* Freelancer */}
+                    {/* provider */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="h-4 w-24 bg-slate-700 rounded"></div>
                     </td>

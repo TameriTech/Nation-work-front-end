@@ -175,7 +175,7 @@ export function Sidebar({
                 </div>
               )}
               <span className="text-lg font-semibold text-gray-900 truncate dark:text-white">
-                Nation Work
+                Tameri Work
               </span>
             </Link>
           )}

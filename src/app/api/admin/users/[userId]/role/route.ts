@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { backendFetch } from "@/app/lib/server/backend";
 import { handleApiError } from "@/app/lib/server/errors";
 
-export async function PATCH(
+export async function PUT(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
@@ -10,8 +10,10 @@ export async function PATCH(
     const { userId } = await params;
     const body = await req.json();
 
+    console.log("PUT /admin/users/[userId]/role", { userId, body });
+
     const data = await backendFetch(`/admin/users/${userId}/role`, {
-      method: 'PATCH',
+      method: 'PUT',
       body: JSON.stringify(body),
     });
 

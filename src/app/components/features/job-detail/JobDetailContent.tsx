@@ -46,7 +46,14 @@ const JobDetailContent = (
 
       {/* Title and Progress */}
       <div className="flex items-start justify-between gap-2">
-        <h1 className="text-3xl font-bold text-blue-900">{service.title}</h1>
+        <h1 className="text-3xl font-bold text-blue-900">
+          {service.title}
+          {service.code && (
+            <div className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+              ({service.code})
+            </div>
+          )}
+        </h1>
         {applied ? (
           <ProgressStepper />
         ) : (

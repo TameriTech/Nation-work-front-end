@@ -123,7 +123,7 @@ const PayoutFilters = ({
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="ID reversement, nom du freelancer..."
+              placeholder="ID reversement, nom du provider..."
               className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -358,11 +358,11 @@ const PayoutTable = ({
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition"
-                onClick={() => onSort("freelancer")}
+                onClick={() => onSort("provider")}
               >
                 <div className="flex items-center">
-                  Freelancer
-                  <SortIcon field="freelancer" />
+                  provider
+                  <SortIcon field="provider" />
                 </div>
               </th>
               <th
@@ -443,10 +443,10 @@ const PayoutTable = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {payout.freelancer.avatar ? (
+                      {payout.provider.avatar ? (
                         <img
-                          src={payout.freelancer.avatar}
-                          alt={payout.freelancer.name}
+                          src={payout.provider.avatar}
+                          alt={payout.provider.name}
                           className="w-8 h-8 rounded-full mr-3 object-cover"
                         />
                       ) : (
@@ -456,10 +456,10 @@ const PayoutTable = ({
                       )}
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {payout.freelancer.name}
+                          {payout.provider.name}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          ID: {payout.freelancer.id}
+                          ID: {payout.provider.id}
                         </div>
                       </div>
                     </div>
@@ -639,7 +639,7 @@ const ProcessPayoutModal = ({
           </span>{" "}
           pour{" "}
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {payout.freelancer.name}
+            {payout.provider.name}
           </span>
         </p>
 
@@ -808,16 +808,16 @@ const PayoutDetailsModal = ({
             </div>
           </div>
 
-          {/* Informations du freelancer */}
+          {/* Informations du provider */}
           <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4">
             <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Freelancer
+              provider
             </h4>
             <div className="flex items-center">
-              {payout.freelancer.avatar ? (
+              {payout.provider.avatar ? (
                 <img
-                  src={payout.freelancer.avatar}
-                  alt={payout.freelancer.name}
+                  src={payout.provider.avatar}
+                  alt={payout.provider.name}
                   className="w-12 h-12 rounded-full mr-4 object-cover"
                 />
               ) : (
@@ -827,10 +827,10 @@ const PayoutDetailsModal = ({
               )}
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">
-                  {payout.freelancer.name}
+                  {payout.provider.name}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  ID: {payout.freelancer.id}
+                  ID: {payout.provider.id}
                 </p>
               </div>
             </div>
@@ -1111,7 +1111,7 @@ export default function PayoutsPage() {
             Gestion des reversements
           </h1>
           <p className="text-gray-400 mt-1">
-            Gérez les paiements aux freelancers
+            Gérez les paiements aux providers
           </p>
         </div>
 

@@ -1,11 +1,6 @@
 // services/admin/settings.service.ts
 
-import { 
-  GeneralSettings, 
-  FeeSettings, 
-  TimingSettings, 
-  ThresholdSettings, 
-  AdminUser,
+import {
   ActivityLog, 
   PaginatedResponse,
   EmailTemplate

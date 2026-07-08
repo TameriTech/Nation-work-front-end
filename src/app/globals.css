@@ -1,27 +1,58 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  /*--foreground: #171717;*/
+/* enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Define your custom theme */
+@theme {
+  --color-primary: #0676A8;
+  --color-secondary: #F59E0B;
+  --color-accent: #F97316;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  
+/* Create utility classes from your colors */
+@utility bg-primary {
+  background-color: var(--color-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@utility text-primary {
+  color: var(--color-primary);
+}
+
+@utility bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+@utility text-secondary {
+  color: var(--color-secondary);
+}
+
+@utility bg-accent {
+  background-color: var(--color-accent);
+}
+
+@utility text-accent {
+  color: var(--color-accent);
+}
+
+@utility bg-surface {
+  background-color: var(--color-surface);
+}
+
+@utility text-text-primary {
+  color: var(--color-text-primary);
+}
+
+@utility text-text-secondary {
+  color: var(--color-text-secondary);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

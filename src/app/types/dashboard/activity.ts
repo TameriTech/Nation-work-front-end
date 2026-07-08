@@ -1,27 +1,31 @@
-// ============================================================================
-// TYPES POUR L'ACTIVITÉ RÉCENTE
-// ============================================================================
+// src/app/types/dashboard/activity.ts
+
+export interface ActivityItem {
+  type: 'candidature' | 'service_update' | 'payment' | 'application' | 'review';
+  id: number;
+  serviceId?: number;
+  serviceTitle?: string;
+  message: string;
+  status?: string;
+  createdAt: string;
+}
+
+export interface UpcomingItem {
+  type: 'service' | 'pending_application';
+  id: number;
+  title?: string;
+  serviceId?: number;
+  serviceTitle?: string;
+  clientName?: string;
+  date?: string;
+  time?: string;
+  address?: string;
+  status: string;
+  appliedDate?: string;
+}
 
 export interface RecentActivity {
-  id: string;
-  type: 'user_registration' | 'service_created' | 'payment_received' | 'dispute_opened' | 'verification_pending';
-  user?: {
-    name: string;
-    role: string;
-    avatar?: string;
-  };
-  service?: {
-    id: number;
-    title: string;
-  };
-  payment?: {
-    id: string;
-    amount: number;
-  };
-  dispute?: {
-    id: string;
-  };
-  description: string;
-  timestamp: string;
-  time_ago: string;
+  activities: ActivityItem[];
+  upcoming: UpcomingItem[];
+  totalCount: number;
 }

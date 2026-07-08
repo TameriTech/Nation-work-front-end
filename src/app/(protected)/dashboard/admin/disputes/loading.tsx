@@ -106,7 +106,7 @@ export default function DisputesLoading() {
                     "ID",
                     "Service",
                     "Client",
-                    "Freelancer",
+                    "provider",
                     "Priorité",
                     "Statut",
                     "Ouvert le",
@@ -141,7 +141,7 @@ export default function DisputesLoading() {
                       </div>
                     </td>
 
-                    {/* Freelancer */}
+                    {/* provider */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-6 h-6 bg-slate-700 rounded-full mr-2"></div>

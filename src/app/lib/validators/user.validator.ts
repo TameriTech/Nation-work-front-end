@@ -1,179 +1,159 @@
+// src/app/lib/validators/user.validator.ts
 import { z } from 'zod';
+import { BlockReason, UserRole, EmploymentType, LocationType } from '../../types/enums';
 
-// ==================== PROFIL UTILISATEUR ====================
-export const profileUpdateSchema = z.object({
-  first_name: z.string()
-    .max(100, "Prénom trop long")
-    .optional()
-    .nullable(),
-  last_name: z.string()
-    .max(100, "Nom trop long")
-    .optional()
-    .nullable(),
-  phone_number: z.string()
-    .regex(/^[0-9+\-\s]{8,20}$/, "Numéro de téléphone invalide")
-    .optional()
-    .nullable(),
-  profile_picture: z.string()
-    .url("URL de photo invalide")
-    .optional()
-    .nullable(),
+export const LocationInfoSchema = z.object({
+  address: z.string().optional().nullable(),
+  quarter: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  postal_code: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  state_province: z.string().optional().nullable(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
 });
 
-// ==================== LOCALISATION ====================
-export const locationSchema = z.object({
-  address: z.string()
-    .max(500, "Adresse trop longue")
-    .optional()
-    .nullable(),
-  quarter: z.string()
-    .max(100, "Nom du quartier trop long")
-    .optional()
-    .nullable(),
-  city: z.string()
-    .max(100, "Nom de ville trop long")
-    .optional()
-    .nullable(),
-  postal_code: z.string()
-    .max(20, "Code postal trop long")
-    .regex(/^[0-9]{5}$/, "Code postal invalide (5 chiffres)")
-    .optional()
-    .nullable(),
-  country: z.string()
-    .max(100, "Nom de pays trop long")
-    .optional()
-    .nullable(),
+export type LocationInfoFormData = z.infer<typeof LocationInfoSchema>;
+
+export const SocialLinksSchema = z.object({
+  website: z.string().url().optional(),
+  linkedin: z.string().url().optional(),
+  twitter: z.string().url().optional(),
+  github: z.string().url().optional(),
+  behance: z.string().url().optional(),
+  dribbble: z.string().url().optional()
 });
 
-// ==================== COMPÉTENCES ====================
+export type SocialLinksFormData = z.infer<typeof SocialLinksSchema>;
 
-export const skillSchema = z.object({
-  skill_id: z.number()
-    .positive("ID de compétence invalide"),
-  skill_type: z.enum(["primary", "secondary", "other"]).refine((val) => true, {
-    message: "Type de compétence invalide"
-  }),
-  proficiency_level: z.number()
-    .min(1, "Niveau minimum: 1")
-    .max(5, "Niveau maximum: 5"),
+// ─── Schéma Zod ───────────────────────────────────────────────────────────────
+
+const languageSchema = z.object({
+  language: z.string().min(1, "Langue requise"),
+  level: z.enum(["basic", "conversational", "fluent", "native"]),
 });
 
-
-// ==================== PROFIL FREELANCER (UpdateFreelancerProfileDto) ====================
-
-export const updateFreelancerProfileSchema = z.object({
-  study_level: z.string()
-    .max(100, "Niveau d'étude trop long")
+export const providerProfileUpdateSchema = z.object({
+  professional_title: z
+    .string()
+    .min(2, "Le titre doit contenir au moins 2 caractères")
+    .max(100, "Le titre ne peut pas dépasser 100 caractères"),
+  professional_summary: z
+    .string()
+    .max(2000, "Le résumé ne peut pas dépasser 2000 caractères")
     .optional()
-    .nullable(),
-  last_diploma: z.string()
-    .max(200, "Nom du diplôme trop long")
+    .or(z.literal("")),
+  tagline: z
+    .string()
+    .max(150, "La tagline ne peut pas dépasser 150 caractères")
     .optional()
-    .nullable(),
-  primary_skill: z.string()
-    .max(100, "Compétence principale trop longue")
-    .optional()
-    .nullable(),
-  secondary_skill: z.string()
-    .max(100, "Compétence secondaire trop longue")
-    .optional()
-    .nullable(),
-  other_skills: z.string()
-    .max(500, "Trop de compétences (max 500 caractères)")
-    .optional()
-    .nullable(),
-  address: z.string()
-    .max(500, "Adresse trop longue")
-    .optional()
-    .nullable(),
-  quarter: z.string()
-    .max(100, "Nom du quartier trop long")
-    .optional()
-    .nullable(),
-  city: z.string()
-    .max(100, "Nom de ville trop long")
-    .optional()
-    .nullable(),
-  postal_code: z.string()
-    .max(20, "Code postal trop long")
-    .optional()
-    .nullable(),
-  country: z.string()
-    .max(100, "Nom de pays trop long")
-    .optional()
-    .nullable(),
-  summary: z.string()
-    .max(1000, "Le résumé ne doit pas dépasser 1000 caractères")
-    .optional()
-    .nullable(),
-  nationality: z.string()
-    .max(100, "Nationalité trop longue")
-    .optional()
-    .nullable(),
-  gender: z.string()
-    .max(20, "Genre trop long")
-    .optional()
-    .nullable(),
-  age: z.number()
-    .min(18, "Vous devez avoir au moins 18 ans")
-    .max(120, "Âge maximum: 120 ans")
-    .optional()
-    .nullable(),
-  years_experience: z.number()
-    .min(0, "L'expérience ne peut pas être négative")
-    .max(100, "Expérience maximum: 100 ans")
-    .optional()
-    .nullable(),
-  hourly_rate: z.number()
+    .or(z.literal("")),
+  hourly_rate: z
+    .number({ error: "Veuillez entrer un nombre valide" })
     .min(0, "Le tarif ne peut pas être négatif")
-    .max(1000000, "Tarif maximum: 1 000 000 FCFA")
+    .max(10000, "Tarif trop élevé"),
+  languages: z
+    .array(languageSchema)
+    .min(1, "Ajoutez au moins une langue"),
+  is_available: z.boolean(),
+  willing_to_relocate: z.boolean(),
+  first_name: z
+    .string()
+    .min(1, "Le prénom est requis")
+    .max(50, "Le prénom ne peut pas dépasser 50 caractères"),
+  last_name: z
+    .string()
+    .min(1, "Le nom est requis")
+    .max(50, "Le nom ne peut pas dépasser 50 caractères"),
+  bio: z
+    .string()
+    .max(1000, "La bio ne peut pas dépasser 1000 caractères")
     .optional()
-    .nullable(),
-  is_available: z.boolean().optional(),
-  phone_number: z.string().optional().nullable(),
+    .or(z.literal("")),
+  phone_number: z
+    .string()
+    .regex(/^(\+?\d{7,15})?$/, "Numéro de téléphone invalide")
+    .optional()
+    .or(z.literal("")),
+  date_of_birth: z
+    .preprocess(
+      (val) => {
+        if (!val || val === "") return undefined;
+        return new Date(val as string).toISOString();
+      },
+      z.string().datetime().optional()
+    ),
+  city: z
+    .string()
+    .max(100, "La ville ne peut pas dépasser 100 caractères")
+    .optional()
+    .or(z.literal("")),
+  country: z
+    .string()
+    .max(100, "Le pays ne peut pas dépasser 100 caractères")
+    .optional()
+    .or(z.literal("")),
 });
 
-// Schéma de validation pour le modal de suspension
-export const suspendSchema = z.object({
-  reason: z
-    .enum([
-      "fraud",
-      "harassment",
-      "inappropriate_content",
-      "spam",
-      "multiple_warnings",
-      "non_payment",
-      "abandoned_services",
-      "fake_reviews",
-      "terms_violation",
-      "other",
-    ])
-    .refine((val) => true, {
-      message: "Raison invalide",
-    }),
-  reason_text: z
-    .string()
-    .min(5, "La raison doit contenir au moins 5 caractères"),
-  block_until: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide (YYYY-MM-DD)").optional().nullable(),
-  notify_user: z.boolean(),
+export type providerProfileUpdateFormData = z.infer<typeof providerProfileUpdateSchema>;
+
+
+export const BlockUserSchema = z.object({
+
+  reason: z.nativeEnum(BlockReason),
+
+  reason_text: z.string().max(500).optional(),
+
+  block_until: z.preprocess(
+    (val) => {
+      if (!val || val === "") return undefined;
+      return new Date(val as string).toISOString();
+    },
+    z.string().datetime().optional()
+  ),
+
+  notify_user: z.boolean().default(true),
 });
 
-// Schéma de validation pour le modal de débloquage
-export const unblockSchema = z.object({
-  reason: z
-    .string()
-    .min(5, "La raison doit contenir au moins 5 caractères"),
-  notify_user: z.boolean(),
+export type BlockUserFormData = z.infer<typeof BlockUserSchema>;
+
+export const UnblockUserSchema = z.object({
+  reason: z.string().max(500),
+  notify_user: z.boolean().optional().default(true)
 });
 
+export type UnblockFormData = z.infer<typeof UnblockUserSchema>;
 
+export const UserRoleUpdateSchema = z.object({
+  user_id: z.number(),
+  role: z.nativeEnum(UserRole),
+  reason: z.string().max(500).optional()
+});
 
-// Types exportés
-export type UpdateFreelancerProfileFormData = z.infer<typeof updateFreelancerProfileSchema>;
-export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
-export type LocationFormData = z.infer<typeof locationSchema>;
-export type SkillFormData = z.infer<typeof skillSchema>;
-export type SuspendFormData = z.infer<typeof suspendSchema>;
-export type UnblockFormData = z.infer<typeof unblockSchema>;
+export type UserRoleUpdateFormData = z.infer<typeof UserRoleUpdateSchema>;
+
+export const SendEmailSchema = z.object({
+  subject: z.string().min(1).max(255),
+  message: z.string().min(1).max(5000)
+});
+
+export type SendEmailFormData = z.infer<typeof SendEmailSchema>;
+
+export const UserFiltersSchema = z.object({
+  role: z.string().optional(),
+  is_active: z.boolean().optional(),
+  skip: z.number().min(0).optional(),
+  limit: z.number().min(1).max(1000).optional(),
+  search: z.string().optional(),
+  status: z.enum(['active', 'blocked', 'deleted']).optional(),
+  sort_by: z.string().optional(),
+  sort_order: z.enum(['asc', 'desc']).optional()
+});
+
+export type UserFiltersFormData = z.infer<typeof UserFiltersSchema>;
+
+export const ExportUsersSchema = z.object({
+  format: z.enum(['pdf', 'excel', 'csv', 'json']).default('csv')
+});
+
+export type ExportUsersFormData = z.infer<typeof ExportUsersSchema>;

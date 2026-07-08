@@ -4,21 +4,11 @@ import { Bell, Menu } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Breadcrumbs } from "@/app/components/ui/breadcrumbs";
 import { ProfileDropdown } from "@/app/components/ui/profile-dropdown";
-import type { HeaderProps, User } from "@/app/types/admin";
+import type { HeaderProps, User } from "@/app/types";
 import { cn } from "@/app/lib/utils";
 import { ThemeToggle } from "../../theme-toggle";
 
 // Dummy user data for the profile dropdown
-const user: User = {
-  id: 1,
-  username: "Jane Doe",
-  email: "jane.doe@example.com",
-  role: "admin",
-  status: "active",
-  is_verified: true,
-  created_at: "2023-01-01T00:00:00Z",
-  avatar: "https://i.pravatar.cc/150?img=5",
-};
 
 export function Header({
   onMenuClick,
@@ -79,12 +69,7 @@ export function Header({
         <div className="hidden h-6 w-px bg-gray-300 dark:bg-gray-700 md:block" />
 
         {/* Profile */}
-        <ProfileDropdown
-          user={user}
-          onProfileClick={() => console.log("Profile clicked")}
-          onSettingsClick={() => console.log("Settings clicked")}
-          onLogoutClick={() => console.log("Logout clicked")}
-        />
+        <ProfileDropdown/>
       </div>
     </header>
   );

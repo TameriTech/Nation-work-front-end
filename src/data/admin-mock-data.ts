@@ -1,5 +1,5 @@
 
-import type { DashboardStats, RecentActivity, ChartData, PerformanceMetrics, ReportStats, RevenueData, ServicesByCategory, ServicesByStatus, TopFreelancer, ActivityData, GeographicDistribution, DisputeStats, Dispute } from "@/app/types/admin";
+import type { DashboardStats, RecentActivity, ChartData, PerformanceMetrics, ReportStats, RevenueData, ServicesByCategory, ServicesByStatus, Topprovider, ActivityData, GeographicDistribution, DisputeStats, Dispute } from "@/app/types/admin";
   import type {
   Payment,
   PaymentSummary,
@@ -14,7 +14,7 @@ export const dashboard = {
       growth: 12,
       breakdown: {
         clients: 876,
-        freelancers: 345,
+        providers: 345,
         admins: 13
       }
     },
@@ -45,7 +45,7 @@ export const dashboard = {
       type: "user_registration",
       user: {
         name: "Jean Dupont",
-        role: "freelancer",
+        role: "provider",
         avatar: "https://randomuser.me/api/portraits/men/1.jpg"
       },
       description: "Nouvelle inscription",
@@ -105,7 +105,7 @@ export const dashboard = {
       type: "verification_pending",
       user: {
         name: "Sophie Bernard",
-        role: "freelancer"
+        role: "provider"
       },
       description: "Document en attente de vérification",
       timestamp: "2026-02-16T08:30:00Z",
@@ -153,7 +153,7 @@ export const users = {
       "id": 1002,
       "email": "marie.martin@email.com",
       "username": "Marie Martin",
-      "role": "freelancer",
+      "role": "provider",
       "status": "active",
       "is_verified": true,
       "verified_badge": true,
@@ -173,7 +173,7 @@ export const users = {
       "id": 1003,
       "email": "pierre.leroy@email.com",
       "username": "Pierre Leroy",
-      "role": "freelancer",
+      "role": "provider",
       "status": "suspended",
       "is_verified": false,
       "suspension_reason": "Non-paiement des frais",
@@ -192,7 +192,7 @@ export const users = {
       "id": 1004,
       "email": "sophie.bernard@email.com",
       "username": "Sophie Bernard",
-      "role": "freelancer",
+      "role": "provider",
       "status": "pending_verification",
       "is_verified": false,
       "phone": "+33 6 45 67 89 01",
@@ -217,7 +217,7 @@ export const users = {
       "id": 1006,
       "email": "emilie.dubois@email.com",
       "username": "Emilie Dubois",
-      "role": "freelancer",
+      "role": "provider",
       "status": "active",
       "is_verified": true,
       "verified_badge": true,
@@ -296,7 +296,7 @@ export const services = {
         "name": "Jean Dupont",
         "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
       },
-      "freelancer": null,
+      "provider": null,
       "date": "2026-02-20T14:00:00Z",
       "address": "15 rue de Paris, 75001 Paris",
       "budget": 150.00,
@@ -315,7 +315,7 @@ export const services = {
         "name": "Thomas Petit",
         "avatar": "https://randomuser.me/api/portraits/men/6.jpg"
       },
-      "freelancer": {
+      "provider": {
         "id": 1006,
         "name": "Emilie Dubois",
         "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
@@ -337,7 +337,7 @@ export const services = {
         "name": "Claire Fontaine",
         "avatar": null
       },
-      "freelancer": {
+      "provider": {
         "id": 1002,
         "name": "Marie Martin",
         "avatar": "https://randomuser.me/api/portraits/women/3.jpg"
@@ -359,7 +359,7 @@ export const services = {
         "name": "Michel Blanc",
         "avatar": null
       },
-      "freelancer": {
+      "provider": {
         "id": 1006,
         "name": "Emilie Dubois",
         "avatar": "https://randomuser.me/api/portraits/women/7.jpg"
@@ -386,14 +386,14 @@ export const services = {
         "name": "Jean Dupont",
         "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
       },
-      "freelancer": {
+      "provider": {
         "id": 1003,
         "name": "Pierre Leroy",
         "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
       },
       "date": "2026-02-10T08:00:00Z",
       "cancelled_at": "2026-02-09T16:20:00Z",
-      "cancellation_reason": "Indisponibilité du freelancer",
+      "cancellation_reason": "Indisponibilité du provider",
       "address": "5 chemin des Bois, 69100 Villeurbanne",
       "budget": 200.00,
       "candidatures_count": 2,
@@ -410,7 +410,7 @@ export const services = {
         "name": "Sophie Martin",
         "avatar": null
       },
-      "freelancer": {
+      "provider": {
         "id": 1003,
         "name": "Pierre Leroy",
         "avatar": "https://randomuser.me/api/portraits/men/4.jpg"
@@ -437,7 +437,7 @@ export const services = {
       "color": "#3b82f6",
       "is_active": true,
       "services_count": 45,
-      "freelancers_count": 23,
+      "providers_count": 23,
       "average_price": 150.00
     },
     {
@@ -448,7 +448,7 @@ export const services = {
       "color": "#f59e0b",
       "is_active": true,
       "services_count": 32,
-      "freelancers_count": 18,
+      "providers_count": 18,
       "average_price": 180.00
     },
     {
@@ -459,7 +459,7 @@ export const services = {
       "color": "#10b981",
       "is_active": true,
       "services_count": 78,
-      "freelancers_count": 45,
+      "providers_count": 45,
       "average_price": 80.00
     },
     {
@@ -470,7 +470,7 @@ export const services = {
       "color": "#84cc16",
       "is_active": true,
       "services_count": 23,
-      "freelancers_count": 12,
+      "providers_count": 12,
       "average_price": 120.00
     },
     {
@@ -481,7 +481,7 @@ export const services = {
       "color": "#8b5cf6",
       "is_active": true,
       "services_count": 56,
-      "freelancers_count": 34,
+      "providers_count": 34,
       "average_price": 70.00
     },
     {
@@ -492,7 +492,7 @@ export const services = {
       "color": "#ec4899",
       "is_active": true,
       "services_count": 67,
-      "freelancers_count": 41,
+      "providers_count": 41,
       "average_price": 45.00
     },
     {
@@ -503,7 +503,7 @@ export const services = {
       "color": "#f97316",
       "is_active": false,
       "services_count": 12,
-      "freelancers_count": 8,
+      "providers_count": 8,
       "average_price": 150.00
     }
   ],
@@ -554,14 +554,14 @@ export const payments = {
         name: "Michel Blanc",
       },
       client_id: 1010,
-      freelancer: {
+      provider: {
         id: 1006,
         name: "Emilie Dubois",
       },
-      freelancer_id: 1006,
+      provider_id: 1006,
       amount: 80.0,
       platform_fee: 8.0,
-      freelancer_payout: 72.0,
+      provider_payout: 72.0,
       status: "paid",
       payment_method: "card",
       transaction_id: "tr_abc123def456",
@@ -579,14 +579,14 @@ export const payments = {
         name: "Claire Fontaine",
       },
       client_id: 1009,
-      freelancer: {
+      provider: {
         id: 1002,
         name: "Marie Martin",
       },
-      freelancer_id: 1002,
+      provider_id: 1002,
       amount: 120.0,
       platform_fee: 12.0,
-      freelancer_payout: 108.0,
+      provider_payout: 108.0,
       status: "pending",
       payment_method: "mobile_money",
       transaction_id: "mm_789ghi012jkl",
@@ -603,11 +603,11 @@ export const payments = {
         name: "Jean Dupont",
       },
       client_id: 1001,
-      freelancer: null,
-      freelancer_id: null,
+      provider: null,
+      provider_id: null,
       amount: 150.0,
       platform_fee: 15.0,
-      freelancer_payout: null,
+      provider_payout: null,
       status: "escrow",
       payment_method: "card",
       transaction_id: "tr_345mno678pqr",
@@ -625,14 +625,14 @@ export const payments = {
         name: "Sophie Martin",
       },
       client_id: 1011,
-      freelancer: {
+      provider: {
         id: 1003,
         name: "Pierre Leroy",
       },
-      freelancer_id: 1003,
+      provider_id: 1003,
       amount: 180.0,
       platform_fee: 18.0,
-      freelancer_payout: 0.0,
+      provider_payout: 0.0,
       status: "refunded",
       payment_method: "card",
       transaction_id: "tr_901stu234vwx",
@@ -653,14 +653,14 @@ export const payments = {
         name: "Thomas Petit",
       },
       client_id: 1005,
-      freelancer: {
+      provider: {
         id: 1006,
         name: "Emilie Dubois",
       },
-      freelancer_id: 1006,
+      provider_id: 1006,
       amount: 50.0,
       platform_fee: 5.0,
-      freelancer_payout: 45.0,
+      provider_payout: 45.0,
       status: "paid",
       payment_method: "cash",
       notes: "Paiement en espèces, frais réduits",
@@ -677,11 +677,11 @@ export const payments = {
         name: "Philippe Dubois",
       },
       client_id: 1012,
-      freelancer: null,
-      freelancer_id: null,
+      provider: null,
+      provider_id: null,
       amount: 450.0,
       platform_fee: 45.0,
-      freelancer_payout: null,
+      provider_payout: null,
       status: "pending",
       payment_method: "bank_transfer",
       transaction_id: "bt_567rst890uvw",
@@ -698,14 +698,14 @@ export const payments = {
         name: "Isabelle Petit",
       },
       client_id: 1013,
-      freelancer: {
+      provider: {
         id: 1009,
         name: "Sarah Cohen",
       },
-      freelancer_id: 1009,
+      provider_id: 1009,
       amount: 40.0,
       platform_fee: 4.0,
-      freelancer_payout: 36.0,
+      provider_payout: 36.0,
       status: "pending",
       payment_method: "card",
       transaction_id: "tr_678stu901xyz",
@@ -722,14 +722,14 @@ export const payments = {
         name: "Antoine Girard",
       },
       client_id: 1014,
-      freelancer: {
+      provider: {
         id: 1010,
         name: "David Bernard",
       },
-      freelancer_id: 1010,
+      provider_id: 1010,
       amount: 90.0,
       platform_fee: 9.0,
-      freelancer_payout: 81.0,
+      provider_payout: 81.0,
       status: "paid",
       payment_method: "mobile_money",
       transaction_id: "mm_901abc234def",
@@ -747,11 +747,11 @@ export const payments = {
         name: "Julie Mercier",
       },
       client_id: 1015,
-      freelancer: null,
-      freelancer_id: null,
+      provider: null,
+      provider_id: null,
       amount: 60.0,
       platform_fee: 6.0,
-      freelancer_payout: null,
+      provider_payout: null,
       status: "pending",
       payment_method: "cash",
       created_at: "2026-02-15T10:00:00Z",
@@ -766,14 +766,14 @@ export const payments = {
         name: "Jean Dupont",
       },
       client_id: 1001,
-      freelancer: {
+      provider: {
         id: 1003,
         name: "Pierre Leroy",
       },
-      freelancer_id: 1003,
+      provider_id: 1003,
       amount: 200.0,
       platform_fee: 20.0,
-      freelancer_payout: 0.0,
+      provider_payout: 0.0,
       status: "failed",
       payment_method: "card",
       transaction_id: "tr_345def678ghi",
@@ -787,7 +787,7 @@ export const payments = {
   payouts: [
     {
       id: "PO001",
-      freelancer: {
+      provider: {
         id: 1006,
         name: "Emilie Dubois",
         avatar: "https://randomuser.me/api/portraits/women/7.jpg",
@@ -806,7 +806,7 @@ export const payments = {
     },
     {
       id: "PO002",
-      freelancer: {
+      provider: {
         id: 1002,
         name: "Marie Martin",
         avatar: "https://randomuser.me/api/portraits/women/3.jpg",
@@ -822,7 +822,7 @@ export const payments = {
     },
     {
       id: "PO003",
-      freelancer: {
+      provider: {
         id: 1003,
         name: "Pierre Leroy",
         avatar: "https://randomuser.me/api/portraits/men/4.jpg",
@@ -844,7 +844,7 @@ export const payments = {
     },
     {
       id: "PO004",
-      freelancer: {
+      provider: {
         id: 1009,
         name: "Sarah Cohen",
         avatar: "https://randomuser.me/api/portraits/women/10.jpg",
@@ -857,7 +857,7 @@ export const payments = {
     },
     {
       id: "PO005",
-      freelancer: {
+      provider: {
         id: 1010,
         name: "David Bernard",
         avatar: null,
@@ -876,7 +876,7 @@ export const payments = {
     },
     {
       id: "PO006",
-      freelancer: {
+      provider: {
         id: 1006,
         name: "Emilie Dubois",
         avatar: "https://randomuser.me/api/portraits/women/7.jpg",
@@ -898,7 +898,7 @@ export const payments = {
     },
     {
       id: "PO007",
-      freelancer: {
+      provider: {
         id: 1002,
         name: "Marie Martin",
         avatar: "https://randomuser.me/api/portraits/women/3.jpg",
@@ -914,7 +914,7 @@ export const payments = {
     },
     {
       id: "PO008",
-      freelancer: {
+      provider: {
         id: 1009,
         name: "Sarah Cohen",
         avatar: "https://randomuser.me/api/portraits/women/10.jpg",
@@ -946,8 +946,8 @@ export const payments = {
     { month: "Décembre", revenue: 28900, fees: 2890, payouts: 23300 },
   ],
 
-  // Top freelancers par gains
-  top_freelancers: [
+  // Top providers par gains
+  top_providers: [
     {
       id: 1006,
       name: "Emilie Dubois",
@@ -988,7 +988,7 @@ export const payments = {
       id: "INV008",
       amount: 90.0,
       client: "Antoine Girard",
-      freelancer: "David Bernard",
+      provider: "David Bernard",
       status: "paid",
       date: "2026-02-16T15:30:00Z",
     },
@@ -996,7 +996,7 @@ export const payments = {
       id: "INV002",
       amount: 120.0,
       client: "Claire Fontaine",
-      freelancer: "Marie Martin",
+      provider: "Marie Martin",
       status: "pending",
       date: "2026-02-16T09:00:00Z",
     },
@@ -1004,7 +1004,7 @@ export const payments = {
       id: "INV003",
       amount: 150.0,
       client: "Jean Dupont",
-      freelancer: null,
+      provider: null,
       status: "escrow",
       date: "2026-02-16T08:30:00Z",
     },
@@ -1012,7 +1012,7 @@ export const payments = {
       id: "INV001",
       amount: 80.0,
       client: "Michel Blanc",
-      freelancer: "Emilie Dubois",
+      provider: "Emilie Dubois",
       status: "paid",
       date: "2026-02-15T15:30:00Z",
     },
@@ -1020,7 +1020,7 @@ export const payments = {
       id: "INV005",
       amount: 50.0,
       client: "Thomas Petit",
-      freelancer: "Emilie Dubois",
+      provider: "Emilie Dubois",
       status: "paid",
       date: "2026-02-15T18:00:00Z",
     },
@@ -1054,11 +1054,11 @@ export const payments = {
     },
   },
 
-  // Historique des reversements par freelancer
-  freelancer_payout_history: [
+  // Historique des reversements par provider
+  provider_payout_history: [
     {
-      freelancer_id: 1006,
-      freelancer_name: "Emilie Dubois",
+      provider_id: 1006,
+      provider_name: "Emilie Dubois",
       payouts: [
         { date: "2026-02-03", amount: 850, status: "paid" },
         { date: "2026-01-06", amount: 920, status: "paid" },
@@ -1066,8 +1066,8 @@ export const payments = {
       ],
     },
     {
-      freelancer_id: 1002,
-      freelancer_name: "Marie Martin",
+      provider_id: 1002,
+      provider_name: "Marie Martin",
       payouts: [
         { date: "2026-02-01", amount: 560, status: "paid" },
         { date: "2026-01-04", amount: 490, status: "paid" },
@@ -1089,7 +1089,7 @@ export const disputes = {
         name: "Sophie Martin",
         avatar: null,
       },
-      freelancer: {
+      provider: {
         id: 1003,
         name: "Pierre Leroy",
         avatar: "https://randomuser.me/api/portraits/men/4.jpg",
@@ -1147,7 +1147,7 @@ export const disputes = {
           id: "MSG002",
           from: "Pierre Leroy",
           from_id: 1003,
-          role: "freelancer",
+          role: "provider",
           message:
             "Le retard était dû à un problème de transport, et les objets étaient déjà abîmés",
           timestamp: "2026-02-15T11:20:00Z",
@@ -1191,7 +1191,7 @@ export const disputes = {
           user: {
             id: 1003,
             name: "Pierre Leroy",
-            role: "freelancer",
+            role: "provider",
           },
         },
         {
@@ -1218,12 +1218,12 @@ export const disputes = {
         name: "Philippe Dubois",
         avatar: null,
       },
-      freelancer: {
+      provider: {
         id: 1008,
         name: "Lucas Moreau",
         avatar: null,
       },
-      opened_by: "freelancer",
+      opened_by: "provider",
       opened_by_name: "Lucas Moreau",
       reason: "Non-paiement",
       description: "Le client refuse de payer après la prestation effectuée",
@@ -1246,7 +1246,7 @@ export const disputes = {
           uploaded_by: {
             id: 1008,
             name: "Lucas Moreau",
-            role: "freelancer",
+            role: "provider",
           },
         },
       ],
@@ -1255,7 +1255,7 @@ export const disputes = {
           id: "MSG005",
           from: "Lucas Moreau",
           from_id: 1008,
-          role: "freelancer",
+          role: "provider",
           message: "Le client refuse de payer après la réparation effectuée",
           timestamp: "2026-02-14T16:45:00Z",
         },
@@ -1277,7 +1277,7 @@ export const disputes = {
           user: {
             id: 1008,
             name: "Lucas Moreau",
-            role: "freelancer",
+            role: "provider",
           },
         },
         {
@@ -1304,7 +1304,7 @@ export const disputes = {
         name: "Isabelle Petit",
         avatar: null,
       },
-      freelancer: {
+      provider: {
         id: 1009,
         name: "Sarah Cohen",
         avatar: "https://randomuser.me/api/portraits/women/10.jpg",
@@ -1342,7 +1342,7 @@ export const disputes = {
           id: "MSG008",
           from: "Sarah Cohen",
           from_id: 1009,
-          role: "freelancer",
+          role: "provider",
           message:
             "Je suis désolée que vous n'ayez pas été satisfaite, je suis ouverte à une discussion",
           timestamp: "2026-02-10T10:15:00Z",
@@ -1395,7 +1395,7 @@ export const disputes = {
         name: "Antoine Girard",
         avatar: null,
       },
-      freelancer: {
+      provider: {
         id: 1010,
         name: "David Bernard",
         avatar: null,
@@ -1440,7 +1440,7 @@ export const disputes = {
           id: "MSG010",
           from: "David Bernard",
           from_id: 1010,
-          role: "freelancer",
+          role: "provider",
           message:
             "J'ai suivi la notice à la lettre, le meuble est correctement monté",
           timestamp: "2026-02-08T13:45:00Z",
@@ -1482,7 +1482,7 @@ export const disputes = {
         name: "Julie Mercier",
         avatar: null,
       },
-      freelancer: {
+      provider: {
         id: 1011,
         name: "Camille Laurent",
         avatar: "https://randomuser.me/api/portraits/women/15.jpg",
@@ -1590,7 +1590,7 @@ export const settings = {
   },
   "thresholds": {
     "min_profile_completion": 70,
-    "min_freelancer_rating": 4.0,
+    "min_provider_rating": 4.0,
     "max_disputes_before_suspension": 3,
     "auto_suspend_after_inactivity_days": 90
   }
@@ -1754,7 +1754,7 @@ export const support_tickets = [
       "role": "client"
     },
     "subject": "Problème de paiement",
-    "message": "J'ai payé mais le freelancer n'a pas été notifié",
+    "message": "J'ai payé mais le provider n'a pas été notifié",
     "priority": "high",
     "status": "open",
     "created_at": "2026-02-15T14:30:00Z",
@@ -1765,7 +1765,7 @@ export const support_tickets = [
     "user": {
       "id": 1006,
       "name": "Emilie Dubois",
-      "role": "freelancer"
+      "role": "provider"
     },
     "subject": "Bug dans l'upload de photos",
     "message": "Impossible d'ajouter des photos au portfolio",
@@ -1792,7 +1792,7 @@ export const support_tickets = [
     "user": {
       "id": 1002,
       "name": "Marie Martin",
-      "role": "freelancer"
+      "role": "provider"
     },
     "subject": "Question sur les frais",
     "message": "Comment sont calculés les frais de plateforme ?",
@@ -1809,7 +1809,7 @@ export const reports = {
     total_revenue: 45678.50,
     total_services: 567,
     total_users: 1234,
-    total_freelancers: 345,
+    total_providers: 345,
     average_rating: 4.7,
     completion_rate: 94.5,
     response_rate: 97.2,
@@ -1818,7 +1818,7 @@ export const reports = {
       revenue: 38900.00,
       services: 512,
       users: 1100,
-      freelancers: 320,
+      providers: 320,
     },
   } as ReportStats,
 
@@ -1862,7 +1862,7 @@ export const reports = {
     { status: "Annulées", count: 35, percentage: 6.2, color: "#ef4444" },
   ] as ServicesByStatus[],
 
-  topFreelancers: [
+  topproviders: [
     {
       id: 1006,
       name: "Emilie Dubois",
@@ -1908,7 +1908,7 @@ export const reports = {
       average_rating: 4.5,
       response_rate: 92,
     },
-  ] as TopFreelancer[],
+  ] as Topprovider[],
 
   activityData: [
     { date: "09/02", registrations: 12, services: 15, payments: 1250 },
@@ -1971,7 +1971,7 @@ export const messages = {
       id: 1,
       service_id: 10001,
       client_id: 1,
-      freelancer_id: 2,
+      provider_id: 2,
       is_active: true,
       last_message_at: "2024-03-15T14:30:00",
       created_at: "2024-03-10T09:00:00",
@@ -1987,7 +1987,7 @@ export const messages = {
         email: "jean.dupont@email.com",
         avatar: "https://randomuser.me/api/portraits/men/1.jpg",
       },
-      freelancer: {
+      provider: {
         id: 2,
         name: "Marie Martin",
         username: "mmartin",
@@ -2010,7 +2010,7 @@ export const messages = {
       id: 2,
       service_id: 10002,
       client_id: 3,
-      freelancer_id: 4,
+      provider_id: 4,
       is_active: true,
       last_message_at: "2024-03-15T11:15:00",
       created_at: "2024-03-09T16:20:00",
@@ -2026,7 +2026,7 @@ export const messages = {
         email: "pierre.durand@email.com",
         avatar: "https://randomuser.me/api/portraits/men/2.jpg",
       },
-      freelancer: {
+      provider: {
         id: 4,
         name: "Sophie Bernard",
         username: "sbernard",
@@ -2049,7 +2049,7 @@ export const messages = {
       id: 3,
       service_id: 10003,
       client_id: 5,
-      freelancer_id: 6,
+      provider_id: 6,
       is_active: false,
       last_message_at: "2024-03-14T09:45:00",
       created_at: "2024-03-05T10:30:00",
@@ -2065,7 +2065,7 @@ export const messages = {
         email: "sophie.martin@email.com",
         avatar: "https://randomuser.me/api/portraits/women/3.jpg",
       },
-      freelancer: {
+      provider: {
         id: 6,
         name: "Thomas Dubois",
         username: "tdubois",

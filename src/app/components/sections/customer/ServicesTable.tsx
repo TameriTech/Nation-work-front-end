@@ -164,7 +164,7 @@ export const ServicesTable = () => {
               className="gap-2 bg-amber-600 rounded-[50px] hover:bg-orange-900 text-white"
             >
               <Icon icon={"bi:plus"} className="h-4 w-4" />
-              Publier un service sur Nation Work
+              Publier un service sur Tameri Work
             </Button>
           </div>
         </div>
@@ -199,7 +199,14 @@ export const ServicesTable = () => {
                       <Checkbox className="bg-gray-100" />
                     </TableCell>
 
-                    <TableCell>{service.title}</TableCell>
+                    <TableCell>
+                      {service.title}
+                      {service.code && (
+                        <div className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          ({service.code})
+                        </div>
+                      )}
+                    </TableCell>
 
                     <TableCell>
                       <Badge variant="outline" className={status.className}>

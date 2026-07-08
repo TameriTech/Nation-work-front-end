@@ -1,46 +1,102 @@
-import { User } from "./user";
+import { UserRole } from "../enums";
+import { UserBase, UserOut } from "./user";
 
 // ============================================================================
 // TYPES POUR L'AUTHENTIFICATION
 // ============================================================================
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface RegisterPayload {
-  name: string;
-  first_name: string;
-  email: string;
-  password: string;
-  confirm_password: string;
-  accept_terms: boolean;
-}
-
-export interface SignUpData {
-  email: string;
-  username: string;
-  password: string;
-  role: 'client' | 'freelancer';
-  phoneNumber?: string;
-}
 
 export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user_role: string;
-  user_id: number;
+    access_token: string;
+    refresh_token?: string;
+    token_type: string;
+    expires_in: number;
+    user_role: UserRole;
+    user_id: number;
+    user: UserBase;
 }
 
-export interface LoginResponse extends User {
-  access_token: string;
-  token_type: string;
+// Type pour la réponse d'inscription
+export interface SignUpResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user_id: number;
+    verification_type: string;
+    email: string;
+    expires_at: string | null;
+    remaining_attempts: number;
+  };
+}
+
+export interface GetCurrentUserResponse {
+  success: true,
+  data: {
+    user: UserOut;
+  }
+};
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: UserOut;
+    token: string;
+    token_type: string;
+    verified_at: string;
+  };
+}
+
+// Type pour renvoyer l'OTP
+export interface ResendOtpResponse {
+  success: boolean;
+  message: string;
+  data: {
+    expires_at: string | null;
+    remaining_attempts: number;
+  };
+}
+
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: UserOut;
+    token: string;
+    token_type: string;
+    expires_in: number;
+  };
+}
+
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  data: {
+    email: string;
+    expires_in: number;
+  }
+}
+
+
+export interface PasswordResetVerifyResponse {
+  success: boolean;
+  message: string;
+  data: {
+    email: string;
+    token: string;
+  }
+}
+
+export interface PasswordResetCompleteResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: UserOut;
+    token: string;
+    token_type: string;
+  }
 }
 
 export * from "./user";

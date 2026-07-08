@@ -11,7 +11,7 @@ import type {
   DashboardStats,
   RecentActivity,
   ChartData,
-} from "@/app/types/admin";
+} from "@/app/types";
 
 import { dashboard } from "@/data/admin-mock-data";
 
@@ -40,6 +40,7 @@ import {
   BarChart3,
   ArrowRight,
 } from "lucide-react";
+import { ThemeDebugger } from "@/app/components/theme-debugger";
 
 // Composants UI
 const LoadingSpinner = () => (
@@ -279,6 +280,8 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </div>
+
+        <ThemeDebugger/>
 
         {/* Cartes de statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">

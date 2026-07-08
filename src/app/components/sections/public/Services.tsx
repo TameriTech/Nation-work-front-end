@@ -3,7 +3,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { CATEGORY_SERVICES } from "@/data/constants";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useCallback, useState } from "react";
-import { ServiceCard } from "../../ui/Cards/Service";
+import { ServiceCard } from "../../ui/Cards/mission";
 import { Icon } from "@iconify/react";
 import { Service } from "@/app/types/services";
 

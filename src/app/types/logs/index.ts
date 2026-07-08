@@ -1,23 +1,48 @@
-// ============================================================================
-// TYPES POUR LES LOGS ET ACTIVITÉS
-// ============================================================================
-
+// src/app/types/logs/index.ts
 export interface ActivityLog {
-  id: number | string;
-  action: string;
-  type: 'auth' | 'service' | 'payment' | 'profile' | 'security' | 'dispute' | 'admin';
+  id: number;
+  userId?: number;
+  username?: string;
+  extraData: any;
+  entityType: string;
+  entityId?: number;
   description: string;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
+export interface ActivityLogFilters {
+  userId?: number;
+  extraData: any;
+  entityType?: string;
+  entityId?: number;
+  fromDate?: string;
+  toDate?: string;
+  page: number;
+  perPage: number;
+}
+
+export interface AuditLog {
+  id: number;
+  userId?: number;
+  username?: string;
+  action: string;
+  tableName: string;
+  recordId: number;
+  oldValues?: Record<string, any>;
+  newValues?: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
+export interface SystemLog {
+  id: number;
+  level: 'info' | 'warning' | 'error' | 'critical';
+  source: string;
+  message: string;
   details?: Record<string, any>;
-  
-  // Pour les logs admin
-  admin?: {
-    id: number;
-    name: string;
-  };
-  target_type?: string;
-  target_id?: number | string;
-  target_name?: string;
+  stack?: string;
+  createdAt: string;
 }

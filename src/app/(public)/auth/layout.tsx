@@ -1,8 +1,8 @@
+// app/(auth)/layout.tsx
 "use client";
 
-import Header from "@/app/components/layouts/headers/AuthHeader";
 import { usePathname } from "next/navigation";
-import "@/app/globals.css";
+import { AuthHeader } from "@/app/components/layouts/headers/AuthHeader";
 
 export default function AuthLayout({
   children,
@@ -11,20 +11,19 @@ export default function AuthLayout({
 }) {
   const pathname = usePathname();
 
-  const image =
-    pathname === "/auth/login" ? "/images/login.png" : "/images/register.png";
+  const getBackgroundImage = () => {
+    if (pathname === "/auth/login") return "/images/login-bg.png";
+    if (pathname === "/auth/signup") return "/images/register-bg.png";
+    if (pathname === "/auth/forgot-password") return "/images/forgot-bg.png";
+    if (pathname === "/auth/reset-password") return "/images/reset-bg.png";
+    return "/images/auth-bg.png";
+  };
 
   return (
-    <div className="flex flex-col items-center justify-start p-5 bg-gray-50">
-      <Header />
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full items-start justify-between mt-5">
-        <div className="relative w-full h-full hidden lg:block rounded-2xl overflow-hidden">
-          <div
-            className="absolute inset-0 bg-cover rounded-2xl bg-top"
-            style={{ backgroundImage: `url(${image})` }}
-          />
-        </div>
-        <div className="w-full bg-transparent p-0 shadow-3xl rounded-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <AuthHeader />
+      <main className="flex items-center justify-center min-h-[calc(100vh-80px)] py-8 px-4">
+        <div className="w-full max-w-7xl mx-auto">
           {children}
         </div>
       </main>

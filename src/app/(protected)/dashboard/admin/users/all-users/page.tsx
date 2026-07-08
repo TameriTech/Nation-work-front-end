@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Users,
@@ -22,15 +22,22 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
-import { useAdminUsers } from "@/app/hooks/admin/use-admin-users";
-import type { UserFilters } from "@/app/types";
-import type { User } from "@/app/types";
+import { useAdminUsers } from "@/app/hooks/use-admin-users";
+import type { User } from "@/app/types/auth/user";
+import type { BlockUserFormData, UnblockFormData } from "@/app/lib/validators/user.validator";
+import { BlockUserSchema, UnblockUserSchema } from "@/app/lib/validators/user.validator";
 import UsersLoading from "./loading";
 import AdminUsersError from "./error";
-import Link from "next/link";
-import { SuspendFormData, suspendSchema } from "@/app/lib/validators";
+
+// Interface pour les filtres locaux
+interface LocalFilters {
+  search: string;
+  role?: string;
+  status?: string;
+  page: number;
+  per_page: number;
+}
 
 // Composant de filtre
 const UserFilters = ({
@@ -39,24 +46,41 @@ const UserFilters = ({
   onSearch,
   isSearching,
 }: {
-  filters: UserFilters;
-  onFilterChange: (filters: UserFilters) => void;
+  filters: LocalFilters;
+  onFilterChange: (filters: LocalFilters) => void;
   onSearch: () => void;
   isSearching?: boolean;
 }) => {
   const [localSearch, setLocalSearch] = useState(filters.search || "");
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onFilterChange({ ...filters, search: localSearch });
-      onSearch();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalSearch(newValue);
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    
+    timeoutRef.current = setTimeout(() => {
+      onFilterChange({ ...filters, search: newValue, page: 1 });
+      onSearch();
+    }, 500);
   };
+
+  useEffect(() => {
+    if (!isSearching && inputRef.current) {
+      inputRef.current.focus();
+      const length = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(length, length);
+    }
+  }, [isSearching]);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Recherche */}
         <div className="col-span-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Recherche
@@ -65,9 +89,9 @@ const UserFilters = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <input
               type="text"
+              ref={inputRef}
               value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={handleInputChange}
               placeholder="Nom, email, téléphone..."
               className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               disabled={isSearching}
@@ -75,7 +99,6 @@ const UserFilters = ({
           </div>
         </div>
 
-        {/* Filtre par rôle */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Rôle
@@ -83,21 +106,19 @@ const UserFilters = ({
           <select
             value={filters.role || ""}
             onChange={(e) =>
-              onFilterChange({ ...filters, role: e.target.value || undefined })
+              onFilterChange({ ...filters, role: e.target.value || undefined, page: 1 })
             }
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             disabled={isSearching}
           >
             <option value="">Tous les rôles</option>
             <option value="client">Client</option>
-            <option value="freelancer">Freelancer</option>
+            <option value="provider">Provider</option>
             <option value="admin">Admin</option>
-            <option value="super_admin">Super Admin</option>
             <option value="moderator">Modérateur</option>
           </select>
         </div>
 
-        {/* Filtre par statut */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Statut
@@ -108,6 +129,7 @@ const UserFilters = ({
               onFilterChange({
                 ...filters,
                 status: e.target.value || undefined,
+                page: 1,
               })
             }
             className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
@@ -115,7 +137,7 @@ const UserFilters = ({
           >
             <option value="">Tous les statuts</option>
             <option value="active">Actif</option>
-            <option value="suspended">Suspendu</option>
+            <option value="blocked">Bloqué</option>
           </select>
         </div>
       </div>
@@ -123,7 +145,7 @@ const UserFilters = ({
       <div className="flex justify-end mt-4 space-x-2">
         <button
           onClick={() => {
-            onFilterChange({ page: 1, per_page: filters.per_page });
+            onFilterChange({ page: 1, per_page: filters.per_page, search: "" });
             setLocalSearch("");
             onSearch();
           }}
@@ -149,69 +171,49 @@ const UserFilters = ({
 const UserTable = ({
   users,
   onView,
-  onSuspend,
-  onActivate,
+  onBlock,
+  onUnblock,
   onRoleChange,
   loading,
-  isActivating,
-  isSuspending,
+  isBlocking,
+  isUnblocking,
   isChangingRole,
 }: {
   users: User[];
   onView: (user: User) => void;
-  onSuspend: (user: User) => void;
-  onActivate: (user: User) => void;
+  onBlock: (user: User) => void;
+  onUnblock: (user: User) => void;
   onRoleChange: (user: User, newRole: string) => void;
   loading: boolean;
-  isActivating: boolean;
-  isSuspending: boolean;
+  isBlocking: boolean;
+  isUnblocking: boolean;
   isChangingRole: boolean;
 }) => {
-  const getStatusBadge = (status: string) => {
-    const badges: Record<string, { color: string; icon: any; label: string }> =
-      {
-        active: {
-          color:
-            "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
-          icon: UserCheck,
-          label: "Actif",
-        },
-        suspended: {
-          color:
-            "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
-          icon: UserX,
-          label: "Suspendu",
-        },
-        inactive: {
-          color:
-            "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
-          icon: UserMinus,
-          label: "Inactif",
-        },
+  const getStatusBadge = (user: User) => {
+    if (!user.is_active) {
+      return {
+        color:
+          "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+        icon: UserX,
+        label: "Bloqué",
       };
-    const badge = badges[status] || badges.inactive;
-    const Icon = badge.icon;
-
-    return (
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.color}`}
-      >
-        <Icon className="w-3 h-3 mr-1" />
-        {badge.label}
-      </span>
-    );
+    }
+    return {
+      color:
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
+      icon: UserCheck,
+      label: "Actif",
+    };
   };
 
   const getRoleBadge = (role: string) => {
     const colors: Record<string, string> = {
-      super_admin:
-        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       admin:
-        "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800",
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
       moderator:
+        "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800",
+      provider:
         "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
-      freelancer:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
       client:
         "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
     };
@@ -220,18 +222,16 @@ const UserTable = ({
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colors[role] || colors.client}`}
       >
-        {role === "super_admin" || role === "admin" || role === "moderator" ? (
+        {role === "admin" || role === "moderator" ? (
           <Shield className="w-3 h-3 mr-1" />
-        ) : role === "freelancer" ? (
+        ) : role === "provider" ? (
           <Star className="w-3 h-3 mr-1" />
         ) : (
           <UserCheck className="w-3 h-3 mr-1" />
         )}
-        {role === "super_admin"
-          ? "Super Admin"
-          : role === "moderator"
-            ? "Modérateur"
-            : role.charAt(0).toUpperCase() + role.slice(1)}
+        {role === "moderator"
+          ? "Modérateur"
+          : role.charAt(0).toUpperCase() + role.slice(1)}
       </span>
     );
   };
@@ -280,114 +280,123 @@ const UserTable = ({
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        {user.profile_picture ? (
-                          <img
-                            className="h-10 w-10 rounded-full object-cover"
-                            src={user.profile_picture}
-                            alt={user.username}
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
-                            <Users className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {user.username}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          ID: {user.id}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-gray-100">
-                      {user.email}
-                    </div>
-                    {user.phone_number && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {user.phone_number}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getRoleBadge(user.role)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(!user.is_blocked ? "active" : "inactive")}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(user.created_at).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {user.last_login ? (
-                      <>
-                        {new Date(user.last_login).toLocaleDateString("fr-FR")}
-                        <span className="text-xs text-gray-400 dark:text-gray-500 block">
-                          {new Date(user.last_login).toLocaleTimeString(
-                            "fr-FR",
+              users.map((user) => {
+                const statusBadge = getStatusBadge(user);
+                const StatusIcon = statusBadge.icon;
+                
+                return (
+                  <tr
+                    key={user.id}
+                    className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          {user.avatar ? (
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={user.avatar}
+                              alt={user.full_name}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
+                              <Users className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                            </div>
                           )}
-                        </span>
-                      </>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => onView(user)}
-                        disabled={loading}
-                        className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition disabled:opacity-50"
-                        title="Voir détails"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      {!user.is_blocked ? (
-                        <button
-                          onClick={() => onSuspend(user)}
-                          disabled={isSuspending}
-                          className="text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 p-1 rounded hover:bg-orange-50 dark:hover:bg-orange-900/30 transition disabled:opacity-50"
-                          title="Suspendre"
-                        >
-                          <Ban className="w-4 h-4" />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onActivate(user)}
-                          disabled={isActivating}
-                          className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition disabled:opacity-50"
-                          title="Activer"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {user.full_name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            ID: {user.id}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {user.email}
+                      </div>
+                      {user.phone && (
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {user.phone}
+                        </div>
                       )}
-                      <select
-                        value={user.role}
-                        onChange={(e) => onRoleChange(user, e.target.value)}
-                        disabled={isChangingRole}
-                        className="text-xs border border-gray-300 dark:border-slate-600 rounded p-1 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getRoleBadge(user.role)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.color}`}
                       >
-                        <option value="client">Client</option>
-                        <option value="freelancer">Freelancer</option>
-                        <option value="moderator">Modérateur</option>
-                        <option value="admin">Admin</option>
-                        <option value="super_admin">Super Admin</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        <StatusIcon className="w-3 h-3 mr-1" />
+                        {statusBadge.label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(user.created_at).toLocaleDateString("fr-FR")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {user.last_login_at ? (
+                        <>
+                          {new Date(user.last_login_at).toLocaleDateString("fr-FR")}
+                          <span className="text-xs text-gray-400 dark:text-gray-500 block">
+                            {new Date(user.last_login_at).toLocaleTimeString(
+                              "fr-FR",
+                            )}
+                          </span>
+                        </>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => onView(user)}
+                          disabled={loading}
+                          className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition disabled:opacity-50"
+                          title="Voir détails"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {user.is_active ? (
+                          <button
+                            onClick={() => onBlock(user)}
+                            disabled={isBlocking}
+                            className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition disabled:opacity-50"
+                            title="Bloquer"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onUnblock(user)}
+                            disabled={isUnblocking}
+                            className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition disabled:opacity-50"
+                            title="Débloquer"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        <select
+                          value={user.role}
+                          onChange={(e) => onRoleChange(user, e.target.value)}
+                          disabled={isChangingRole || user.role === 'admin'}
+                          className="text-xs border border-gray-300 dark:border-slate-600 rounded p-1 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+                        >
+                          <option value="client">Client</option>
+                          <option value="provider">Provider</option>
+                          <option value="moderator">Modérateur</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -459,54 +468,35 @@ const Pagination = ({
   );
 };
 
-// Modal de suspension avec React Hook Form
-
-const SuspendModal = ({
+// Modal de blocage
+const BlockModal = ({
   isOpen,
   onClose,
   user,
   onConfirm,
-  isSuspending,
+  isBlocking,
 }: {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  onConfirm: (data: SuspendFormData) => void;
-  isSuspending: boolean;
+  onConfirm: (data: BlockUserFormData) => void;
+  isBlocking: boolean;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<SuspendFormData>({
-    resolver: zodResolver(suspendSchema),
-    defaultValues: {
-      notify_user: true, // Set default value for checkbox
-    },
+  } = useForm<BlockUserFormData>({
+    resolver: zodResolver(BlockUserSchema),
   });
 
   if (!isOpen || !user) return null;
 
-  const onSubmit = (data: SuspendFormData) => {
-    console.log("Sending data: ", data);
-    console.log("User being suspended: ", user);
-
-    // Make sure data is properly formatted
-    const formattedData: SuspendFormData = {
-      ...data,
-      // Ensure block_until is in correct format if needed
-      block_until: data.block_until
-        ? new Date(data.block_until).toISOString()
-        : null,
-    };
-
-    onConfirm(formattedData);
-    // Don't reset and close immediately - wait for success
-    // The parent component should handle closing after success
+  const onSubmit = (data: BlockUserFormData) => {
+    onConfirm(data);
   };
 
-  // Close handler that doesn't conflict with form submission
   const handleClose = () => {
     reset();
     onClose();
@@ -515,35 +505,31 @@ const SuspendModal = ({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50"
-      onClick={(e) => {
-        // Prevent closing when clicking inside the modal
-        e.stopPropagation();
-      }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div
         className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
-          Suspendre l'utilisateur
+          Bloquer l'utilisateur
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Vous êtes sur le point de suspendre{" "}
+          Vous êtes sur le point de bloquer{" "}
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {user?.username}
+            {user?.full_name}
           </span>
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Reason selection - FIXED duplicate values */}
-          <div className="mb-3">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Raison de la suspension *
+              Raison (optionnelle)
             </label>
             <select
               {...register("reason")}
               className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-              disabled={isSuspending}
+              disabled={isBlocking}
             >
               <option value="">Sélectionnez une raison</option>
               <option value="fraud">Fraude</option>
@@ -559,24 +545,18 @@ const SuspendModal = ({
               <option value="terms_violation">Violation des conditions</option>
               <option value="other">Autre</option>
             </select>
-            {errors.reason && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.reason.message}
-              </p>
-            )}
           </div>
 
-          {/* Block until date */}
-          <div className="mb-3">
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Suspendu jusqu'au *
+              Bloquer jusqu'au (optionnel)
             </label>
             <input
-              type="date"
+              type="datetime-local"
               {...register("block_until")}
-              min={new Date().toISOString().split("T")[0]} // Can't select past dates
-              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-              disabled={isSuspending}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              disabled={isBlocking}
             />
             {errors.block_until && (
               <p className="text-red-600 dark:text-red-400 text-sm mt-1">
@@ -585,62 +565,129 @@ const SuspendModal = ({
             )}
           </div>
 
-          {/* Reason text */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Description détaillée *
-            </label>
-            <textarea
-              {...register("reason_text")}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-              placeholder="Expliquez la raison de la suspension..."
-              disabled={isSuspending}
-            />
-            {errors.reason_text && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.reason_text.message}
-              </p>
-            )}
-          </div>
-
-          {/* Notify user checkbox - FIXED missing register */}
-          <div className="mb-6">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                {...register("notify_user")}
-                className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                disabled={isSuspending}
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Notifier l'utilisateur par email
-              </span>
-            </label>
-          </div>
-
-          {/* Action buttons */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={handleClose}
-              disabled={isSuspending}
+              disabled={isBlocking}
               className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
-              disabled={isSuspending}
-              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition disabled:opacity-50 flex items-center"
+              disabled={isBlocking}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center"
             >
-              {isSuspending ? (
+              {isBlocking ? (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Suspension en cours...
+                  Blocage en cours...
                 </>
               ) : (
-                "Suspendre"
+                "Bloquer"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Modal de déblocage
+const UnblockModal = ({
+  isOpen,
+  onClose,
+  user,
+  onConfirm,
+  isUnblocking,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  user: User | null;
+  onConfirm: (data: UnblockFormData) => void;
+  isUnblocking: boolean;
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<UnblockFormData>({
+    resolver: zodResolver(UnblockUserSchema),
+  });
+
+  if (!isOpen || !user) return null;
+
+  const onSubmit = (data: UnblockFormData) => {
+    onConfirm(data);
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          Débloquer l'utilisateur
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Vous êtes sur le point de débloquer{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {user?.full_name}
+          </span>
+        </p>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Raison (optionnelle)
+            </label>
+            <textarea
+              {...register("reason")}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              placeholder="Raison du déblocage..."
+              disabled={isUnblocking}
+            />
+            {errors.reason && (
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.reason.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isUnblocking}
+              className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 transition disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isUnblocking}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 flex items-center"
+            >
+              {isUnblocking ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Déblocage en cours...
+                </>
+              ) : (
+                "Débloquer"
               )}
             </button>
           </div>
@@ -654,8 +701,7 @@ const SuspendModal = ({
 export default function UsersPage() {
   const router = useRouter();
 
-  // États
-  const [filters, setFilters] = useState<UserFilters>({
+  const [filters, setFilters] = useState<LocalFilters>({
     page: 1,
     per_page: 10,
     search: "",
@@ -663,7 +709,7 @@ export default function UsersPage() {
     status: undefined,
   });
 
-  const [suspendModal, setSuspendModal] = useState<{
+  const [blockModal, setBlockModal] = useState<{
     isOpen: boolean;
     user: User | null;
   }>({
@@ -671,31 +717,41 @@ export default function UsersPage() {
     user: null,
   });
 
-  // Hook personnalisé
+  const [unblockModal, setUnblockModal] = useState<{
+    isOpen: boolean;
+    user: User | null;
+  }>({
+    isOpen: false,
+    user: null,
+  });
+
+  // Convertir les filtres locaux en filtres backend
+  const backendFilters = {
+    search: filters.search || undefined,
+    role: filters.role as any,
+    is_active: filters.status === 'active' ? true : filters.status === 'blocked' ? false : undefined,
+    page: filters.page,
+    per_page: filters.per_page,
+  };
+
   const {
-    users,
+    users: usersData,
+    pagination,
     isLoading,
     error,
-    suspendUser,
-    isSuspending,
-    activateUser,
-    isActivating,
-    changeUserRole,
+    blockUser,
+    isBlocking,
+    unblockUser,
+    isUnblocking,
+    changeRole,
     isChangingRole,
     refetch,
-  } = useAdminUsers(filters);
+  } = useAdminUsers(backendFilters);
 
-  // Calculs de pagination
-  const totalPages = Math.ceil((users?.length || 0) / (filters.per_page || 10));
-  const paginatedUsers = useMemo(() => {
-    const start = ((filters.page || 1) - 1) * (filters.per_page || 10);
-    const end = start + (filters.per_page || 10);
-    return (users || []).slice(start, end);
-  }, [users, filters.page, filters.per_page]);
-
-  // Gestionnaires d'événements
-  const handleFilterChange = (newFilters: UserFilters) => {
-    setFilters({ ...filters, ...newFilters, page: 1 });
+  const handleFilterChange = (newFilters: LocalFilters) => {
+    setFilters(newFilters);
+    console.log("Filters updated:", newFilters);
+    console.log('usersData:', usersData);
   };
 
   const handleSearch = () => {
@@ -704,7 +760,6 @@ export default function UsersPage() {
 
   const handlePageChange = (page: number) => {
     setFilters({ ...filters, page });
-    // Scroll en haut de la page
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -712,40 +767,44 @@ export default function UsersPage() {
     router.push(`/dashboard/admin/users/${user.id}`);
   };
 
-  const handleSuspend = async (data: SuspendFormData) => {
-    if (!suspendModal.user) return;
-    await suspendUser({
-      userId: suspendModal.user.id,
+  const handleBlock = async (data: BlockUserFormData) => {
+    if (!blockModal.user) return;
+    await blockUser({
+      userId: blockModal.user.id,
       data,
     });
-    setSuspendModal({ isOpen: false, user: null });
+    setBlockModal({ isOpen: false, user: null });
   };
 
-  const handleActivate = async (user: User) => {
-    if (confirm(`Êtes-vous sûr de vouloir réactiver ${user.username} ?`)) {
-      await activateUser({
-        userId: user.id,
-        data: { reason: "Reactivate user", notify_user: true },
-      });
-    }
+  const handleUnblock = async (data: UnblockFormData) => {
+    if (!unblockModal.user) return;
+    await unblockUser({
+      userId: unblockModal.user.id,
+      data,
+    });
+    setUnblockModal({ isOpen: false, user: null });
   };
 
   const handleRoleChange = async (user: User, newRole: string) => {
-    if (confirm(`Changer le rôle de ${user.username} en ${newRole} ?`)) {
-      await changeUserRole({
+    if (user.role === 'admin') {
+      alert("Impossible de changer le rôle d'un administrateur");
+      return;
+    }
+    if (confirm(`Changer le rôle de ${user.full_name} en ${newRole} ?`)) {
+      await changeRole({
         userId: user.id,
-        role: newRole,
+        data: { role: newRole as any },
       });
     }
   };
 
   const handleExport = () => {
-    if (!users?.length) return;
+    if (!usersData?.length) return;
 
-    const csv = users
+    const csv = usersData
       .map(
         (u) =>
-          `${u.id},${u.username},${u.email},${u.role},${u.is_active ? "actif" : "inactif"},${new Date(u.created_at).toLocaleDateString()}`,
+          `${u.id},${u.full_name},${u.email},${u.role},${u.is_active ? "actif" : "bloqué"},${new Date(u.created_at).toLocaleDateString()}`,
       )
       .join("\n");
 
@@ -765,7 +824,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen dark:bg-slate-950">
+    <div className="min-h-screen max-w-[70rem] dark:bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="mb-6">
@@ -793,7 +852,7 @@ export default function UsersPage() {
             </button>
             <button
               onClick={handleExport}
-              disabled={!users?.length}
+              disabled={!usersData?.length}
               className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center transition disabled:opacity-50"
             >
               <Download className="w-4 h-4 mr-2" />
@@ -803,7 +862,7 @@ export default function UsersPage() {
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Total:{" "}
             <span className="font-medium text-gray-900 dark:text-gray-200">
-              {users?.length || 0}
+              {pagination?.total || 0}
             </span>{" "}
             utilisateurs
           </div>
@@ -819,37 +878,46 @@ export default function UsersPage() {
 
         {/* Tableau */}
         <UserTable
-          users={paginatedUsers}
+          users={usersData || []}
           onView={handleViewUser}
-          onSuspend={(user) => setSuspendModal({ isOpen: true, user })}
-          onActivate={handleActivate}
+          onBlock={(user) => setBlockModal({ isOpen: true, user })}
+          onUnblock={(user) => setUnblockModal({ isOpen: true, user })}
           onRoleChange={handleRoleChange}
           loading={isLoading}
-          isActivating={isActivating}
-          isSuspending={isSuspending}
+          isBlocking={isBlocking}
+          isUnblocking={isUnblocking}
           isChangingRole={isChangingRole}
         />
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {pagination && pagination.total_pages > 1 && (
           <Pagination
-            currentPage={filters.page || 1}
-            totalPages={totalPages}
-            totalItems={users?.length || 0}
-            perPage={filters.per_page || 10}
+            currentPage={filters.page}
+            totalPages={pagination.total_pages}
+            totalItems={pagination.total}
+            perPage={filters.per_page}
             onPageChange={handlePageChange}
             isLoading={isLoading}
           />
         )}
       </div>
 
-      {/* Modal de suspension */}
-      <SuspendModal
-        isOpen={suspendModal.isOpen}
-        onClose={() => setSuspendModal({ isOpen: false, user: null })}
-        user={suspendModal.user}
-        onConfirm={handleSuspend}
-        isSuspending={isSuspending}
+      {/* Modal de blocage */}
+      <BlockModal
+        isOpen={blockModal.isOpen}
+        onClose={() => setBlockModal({ isOpen: false, user: null })}
+        user={blockModal.user}
+        onConfirm={handleBlock}
+        isBlocking={isBlocking}
+      />
+
+      {/* Modal de déblocage */}
+      <UnblockModal
+        isOpen={unblockModal.isOpen}
+        onClose={() => setUnblockModal({ isOpen: false, user: null })}
+        user={unblockModal.user}
+        onConfirm={handleUnblock}
+        isUnblocking={isUnblocking}
       />
     </div>
   );

@@ -1,58 +1,38 @@
-// src/app/api/auth/login/route.ts
+// app/api/auth/login/route.ts
+
 import { NextResponse } from "next/server";
 import { cookies } from 'next/headers';
+import { backendFetch } from "@/app/lib/server/backend";
+// app/api/auth/login/route.ts
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
 
-    // 1. Login - pas de token
-    const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+    const loginData = await backendFetch(`/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
 
-    const loginData = await loginResponse.json();
-    console.log('📦 Login data:', loginData);
-
-    if (!loginResponse.ok) {
+    if (!loginData?.data?.token) {
       return NextResponse.json(
-        { message: loginData.message || loginData.detail || 'Erreur' },
-        { status: loginResponse.status }
-      );
-    }
-
-    // 2. Récupérer les infos utilisateur - AVEC le token
-    const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${loginData.access_token}`,
-      },
-    });
-    
-    const userData = await userResponse.json();
-    console.log('👤 User data:', userData);
-
-    if (!userResponse.ok) {
-      return NextResponse.json(
-        { message: "Erreur lors de la récupération du profil" },
+        { message: "Erreur: token manquant" },
         { status: 500 }
       );
     }
 
-    // 3. Créer la réponse avec le cookie
-    const response = NextResponse.json({ user: userData });
-
-    response.cookies.set({
+    const response = NextResponse.json(loginData);
+    const cookieStore = await cookies();
+    
+    cookieStore.set({
       name: "access_token",
-      value: loginData.access_token,
+      value: loginData.data.token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 semaine
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

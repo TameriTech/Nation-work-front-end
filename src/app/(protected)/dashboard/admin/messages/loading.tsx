@@ -115,7 +115,7 @@ export default function ConversationsLoading() {
                     </div>
                   </div>
 
-                  {/* Freelancer */}
+                  {/* provider */}
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-slate-700 rounded-full mr-3"></div>
                     <div>

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     
     const params = new URLSearchParams();
-    const filters = ['role', 'status', 'search', 'page', 'per_page'];
+    const filters = ['role', 'is_active', 'search', 'page', 'per_page'];
     
     filters.forEach(filter => {
       const value = searchParams.get(filter);

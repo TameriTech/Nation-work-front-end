@@ -10,7 +10,7 @@ export async function POST(
     const { transactionId } = await params;
     const body = await req.json();
 
-    const data = await backendFetch(`/admin/payments/transactions/${transactionId}/refund`, {
+    const data = await backendFetch(`/payments/admin/transactions/${transactionId}/refund`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

@@ -32,7 +32,7 @@ const job = {
   accepted_amount: 450,
   status: "published" as ServiceStatus,
   client_id: 101,
-  assigned_freelancer_id: 201,
+  assigned_provider_id: 201,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   client: {
@@ -53,7 +53,7 @@ const job = {
   provider: {
     name: "John Freelance",
     email: "john.freelance@example.com",
-    role: "freelancer",
+    role: "provider",
     avatar: "https://randomuser.me/api/portraits/men/45.jpg",
   } as User,
 };

@@ -58,7 +58,7 @@ interface ActivityLog {
   user_id: number;
   user_name: string;
   user_email: string;
-  user_role: "client" | "freelancer" | "admin";
+  user_role: "client" | "provider" | "admin";
   user_avatar?: string;
   action: string;
   category:
@@ -907,7 +907,7 @@ export default function ActivityLogsPage() {
         user_id: 2,
         user_name: "Marie Martin",
         user_email: "marie.martin@email.com",
-        user_role: "freelancer",
+        user_role: "provider",
         action: "Service créé",
         category: "service",
         description: "Création d'un nouveau service de développement web",
@@ -966,7 +966,7 @@ export default function ActivityLogsPage() {
         user_id: 2,
         user_name: "Marie Martin",
         user_email: "marie.martin@email.com",
-        user_role: "freelancer",
+        user_role: "provider",
         action: "Message envoyé",
         category: "message",
         description: "Nouveau message dans la conversation #78",

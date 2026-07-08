@@ -45,7 +45,7 @@ interface PlatformFee {
   name: string;
   type: "percentage" | "fixed";
   value: number;
-  apply_to: "all" | "client" | "freelancer" | "both";
+  apply_to: "all" | "client" | "provider" | "both";
   min_amount?: number;
   max_amount?: number;
   is_active: boolean;
@@ -205,14 +205,14 @@ const PlatformFeesSection = () => {
       },
       {
         id: 3,
-        name: "Commission freelancer pro",
+        name: "Commission provider pro",
         type: "percentage",
         value: 8,
-        apply_to: "freelancer",
+        apply_to: "provider",
         max_amount: 100,
         is_active: false,
         priority: 3,
-        description: "Commission réduite pour les freelancers certifiés",
+        description: "Commission réduite pour les providers certifiés",
         created_at: "2024-01-01T00:00:00Z",
       },
     ];
@@ -335,7 +335,7 @@ const PlatformFeesSection = () => {
                       <span className="ml-1 font-medium text-gray-900 dark:text-gray-100">
                         {fee.apply_to === "both" && "Les deux"}
                         {fee.apply_to === "client" && "Client"}
-                        {fee.apply_to === "freelancer" && "Freelancer"}
+                        {fee.apply_to === "provider" && "provider"}
                       </span>
                     </div>
                     {fee.min_amount && (
@@ -517,9 +517,9 @@ const FeeForm = ({
               }
               className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             >
-              <option value="both">Client et Freelancer</option>
+              <option value="both">Client et provider</option>
               <option value="client">Client uniquement</option>
-              <option value="freelancer">Freelancer uniquement</option>
+              <option value="provider">provider uniquement</option>
             </select>
           </div>
 
@@ -651,7 +651,7 @@ const EmailTemplatesSection = () => {
           "<h1>Bonjour {{client_name}},</h1><p>Votre service {{service_title}} a été confirmé...</p>",
         type: "transactional",
         event: "service_confirmed",
-        variables: ["client_name", "service_title", "freelancer_name"],
+        variables: ["client_name", "service_title", "provider_name"],
         is_active: true,
         is_default: true,
         last_modified: "2024-01-01T00:00:00Z",
@@ -664,7 +664,7 @@ const EmailTemplatesSection = () => {
         content: "<h1>Alerte litige</h1><p>Un litige a été ouvert...</p>",
         type: "alert",
         event: "dispute_opened",
-        variables: ["service_id", "client_name", "freelancer_name", "reason"],
+        variables: ["service_id", "client_name", "provider_name", "reason"],
         is_active: true,
         is_default: false,
         last_modified: "2024-01-02T00:00:00Z",
@@ -980,7 +980,7 @@ const TemplateForm = ({
           </label>
           <div className="p-3 bg-gray-100 dark:bg-slate-800 rounded-lg">
             <code className="text-sm text-gray-700 dark:text-gray-300">
-              {/* {name}, {email}, {service_title}, {client_name}, {freelancer_name} */}
+              {/* {name}, {email}, {service_title}, {client_name}, {provider_name} */}
             </code>
           </div>
         </div>

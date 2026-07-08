@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { userId } = await params;
 
-    const data = await backendFetch(`/payments/admin/user/${userId}`);
+    const data = await backendFetch(`/payments/admin/user/${userId}/payments`);
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error);

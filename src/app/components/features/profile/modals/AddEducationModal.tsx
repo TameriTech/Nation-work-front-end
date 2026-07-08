@@ -3,11 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  createEducationSchema,
-  updateEducationSchema,
+  EducationCreateSchema,
+  UpdateEducationSchema,
   type CreateEducationFormData,
   type UpdateEducationFormData,
-} from "@/app/lib/validators/experience.validator";
+} from "@/app/lib/validators/education.validator"; // Correction: utiliser education.validator
 import { Button } from "@/app/components/ui/button";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { Education } from "@/app/types";
+import type { EducationOut } from "@/app/types";
 
 interface AddEducationModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ interface AddEducationModalProps {
   onSave: (
     data: CreateEducationFormData | UpdateEducationFormData,
   ) => Promise<void>;
-  initialData?: Education;
+  initialData?: EducationOut;
   isLoading?: boolean;
 }
 
@@ -42,7 +42,7 @@ export function AddEducationModal({
   const isEditMode = !!initialData;
 
   // Choisir le schéma approprié selon le mode
-  const schema = isEditMode ? updateEducationSchema : createEducationSchema;
+  const schema = isEditMode ? UpdateEducationSchema : EducationCreateSchema;
 
   const {
     register,
@@ -65,14 +65,14 @@ export function AddEducationModal({
           grade: initialData.grade || "",
         }
       : {
-          school: "",
-          degree: "",
-          field_of_study: "",
-          description: "",
-          start_date: "",
+          school: "Universite de Yaounde I",
+          degree: "Licence",
+          field_of_study: "Computer Science",
+          description: "Formation en informatique à l'Université de Yaoundé I",
+          start_date: "2020-06-01",
           end_date: "",
           is_current: false,
-          grade: "",
+          grade: "Très Bien",
         },
   });
 

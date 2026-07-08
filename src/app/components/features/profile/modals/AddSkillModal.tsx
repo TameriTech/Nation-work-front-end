@@ -20,24 +20,20 @@ import {
 } from "@/app/components/ui/select";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
-import { Skill } from "@/app/types";
+import type { SkillOut } from "@/app/types";
 import {
-  skillSchema,
-  type SkillFormData,
+  providerSkillCreateSchema,
+  type providerSkillCreateFormData,
 } from "@/app/lib/validators/skill.validator";
 
 interface AddSkillModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (
-    skillId: number,
-    skillType: string,
-    proficiency: number,
-  ) => Promise<void>;
-  availableSkills: Skill[];
+  onSave: (data: providerSkillCreateFormData) => Promise<void>;
+  availableSkills: SkillOut[];
   initialData?: {
     skillId?: number;
-    skillType?: string;
+    skillType?: "primary" | "secondary" | "other";
     proficiency?: number;
   };
   isEditing?: boolean;
@@ -60,13 +56,12 @@ export function AddSkillModal({
     watch,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<SkillFormData>({
-    resolver: zodResolver(skillSchema),
+  } = useForm<providerSkillCreateFormData>({
+    resolver: zodResolver(providerSkillCreateSchema),
     defaultValues: {
       skill_id: initialData?.skillId || 0,
       skill_type:
-        (initialData?.skillType as "primary" | "secondary" | "other") ||
-        "primary",
+        initialData?.skillType || "primary",
       proficiency_level: initialData?.proficiency || 3,
     },
   });
@@ -80,20 +75,18 @@ export function AddSkillModal({
     if (isOpen) {
       reset({
         skill_id: initialData?.skillId || 0,
-        skill_type:
-          (initialData?.skillType as "primary" | "secondary" | "other") ||
-          "primary",
+        skill_type: initialData?.skillType || "primary",
         proficiency_level: initialData?.proficiency || 3,
       });
     }
   }, [isOpen, initialData, reset]);
 
-  const onSubmit = async (data: SkillFormData) => {
+  const onSubmit = async (data: providerSkillCreateFormData) => {
     if (!data.skill_id) return;
 
     setLoading(true);
     try {
-      await onSave(data.skill_id, data.skill_type, data.proficiency_level);
+      await onSave(data);
       reset();
       onClose();
     } catch (error) {
@@ -107,9 +100,6 @@ export function AddSkillModal({
     reset();
     onClose();
   };
-
-  // Filtrer les compétences déjà ajoutées (optionnel)
-  const filteredSkills = availableSkills;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -132,7 +122,7 @@ export function AddSkillModal({
                 <SelectValue placeholder="Sélectionnez une compétence" />
               </SelectTrigger>
               <SelectContent>
-                {filteredSkills.map((skill) => (
+                {availableSkills.map((skill) => (
                   <SelectItem key={skill.id} value={skill.id.toString()}>
                     {skill.name}
                   </SelectItem>

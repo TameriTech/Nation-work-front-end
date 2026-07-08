@@ -1,12 +1,13 @@
 // components/features/profile/tabs/CompetencesTabContent.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
 import { Icon } from "@iconify/react";
-import { useSkills } from "@/app/hooks/profile/use-skills";
+import { useSkills } from "@/app/hooks/provider-profile/use-skills"; // Correction import
 import { AddSkillModal } from "../modals/AddSkillModal";
-import { Skill, FreelancerSkill } from "@/app/types";
+import type { providerSkillOut, SkillOut } from "@/app/types";
+import type { providerSkillCreateFormData, providerSkillUpdateFormData } from "@/app/lib/validators/skill.validator";
 
 export default function CompetencesTabContent() {
   const {
@@ -21,31 +22,36 @@ export default function CompetencesTabContent() {
   } = useSkills();
 
   const [showAddSkillModal, setShowAddSkillModal] = useState(false);
-  const [editingSkill, setEditingSkill] = useState<FreelancerSkill | null>(
+  const [editingSkill, setEditingSkill] = useState<providerSkillOut | null>(
     null,
   );
 
   const { primary, secondary, other } = getSkillsByType();
   const availableSkills = getAvailableSkills();
 
-  const handleAddSkill = async (
-    skillId: number,
-    skillType: string,
-    proficiency: number,
-  ) => {
+  const handleAddSkill = async (data: providerSkillCreateFormData | providerSkillUpdateFormData) => {
     if (editingSkill) {
       await updateSkill({
-        skillId: editingSkill.id,
-        type: skillType,
-        proficiency,
+        skillId: editingSkill.skill.id,
+        data: {
+          skill_type: data.skill_type,
+          proficiency_level: data.proficiency_level,
+          years_experience: data.years_experience,
+        },
       });
       setEditingSkill(null);
     } else {
-      await addSkill({ skillId, type: skillType, proficiency });
+      await addSkill({
+        skill_id: data.skill_id as number,
+        skill_type: data.skill_type as "primary" | "secondary" | "other",
+        proficiency_level: data.proficiency_level as number,
+        years_experience: data.years_experience || undefined,
+        is_verified: false,
+      });
     }
   };
 
-  const handleEditSkill = (skill: FreelancerSkill) => {
+  const handleEditSkill = (skill: providerSkillOut) => {
     setEditingSkill(skill);
     setShowAddSkillModal(true);
   };
@@ -118,7 +124,7 @@ export default function CompetencesTabContent() {
         initialData={
           editingSkill
             ? {
-                skillId: editingSkill.skill_id,
+                skillId: editingSkill.skill.id,
                 skillType: editingSkill.skill_type,
                 proficiency: editingSkill.proficiency_level,
               }
@@ -156,7 +162,7 @@ function SkillsSection({ title, skills, onAdd, onEdit, onDelete }: any) {
             Aucune compétence ajoutée
           </p>
         ) : (
-          skills.map((skill: FreelancerSkill, index: number) => (
+          skills.map((skill: providerSkillOut, index: number) => (
             <SkillItem
               key={skill.id}
               skill={skill}
@@ -173,14 +179,13 @@ function SkillsSection({ title, skills, onAdd, onEdit, onDelete }: any) {
 
 function SkillItem({ skill, onEdit, onDelete, isLast }: any) {
   const getProficiencyLabel = (level: number) => {
-    const labels = [
-      "",
-      "Débutant",
-      "Intermédiaire",
-      "Avancé",
-      "Expert",
-      "Expert+",
-    ];
+    const labels: Record<number, string> = {
+      1: "Débutant",
+      2: "Intermédiaire",
+      3: "Avancé",
+      4: "Expert",
+      5: "Expert+",
+    };
     return labels[level] || `Niveau ${level}`;
   };
 
@@ -217,6 +222,11 @@ function SkillItem({ skill, onEdit, onDelete, isLast }: any) {
                     ? "Secondaire"
                     : "Autre"}
               </span>
+              {skill.is_verified && (
+                <span className="px-2 py-0.5 text-xs rounded-full bg-green-50 text-green-700">
+                  Vérifiée
+                </span>
+              )}
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     
     const params = new URLSearchParams();
-    const filters = ['status', 'freelancer_id', 'date_from', 'date_to', 'page', 'per_page'];
+    const filters = ['status', 'provider_id', 'date_from', 'date_to', 'page', 'per_page'];
     
     filters.forEach(filter => {
       const value = searchParams.get(filter);

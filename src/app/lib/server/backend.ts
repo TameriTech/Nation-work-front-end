@@ -1,7 +1,7 @@
 // lib/server/backend.ts
 import { cookies } from 'next/headers';
 
-const API_BASE_URL = /*process.env.API_BASE_URL || */'http://0.0.0.0:8000';
+const API_BASE_URL = /*process.env.API_BASE_URL || */'http://0.0.0.0:8000/api/v1';
 
 export class BackendError extends Error {
   status: number;
@@ -25,11 +25,9 @@ export async function backendFetch<T = any>(
   const cookieStore = await cookies();
   const token = cookieStore.get('access_token')?.value;
 
-  const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+  const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api/v1';
   const url = `${API_BASE_URL}${endpoint}`;
   
-  console.log(`🌐 ${options.method || 'GET'} ${url}`);
-  console.log(`🔑 Token: ${token ? 'présent' : 'absent'}`);
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -38,7 +36,6 @@ export async function backendFetch<T = any>(
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
-    console.log('✅ Token ajouté aux headers');
   }
 
   try {
@@ -47,7 +44,6 @@ export async function backendFetch<T = any>(
       headers,
     });
 
-    console.log(`📡 Status: ${response.status}`);
 
     if (!response.ok) {
       let errorData;
@@ -63,9 +59,11 @@ export async function backendFetch<T = any>(
         errorData.field
       );
     }
+
+    if (response.status === 204) return null as T;
+
     return response.json();
   } catch (error) {
-    console.error('💥 Erreur backendFetch:', error);
     throw error;
   }
 }

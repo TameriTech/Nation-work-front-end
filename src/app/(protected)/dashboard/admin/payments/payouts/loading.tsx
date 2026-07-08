@@ -108,7 +108,7 @@ export default function PayoutsLoading() {
                 <tr>
                   {[
                     "ID Reversement",
-                    "Freelancer",
+                    "provider",
                     "Montant",
                     "Méthode",
                     "Statut",
@@ -144,7 +144,7 @@ export default function PayoutsLoading() {
                       <div className="h-3 w-20 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
                     </td>
 
-                    {/* Freelancer */}
+                    {/* provider */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 mr-3 animate-pulse"></div>

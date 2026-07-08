@@ -5,7 +5,7 @@ import type {
   RevenueData,
   ServicesByCategory,
   ServicesByStatus,
-  TopFreelancer,
+  Topprovider,
   ActivityData,
   GeographicDistribution,
   PerformanceMetrics,
@@ -109,29 +109,29 @@ export async function getServicesByStatus(filters?: ReportFilters): Promise<Serv
   }
 }
 
-// ==================== TOP FREELANCERS ====================
+// ==================== TOP providerS ====================
 
 /**
- * Récupère le classement des freelancers
+ * Récupère le classement des providers
  */
-export async function getTopFreelancers(
+export async function getTopproviders(
   limit: number = 10,
   filters?: ReportFilters
-): Promise<TopFreelancer[]> {
+): Promise<Topprovider[]> {
   try {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (filters?.dateRange?.startDate) params.append("startDate", filters.dateRange.startDate);
     if (filters?.dateRange?.endDate) params.append("endDate", filters.dateRange.endDate);
     if (filters?.category) params.append("category", filters.category);
 
-    const res = await fetch(`/api/admin/reports/top-freelancers?${params.toString()}`, {
+    const res = await fetch(`/api/admin/reports/top-providers?${params.toString()}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
 
-    return await handleResponse<TopFreelancer[]>(res);
+    return await handleResponse<Topprovider[]>(res);
   } catch (error) {
-    console.error("Erreur getTopFreelancers:", error);
+    console.error("Erreur getTopproviders:", error);
     throw error;
   }
 }
@@ -216,7 +216,7 @@ export async function getPerformanceMetrics(filters?: ReportFilters): Promise<Pe
  */
 export async function exportReport(
   format: "pdf" | "csv" | "excel",
-  type: "revenue" | "services" | "freelancers" | "full",
+  type: "revenue" | "services" | "providers" | "full",
   filters?: ReportFilters
 ): Promise<Blob> {
   try {
@@ -259,7 +259,7 @@ export async function exportReport(
  */
 export async function exportReportV2(
   format: "pdf" | "csv" | "excel",
-  type: "revenue" | "services" | "freelancers" | "full",
+  type: "revenue" | "services" | "providers" | "full",
   filters?: ReportFilters
 ): Promise<Blob> {
   try {

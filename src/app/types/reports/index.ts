@@ -4,7 +4,7 @@ import { DateRange } from "../auth/user";
 // TYPES POUR LES RAPPORTS
 // ============================================================================
 
-export interface TopFreelancer {
+export interface Topprovider {
   id: number;
   name: string;
   avatar?: string;
@@ -18,7 +18,7 @@ export interface ReportStats {
   total_revenue: number;
   total_services: number;
   total_users: number;
-  total_freelancers: number;
+  total_providers: number;
   average_rating: number;
   completion_rate: number;
   response_rate: number;
@@ -27,7 +27,7 @@ export interface ReportStats {
     revenue: number;
     services: number;
     users: number;
-    freelancers: number;
+    providers: number;
   };
 }
 
@@ -79,5 +79,5 @@ export interface ReportFilters {
   dateRange: DateRange;
   category?: string;
   city?: string;
-  freelancer_id?: number;
+  provider_id?: number;
 }
